@@ -1,0 +1,81 @@
+.fade-enter-active, .fade-leave-active { transition: opacity .5s; }
+
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ { opacity: 0; }
+
+.file-view { position: fixed; top: 0; left: 0; background: rgba(0,0,0,0.3); width: 100%; height: 100%; overflow: hidden; z-index: 9999; font-size: 12px; }
+
+  .file-view .file-container { display: block; position: absolute; top: 40%; left: 50%; -webkit-transform: translate(-50%,-50%); -moz-transform: translate(-50%,-50%); -ms-transform: translate(-50%,-50%); -o-transform: translate(-50%,-50%); transform: translate(-50%,-50%); border: 1px solid #9c9c9c; box-shadow: 0 1px 10px 3px #9c9c9c; background-color: #fff; width: 70%; height: 90%; max-width: 1200px; max-height: 640px; }
+
+    .file-view .file-container file { cursor: pointer; width: 100%; }
+
+/*工具栏*/
+
+.file-toolbar { background-color: #9ed4e0; height: 120px; width: 100%; color: #333; position: relative; padding: 20px; cursor: pointer; }
+
+.file-close-bar { position: absolute; font-size: 16px; background-color: rgba(0,0,0,.3); color: #fff; right: 0; top: 0; width: 30px; height: 30px; text-align: center; cursor: pointer; padding: 5px; border: 1px solid #9ed4e0; border-radius: 2px; line-height: 1; }
+.file-menu > dd { display: inline-block; margin: 5px; vertical-align: top; }
+
+  .file-menu > dd > a, .file-menu > dd > label { padding: 10px; color: #0094ff; background-color: #fff; border: 1px solid #fff; box-shadow: 0 1px 3px #9c9c9c; border-radius: 4px; width: 48px; height: 48px; text-align: center; line-height: 1px; font-size: 24px; display: inline-block; cursor: pointer; }
+
+    .file-menu > dd > a:hover, .file-menu > dd > a:focus, .file-menu > dd > a.active,
+    .file-menu > dd > label:hover, .file-menu > dd > label:focus, .file-menu > dd > label.active { background-color: #e9ecef; box-shadow: 0 1px 5px #9c9c9c; }
+
+.file-content { height: calc(100% - 120px); margin: 0 !important; }
+
+.file-folder-container { background-color: #e9ecef; height: 100%; padding-top: 15px; }
+/*右侧文件列表*/
+.file-list { padding: 10px; overflow: hidden; height: 100%; }
+
+  .file-list > h6 { padding-bottom: 10px; border-bottom: 1px solid #ccc; font-size: 14px; }
+
+  .file-list > dl { display: flex; flex-direction: row; justify-content: flex-start; flex-wrap: wrap; align-items: center; }
+
+  .file-list dd { display: inline-block; margin: 10px 4px; vertical-align: top; cursor: pointer; }
+
+    .file-list dd.active > p { background-color: #e9ecef; border: 1px solid #9ad1dc; }
+
+    .file-list dd > p { width: 128px; height: 128px; border: 1px solid #ccc; margin-bottom: 5px; text-align: center; display: flex; align-items: center; justify-content: center; }
+
+      .file-list dd > p > img { display: inline-block; max-height: 126px; max-width: 126px; }
+
+      .file-list dd > p > i { display: inline-block; font-size: 72px; line-height: 126px; color: #9ad1dc; }
+
+    .file-list dd > span { display: block; text-align: center; overflow: hidden; width: 126px; /*height: 18px;*/ padding: 2px 5px; border-radius: 20px; }
+    .file-list dd.active > span { background-color: #0094ff; color: #fff; }
+/*左侧文件夹列表*/
+.file-folder { padding-left: 0; margin: 0; list-style: none; }
+
+  .file-folder > li { margin: 2px 0; padding-left: 15px; position: relative; overflow: hidden; }
+
+    .file-folder > li > a { padding: 5px; display: block; cursor: pointer; border-radius: 2px; position: relative; }
+
+      .file-folder > li > a:hover, .file-folder > li > a.active { background-color: #9ad1dc; }
+
+    .file-folder > li > i { cursor: pointer; padding: 5px; display: block; position: absolute; left: 0; top: 9px; line-height: 1px; transition: transform 0.2s ease-out; }
+
+      .file-folder > li > i:hover { color: #0094ff; }
+
+    .file-folder > li.active > i { transition: transform 0.2s ease-in; color: #0094ff; transform: rotate(90deg); }
+
+
+    .file-folder > li > ul { overflow-y: hidden; max-height: 0; transition: max-height 0.2s ease-out; }
+
+    .file-folder > li.active > ul { max-height: 400px; transition: max-height 0.2s ease-in; }
+
+/*右键菜单定义*/
+.ctx-menu { padding: 5px; }
+
+  .ctx-menu li { padding: 5px; cursor: pointer; }
+
+    .ctx-menu li > i { display: inline-block; }
+
+    .ctx-menu li:hover { color: #fff; background-color: #0094ff; }
+
+  .ctx-menu > .disabled { color: #999; }
+
+/*地址栏*/
+.breadcrumb-item:not(.active) { color: cornflowerblue; cursor: pointer; }
+  .breadcrumb-item:not(.active):hover { color: blue; text-decoration: underline; }
+
+/*进度条*/
+.progress-container { display: flex; position: absolute; z-index: 2; top: 50%; left: 50%; -webkit-transform: translate(-50%,-50%); -moz-transform: translate(-50%,-50%); -ms-transform: translate(-50%,-50%); -o-transform: translate(-50%,-50%); transform: translate(-50%,-50%); border: 1px solid #9c9c9c; box-shadow: 0 1px 10px 3px #9c9c9c; background-color: rgba(0,0,0,.7); width: 50%; height: 20%; align-items: center; flex-direction: column; justify-content: center; color: #fff; border-radius: 4px; }
