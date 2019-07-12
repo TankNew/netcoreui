@@ -1,8 +1,19 @@
 define(function () {
   'use strict'
 
-  //var HttpUrl = 'http://kefu.ednet.cn'  //var wsUrl = 'kefu.ednet.cn:4502'  //var wssUrl = 'kefu.ednet.cn:4503'  var HttpUrl = 'https://localhost:44330'  var wsUrl = 'localhost:4502'  var wssUrl = 'localhost:4503'
-  var fileUrl = HttpUrl + '/api/File/getallfiles'  var fileCreatefolder = HttpUrl + '/api/File/createfolder'  var filedeletefolder = HttpUrl + '/api/File/deletefolder'  var fileUpload = HttpUrl + '/api/File/uploadlargefiles'  var fileDelete = HttpUrl + '/api/File/deletefile'  var tokenUrl = HttpUrl + '/api/token'
+  //var HttpUrl = 'http://kefu.ednet.cn'
+  //var wsUrl = 'kefu.ednet.cn:4502'
+  //var wssUrl = 'kefu.ednet.cn:4503'
+  var HttpUrl = 'https://localhost:44330'
+  var wsUrl = 'localhost:4502'
+  var wssUrl = 'localhost:4503'
+
+  var fileUrl = HttpUrl + '/api/File/getallfiles'
+  var fileCreatefolder = HttpUrl + '/api/File/createfolder'
+  var filedeletefolder = HttpUrl + '/api/File/deletefolder'
+  var fileUpload = HttpUrl + '/api/File/uploadlargefiles'
+  var fileDelete = HttpUrl + '/api/File/deletefile'
+  var tokenUrl = HttpUrl + '/api/token'
 
 
   //转换日期
@@ -252,14 +263,20 @@ define(function () {
         { title: '新闻模板', description: '适用于一般新闻使用', url: '../template/tmp.html' }
       ]
     })
-  }  var removeMce = function (val) {
+  }
+  var removeMce = function (val) {
     //tinymce.activeEditor.remove()
-    if (tinymce.get(val) != null)      tinymce.get(val).remove()    //tinymce.get(val).destroy()    //tinymce.execCommand('mceRemoveEditor', true, val)
+    if (tinymce.get(val) != null)
+      tinymce.get(val).remove()
+    //tinymce.get(val).destroy()
+    //tinymce.execCommand('mceRemoveEditor', true, val)
   }
   var addMce = function (val) {
     tinymce.execCommand('mceAddControl', true, val)
   }
-  // 暴露公共方法  return {
+
+  // 暴露公共方法
+  return {
     HttpUrl: HttpUrl,
     fileUrl: fileUrl,
     fileCreatefolder: fileCreatefolder,

@@ -45,7 +45,7 @@ export default {
   },
   actions: {
     userLogin(context, { UserName, UserPass, IsLocal, Rurl }) {
-      let url = tools.tokenUrl
+      let url = tools.tokenUrl + '/token'
 
       var postdata = {
         grant_type: 'password',
@@ -72,7 +72,7 @@ export default {
     },
     //在这里尝试用refresh token刷新用户token，如果refresh_token已经过期，则不跳转，不弹出错误
     tokenLogin(context, { IsLocal }) {
-      let url = tools.tokenUrl
+      let url = tools.tokenUrl + '/token'
       var postdata = {
         grant_type: 'refresh_token',
         islocal: IsLocal,
