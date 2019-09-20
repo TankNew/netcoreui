@@ -15,7 +15,6 @@ define(function () {
   var fileDelete = HttpUrl + '/api/File/deletefile'
   var tokenUrl = HttpUrl + '/api/token'
 
-
   //转换日期
   var date = function (dateObject) {
     if (dateObject !== null) {

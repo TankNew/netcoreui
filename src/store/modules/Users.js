@@ -45,7 +45,7 @@ export default {
   },
   actions: {
     userLogin(context, { UserName, UserPass, IsLocal, Rurl }) {
-      let url = tools.tokenUrl + '/token'
+      let url = tools.tokenUrl + '/get'
 
       var postdata = {
         grant_type: 'password',
