@@ -4,7 +4,7 @@ define(function () {
   //var HttpUrl = 'http://kefu.ednet.cn'
   //var wsUrl = 'kefu.ednet.cn:4502'
   //var wssUrl = 'kefu.ednet.cn:4503'
-  var HttpUrl = 'https://localhost:44330'
+  var HttpUrl = 'http://localhost:5000'
   var wsUrl = 'localhost:4502'
   var wssUrl = 'localhost:4503'
 
