@@ -12,19 +12,19 @@
         <div class="form-group" v-if="!hasUser">
           <label for="inputEmail3" class="control-label">用户名</label>
           <div>
-            <input type="text" :class="['form-control',errors.has('用户名')?'is-invalid':'']" id="inputEmail3" name="用户名" placeholder="用户名" v-model="UserModel.UserName" v-validate="'required|min:4'">
+            <input type="text" :class="['form-control',errors.has('用户名')?'is-invalid':'']" id="inputEmail3" name="用户名" placeholder="用户名" v-model="UserModel.UserName" v-validate="'required|min:4'" />
           </div>
         </div>
         <div class="form-group">
           <label for="inputPassword3" class="control-label">密 码</label>
           <div>
-            <input type="password" :class="['form-control',errors.has('密码')?'is-invalid':'']" id="inputPassword3" name="密码" placeholder="密码" v-model="UserModel.UserPass" v-validate="'required|min:6'">
+            <input type="password" :class="['form-control',errors.has('密码')?'is-invalid':'']" id="inputPassword3" name="密码" placeholder="密码" v-model="UserModel.UserPass" v-validate="'required|min:6'" />
           </div>
         </div>
         <div class="form-group text-right">
           <div class="checkbox">
             <label>
-              <input type="checkbox" v-model="rememberPassword"> Remember me
+              <input type="checkbox" v-model="rememberPassword" /> Remember me
             </label>
           </div>
         </div>
@@ -40,75 +40,136 @@
   </div>
 </template>
 <script>
-  import swal from 'sweetalert'
-  import jwtDecode from 'jwt-decode'
-  import Loading from './custom/loading'
-  export default {
-    data() {
-      return {
-        isLoading: false,
-        UserModel: {
-          UserName: '',
-          UserPass: '',
-          UserHead: ''
-        },
-        hasUser: false,
-        rememberPassword: false
-      }
-    },
-    components: {
-      'Loading': Loading
-    },
-    methods: {
-      changeUser() {
-        //注销本地用户
-        this.$store.commit('logout')
-        this.hasUser = false
+import uuid from 'uuid'
+import jwtDecode from 'jwt-decode'
+import { userLogin } from '../utiltools/lock'
+import swal from 'sweetalert'
+import Loading from './custom/loading'
+export default {
+  data() {
+    return {
+      isLoading: false,
+      UserModel: {
+        UserName: '',
+        UserPass: '',
+        UserHead: ''
       },
-      login() {
-        var that = this
-        var Rurl = that.$route.query.Rurl
-        that.isLoading = true
-        that.$validator.validateAll().then((result) => {
+      hasUser: false,
+      rememberPassword: false
+    }
+  },
+  components: {
+    Loading: Loading
+  },
+  methods: {
+    changeUser() {
+      //注销本地用户
+      this.$store.commit('logout')
+      this.hasUser = false
+    },
+    login() {
+      var that = this
+      var Rurl = that.$route.query.Rurl
+      that.macAddress = uuid.v4()
+      that.isLoading = true
+      that.$validator
+        .validateAll()
+        .then(result => {
           if (result) {
             that.isLoading = false
-            that.$store.dispatch('userLogin', { 'UserName': that.UserModel.UserName, 'UserPass': that.UserModel.UserPass, 'IsLocal': that.rememberPassword, 'Rurl': Rurl })
-          }
-          else
+            userLogin({
+              userNameOrEmailAddress: that.UserModel.UserName,
+              password: that.UserModel.UserPass,
+              macAddress: that.macAddress,
+              rememberClient: that.rememberPassword,
+              Rurl: Rurl
+            })
+
+            setTimeout(() => {
+              that.UserModel.UserPass = ''
+            }, 50)
+          } else
             swal({
               title: '用户名不存在或者密码错误',
               icon: 'error'
             })
-        }).catch((failure) => {
+        })
+        .catch(failure => {
           console.log(failure)
         })
-      }
-    },
-    mounted: function () {
-      if (this.$store.state.Users.currentUser.UserSign !== null) {
-        this.hasUser = true
+    }
+  },
+  mounted: function() {
+    if (this.$store.getters.token !== null) {
+      this.hasUser = true
 
-        var decoded = jwtDecode(this.$store.state.Users.currentUser.UserSign)
-        console.log(decoded)
+      var decoded = jwtDecode(this.$store.getters.token.AccessToken)
+      console.log(decoded)
 
-        this.UserModel.UserName = decoded.unique_name
-        this.UserModel.UserHead = 'static/imgs/128.png'
-      }
+      this.UserModel.UserId = decoded.sub
+      this.UserModel.UserHead = 'static/imgs/128.png'
     }
   }
+}
 </script>
 <style scoped>
-  .form-control.is-invalid { box-shadow: 0 0 0.8rem 0.2rem rgba(220, 53, 69, 0.35); }
+.form-control.is-invalid {
+  box-shadow: 0 0 0.8rem 0.2rem rgba(220, 53, 69, 0.35);
+}
 
-  hr { border: none; border-bottom: 1px solid #fff; }
+hr {
+  border: none;
+  border-bottom: 1px solid #fff;
+}
 
-  .error { margin-top: 10px; display: inline-block; }
+.error {
+  margin-top: 10px;
+  display: inline-block;
+}
 
-  .control-label { font-size: 16px; }
+.control-label {
+  font-size: 16px;
+}
 
-  .login-logo { display: block; width: 120px; margin-bottom: 20px; }
+.login-logo {
+  display: block;
+  width: 120px;
+  margin-bottom: 20px;
+}
 
-  .login-panel { color: #FFF; padding: 40px; width: 480px; max-height: 600px; position: fixed; background: rgba(0,0,0,0.3); left: 50%; top: 40%; border-radius: 8px; z-index: 2; box-shadow: 0 0 5px 0 rgba(255,255,255,0.7); -webkit-transform: translate(-50%,-50%); -moz-transform: translate(-50%,-50%); -ms-transform: translate(-50%,-50%); -o-transform: translate(-50%,-50%); transform: translate(-50%,-50%); }
+.login-panel {
+  color: #fff;
+  padding: 40px;
+  width: 480px;
+  max-height: 600px;
+  position: fixed;
+  background: rgba(0, 0, 0, 0.3);
+  left: 50%;
+  top: 40%;
+  border-radius: 8px;
+  z-index: 2;
+  box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.7);
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
 
-  .login-bg { height: 100%; background-color: #ffffff; background-image: url("../assets/img/overlay.png"), -moz-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409EFF), url("../assets/img/bg.jpg"); background-image: url("../assets/img/overlay.png"), -webkit-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409EFF), url("../assets/img/bg.jpg"); background-image: url("../assets/img/overlay.png"), -ms-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409EFF), url("../assets/img/bg.jpg"); background-image: url("../assets/img/overlay1.png"), linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409EFF), url("../assets/img/bg.jpg"); background-repeat: repeat, no-repeat, no-repeat; background-size: 100px 100px, cover, cover; background-position: top left, center center, bottom center; background-attachment: fixed, fixed, fixed; }
+.login-bg {
+  height: 100%;
+  background-color: #ffffff;
+  background-image: url('../assets/img/overlay.png'), -moz-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
+    url('../assets/img/bg.jpg');
+  background-image: url('../assets/img/overlay.png'),
+    -webkit-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff), url('../assets/img/bg.jpg');
+  background-image: url('../assets/img/overlay.png'), -ms-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
+    url('../assets/img/bg.jpg');
+  background-image: url('../assets/img/overlay1.png'), linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
+    url('../assets/img/bg.jpg');
+  background-repeat: repeat, no-repeat, no-repeat;
+  background-size: 100px 100px, cover, cover;
+  background-position: top left, center center, bottom center;
+  background-attachment: fixed, fixed, fixed;
+}
 </style>

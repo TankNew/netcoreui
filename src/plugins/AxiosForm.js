@@ -1,5 +1,6 @@
 import axios from 'axios'
 import store from '../store'
+import Vue from 'vue'
 
 export const AxiosForm = axios.create({
   timeout: 5000,
@@ -14,15 +15,19 @@ export const AxiosForm = axios.create({
 AxiosForm.interceptors.request.use(
   config => {
     //添加token
-    if (store.state.Users.currentUser.UserSign) {
-      config.headers.Authorization = 'bearer ' + store.state.Users.currentUser.UserSign
+    if (store.getters.token) {
+      config.headers.Authorization = 'bearer ' + store.getters.token.AccessToken
     }
     return config
-  }, function (error) {
+  },
+  function(error) {
     return Promise.reject(error)
-  })
-export default {
+  }
+)
+const AxiosFormProperty = {
   install(Vue) {
     Object.defineProperty(Vue.prototype, '$httpform', { value: AxiosForm })
   }
 }
+
+Vue.use(AxiosFormProperty)

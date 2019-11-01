@@ -1,11 +1,36 @@
 <style scoped>
-  .setting-container { display: flex; flex-direction: row; justify-content: space-around; flex-wrap: wrap; }
-    .setting-container > div { border: 1px solid #e9ebef; box-shadow: 0 1px 1px rgba(0,0,0,.1); padding: 20px; margin-bottom: 20px; }
-  .w-2 { width: calc(75% - 20px); height: 550px; }
-  .w-1 { width: calc(25% - 20px); height: 550px; }
-  .w-0 { width: calc(25% - 20px); height: 100px; }
-    .w-0 i { font-size: 40px; }
-  .w-33 { width: calc(33% - 20px); height: 550px; padding: 0 !important; }
+.setting-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+.setting-container > div {
+  border: 1px solid #e9ebef;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.w-2 {
+  width: calc(75% - 20px);
+  height: 550px;
+}
+.w-1 {
+  width: calc(25% - 20px);
+  height: 550px;
+}
+.w-0 {
+  width: calc(25% - 20px);
+  height: 100px;
+}
+.w-0 i {
+  font-size: 40px;
+}
+.w-33 {
+  width: calc(33% - 20px);
+  height: 550px;
+  padding: 0 !important;
+}
 </style>
 <template>
   <section class="container-fluid setting-container">
@@ -34,7 +59,10 @@
         </div>
       </div>
       <div class="clear">
-        <span class="small">文件<em class="float-right small">占比：25%</em></span>
+        <span class="small">
+          文件
+          <em class="float-right small">占比：25%</em>
+        </span>
         <div class="progress" style="height: 2px;">
           <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
@@ -48,7 +76,10 @@
         </div>
       </div>
       <div class="clear">
-        <span class="small">图片<em class="float-right small">占比：25%</em></span>
+        <span class="small">
+          图片
+          <em class="float-right small">占比：25%</em>
+        </span>
         <div class="progress" style="height: 2px;">
           <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
@@ -62,7 +93,10 @@
         </div>
       </div>
       <div class="clear">
-        <span class="small">视频<em class="float-right small">占比：25%</em></span>
+        <span class="small">
+          视频
+          <em class="float-right small">占比：25%</em>
+        </span>
         <div class="progress" style="height: 2px;">
           <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
@@ -96,69 +130,78 @@
   </section>
 </template>
 <script>
-  import LineChart from '../services/LineChart.js'
-  import PieChart from '../services/PieChart.js'
+import LineChart from '../plugins/LineChart.js'
+import PieChart from '../plugins/PieChart.js'
 
-  export default {
-    components: {
-      LineChart,
-      PieChart
-    },
-    data() {
-      return {
-        datacollection: null,
-        dataPie: null,
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            yAxes: [{
+export default {
+  components: {
+    LineChart,
+    PieChart
+  },
+  data() {
+    return {
+      datacollection: null,
+      dataPie: null,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          yAxes: [
+            {
               ticks: {
                 beginAtZero: true
               }
-            }]
-          }
-        }
-      }
-    },
-    mounted() {
-      var that = this
-      this.fillData()
-      // 开发调试
-      that.$nextTick(() => {
-        that.$emit('reloadScroll')
-      })
-    },
-    methods: {
-      fillData() {
-        this.datacollection = {
-          labels: ['9月', '10月', '11月', '12月', '9月', '10月'],
-          datasets: [
-            {
-              label: '单日最少',
-              backgroundColor: '#33CC66',
-              data: [111, 120, 111, 120, 111, 120]
-            }, {
-              label: '单日最多',
-              backgroundColor: '#6699FF',
-              data: [200, 350, 200, 350, 200, 200]
             }
           ]
         }
-        this.dataPie = {
-          labels: ['Android', 'Iphone', 'Mac', 'Windows', '其它'],
-          datasets: [
-            {
-              label: '单日最少',
-              backgroundColor: ['#33CC66', '#FF6666', '#6699FF', '#9999FF', '#FF9966'],
-              data: [1, 2, 3, 4, 5]
-            }
-          ]
-        }
-      },
-      getRandomInt() {
-        return Math.floor(Math.random() * (50 - 5 + 1)) + 5
       }
     }
+  },
+  mounted() {
+    var that = this
+    this.fillData()
+    // 开发调试
+    that.$nextTick(() => {
+      that.$emit('reloadScroll')
+    })
+  },
+  methods: {
+    fillData() {
+      this.datacollection = {
+        labels: ['9月', '10月', '11月', '12月', '9月', '10月'],
+        datasets: [
+          {
+            label: '单日最少',
+            backgroundColor: '#33CC66',
+            data: [111, 120, 111, 120, 111, 120]
+          },
+          {
+            label: '单日最多',
+            backgroundColor: '#6699FF',
+            data: [200, 350, 200, 350, 200, 200]
+          }
+        ]
+      }
+      this.dataPie = {
+        labels: ['Android', 'Iphone', 'Mac', 'Windows', '其它'],
+        datasets: [
+          {
+            label: '单日最少',
+            backgroundColor: [
+              '#33CC66',
+              '#FF6666',
+              '#6699FF',
+              '#9999FF',
+              '#FF9966'
+            ],
+            data: [1, 2, 3, 4, 5]
+          }
+        ]
+      }
+    },
+    getRandomInt() {
+      return Math.floor(Math.random() * (50 - 5 + 1)) + 5
+    }
   }
+}
 </script>

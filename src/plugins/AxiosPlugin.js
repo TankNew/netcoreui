@@ -1,11 +1,13 @@
 import axios from 'axios'
 import store from '../store'
 import tools from 'tools'
+import Vue from 'vue'
 
-export const AxiosMulti = axios.create({
+export const Axios = axios.create({
+  timeout: 5000,
   withCredentials: true,
   headers: {
-    'Content-Type': 'multipart/form-data'
+    'Content-Type': 'application/json;charset=UTF-8'
   }
 })
 window.isRefresh = false
@@ -24,12 +26,14 @@ function onRrefreshed(token) {
 }
 
 // 设置axios拦截器 cors设置
-AxiosMulti.interceptors.request.use(
+Axios.interceptors.request.use(
   config => {
     //添加token
-    if (store.state.Users.currentUser.UserSign) {
-      config.headers.Authorization = 'bearer ' + store.state.Users.currentUser.UserSign
-      var s = (store.state.Users.currentUser.ExpiresIn - tools.myTime.CurTime()) / 60
+    if (store.getters.token.AccessToken) {
+      config.headers.Authorization =
+        'bearer ' + store.getters.token.AccessToken
+      var s =
+        (store.state.Users.currentUser.ExpiresIn - tools.myTime.CurTime()) / 60
       if (s < 5) {
         if (!window.isRefresh) {
           console.log('refresh token....................')
@@ -48,16 +52,22 @@ AxiosMulti.interceptors.request.use(
               'Content-Type': 'application/json;charset=UTF-8'
             }
           }
-          axios.post(url, JSON.stringify(postdata), _config)
+          axios
+            .post(url, JSON.stringify(postdata), _config)
             .then(response => {
               window.isRefresh = false
               var json = response.data
-              store.commit('updateUser', { 'UserSign': json.access_token, 'ExpiresIn': json.expires_in, 'IsLocal': store.state.Users.currentUser.IsLocal })
+              store.commit('updateUser', {
+                UserSign: json.access_token,
+                ExpiresIn: json.expires_in,
+                IsLocal: store.state.Users.currentUser.IsLocal
+              })
               /*执行数组里的函数,重新发起被挂起的请求*/
               onRrefreshed(json.access_token)
               /*执行onRefreshed函数后清空数组中保存的请求*/
               refreshSubscribers = []
-            }).catch(function (error) {
+            })
+            .catch(function(error) {
               if (error.response) {
                 if (error.response.status === 400) {
                   swal({
@@ -77,7 +87,7 @@ AxiosMulti.interceptors.request.use(
         }
         let retry = new Promise((resolve, reject) => {
           /*(token) => {...}这个函数就是回调函数*/
-          subscribeTokenRefresh((token) => {
+          subscribeTokenRefresh(token => {
             config.headers.Authorization = 'Bearer ' + token
             /*将请求挂起*/
             resolve(config)
@@ -90,30 +100,34 @@ AxiosMulti.interceptors.request.use(
   },
   err => {
     return Promise.reject(err)
-  })
-
-AxiosMulti.interceptors.response.use(res => {
-  //对响应数据做些事
-  return res
-}, error => {
-  if (error.response) {
-    if (error.response.status === 401) {
-      // 401 说明 token 验证失败
-      // 可以直接跳转到登录页面，重新登录获取 token
-      window.location.href = '#/login'
-      return Promise.reject(error)
-    } else if (error.response.status === 500) {
-      // 服务器错误
-      // do something
-      return Promise.reject(error)
-    }
   }
-  // 返回 response 里的错误信息
-  return Promise.reject(error)
-})
+)
 
-export default {
+Axios.interceptors.response.use(
+  res => {
+    //对响应数据做些事
+    return res
+  },
+  error => {
+    if (error.response) {
+      if (error.response.status === 401) {
+        // 401 说明 token 验证失败
+        // 可以直接跳转到登录页面，重新登录获取 token
+        window.location.href = '#/login'
+        return Promise.reject(error)
+      } else if (error.response.status === 500) {
+        // 服务器错误
+        // do something
+        return Promise.reject(error)
+      }
+    }
+    // 返回 response 里的错误信息
+    return Promise.reject(error)
+  }
+)
+const AxiosProperty = {
   install(Vue) {
-    Object.defineProperty(Vue.prototype, '$httpmulti', { value: AxiosMulti })
+    Object.defineProperty(Vue.prototype, '$http', { value: Axios })
   }
 }
+Vue.use(AxiosProperty)

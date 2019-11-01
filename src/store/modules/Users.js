@@ -1,104 +1,35 @@
-import tools from 'tools'
-import router from '../../router/router.config'
-import swal from 'sweetalert'
-import axios from 'axios'
-import { AxiosForm } from '../../services/AxiosForm'
 export default {
   state: {
-    currentUser: {
-      get IsLocal() {
-        return localStorage.getItem('IsLocal') === 'true'
-      },
-      get ExpiresIn() {
-        return localStorage.getItem('ExpiresIn')
-      },
-      get UserSign() {
-        return localStorage.getItem('UserSign')
-      }
-    }
+    token: null,
+    currentUser: null,
+    macAddress: null
   },
   mutations: {
-    setUser(state, { UserSign, ExpiresIn, IsLocal, Rurl }) {
-      localStorage.setItem('UserSign', UserSign)
-      localStorage.setItem('ExpiresIn', ExpiresIn)
-      localStorage.setItem('IsLocal', IsLocal)
-
-      if (Rurl === null || Rurl === undefined) {
-        router.push({ path: '/home/hello' })
-      } else {
-        router.push({ path: Rurl })
-      }
+    setUser(state, val) {
+      state.currentUser = val || null
     },
-    updateUser(state, { UserSign, ExpiresIn, IsLocal }) {
-      localStorage.setItem('UserSign', UserSign)
-      localStorage.setItem('ExpiresIn', ExpiresIn)
-      localStorage.setItem('IsLocal', IsLocal)
+    setMacAddress(state, val) {
+      state.macAddress = val || null
     },
-    logout() {
-      let url = tools.tokenUrl
-      axios.post(url + '/logout')
-      localStorage.removeItem('ExpiresIn')
-      localStorage.removeItem('UserSign')
-      localStorage.removeItem('IsLocal')
-      router.push({ path: '/login' })
+    setToken(state, val) {
+      state.token = val || null
     }
   },
-  actions: {
-    userLogin(context, { UserName, UserPass, IsLocal, Rurl }) {
-      let url = tools.tokenUrl + '/get'
-
-      var postdata = {
-        grant_type: 'password',
-        islocal: IsLocal,
-        username: UserName,
-        password: UserPass
-      }
-      AxiosForm.post(url, JSON.stringify(postdata)).then(function (response) {
-        var json = response.data
-        context.commit('setUser', { 'UserSign': json.access_token, 'ExpiresIn': json.expires_in, 'IsLocal': IsLocal, 'Rurl': Rurl })
-      }).catch(function (error) {
-        if (error.response) {
-          swal({
-            title: 'Error:' + error.response.status + '.' + error.response.data,
-            icon: 'error'
-          })
-        } else if (error.request) {
-          console.log(error.request)
-        } else {
-          console.log('Error', error.message)
-        }
-        console.log(error.config)
-      })
+  getters: {
+    isAuthenticated(state) {
+      //用两个!!就可以将变量转化为对应布尔值
+      //，如果明确设置了o中flag的值（非 null/undefined/0""/等值），自然test就会取跟o.flag一样的值；如果没有设置，test就会默认为false，而不是 null或undefined。
+      return !!state.currentUser
     },
-    //在这里尝试用refresh token刷新用户token，如果refresh_token已经过期，则不跳转，不弹出错误
-    tokenLogin(context, { IsLocal }) {
-      let url = tools.tokenUrl + '/token'
-      var postdata = {
-        grant_type: 'refresh_token',
-        islocal: IsLocal,
-        username: '',
-        password: ''
-      }
-      AxiosForm.post(url, JSON.stringify(postdata)).then(function (response) {
-        var json = response.data
-        context.commit('updateUser', { 'UserSign': json.access_token, 'ExpiresIn': json.expires_in, 'IsLocal': IsLocal })
-      }).catch(function (error) {
-        if (error.response) {
-          if (error.response.status === 400) {
-            swal({
-              title: '您的登陆授权已经过期，请重新登陆',
-              icon: 'error'
-            }).then(() => {
-              router.replace({ path: '/login' })
-            })
-          }
-        } else if (error.request) {
-          console.log(error.request)
-        } else {
-          console.log('Error', error.message)
-        }
-        console.log(error.config)
-      })
+    currentUser(state) {
+      return state.currentUser
+    },
+    macAddress(state) {
+      return state.macAddress
+    },
+    token(state) {
+      return state.token || { AccessToken: null, EncryptedAccessToken: null, ExpireInSeconds: null, RefreshToken: null }
     }
-  }
+  },
+  actions: {}
 }
