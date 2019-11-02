@@ -18,13 +18,7 @@ export const extractInfoFromHash = () => {
     token: id_token,
     secret: state
   }
-}
-//读写本机MAC
-export const setMac = mac => window.localStorage.setItem('mac', mac)
-export const getMac = () => {
-  const mac = window.localStorage.mac
-  return mac || undefined
-}
+} 
 // 预备更新后使用
 export const setSecret = secret => window.localStorage.setItem('secret', secret)
 

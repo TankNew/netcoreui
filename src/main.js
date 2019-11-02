@@ -6,12 +6,16 @@ import store from './store'
 import App from './App'
 import router from './router/router.config'
 import VueDND from 'awe-dnd'
-import { getToken, getMac, getUerFromLocalStorage } from './utiltools/auth'
+import { getToken, getUerFromLocalStorage } from './utiltools/auth'
+import Ajax from './utiltools/ajax'
+import jwtDecode from 'jwt-decode'
 
 //使BootStrap-vue支持到IE11
 import 'babel-polyfill'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+import './utiltools/abp'
 
 import './plugins/AxiosForm'
 import './plugins/AxiosMultiPart'
@@ -32,36 +36,56 @@ Vue.use(Vuex)
 Vue.use(BootstrapVue)
 Vue.config.productionTip = false
 
+if (!abp.utils.getCookieValue('Abp.Localization.CultureName')) {
+    let language = navigator.language
+    abp.utils.setCookieValue(
+        'Abp.Localization.CultureName',
+        language,
+        new Date(new Date().getTime() + 5 * 365 * 86400000),
+        abp.appPath
+    )
+}
+
 router.beforeEach((to, from, next) => {
-  const currentUser = getUerFromLocalStorage()
-  const mac = getMac()
-  const token = getToken()
-  store.commit('setMacAddress', mac)
-  store.commit('setUser', currentUser)
-  store.commit('setToken', token)
-  if (to.matched.some(m => m.meta.auth)) {
-    // 对路由进行验证
-    if (store.getters.isAuthenticated) {
-      // 已经登陆
-      next()
+    if (to.matched.some(m => m.meta.auth)) {
+        // 对路由进行验证
+        if (store.getters.isAuthenticated) {
+            // 已经登陆
+            next()
+        } else {
+            // 未登录则跳转到登陆界面，query:{ Rurl: to.fullPath}表示把当前路由信息传递过去方便登录后跳转回来；
+            next({ path: '/login', query: { Rurl: to.fullPath } })
+        }
     } else {
-      // 未登录则跳转到登陆界面，query:{ Rurl: to.fullPath}表示把当前路由信息传递过去方便登录后跳转回来；
-      next({ path: '/login', query: { Rurl: to.fullPath } })
+        next()
     }
-  } else {
-    next()
-  }
 })
 
 if (!window.localStorage) {
-  alert('This browser do not supports localStorage. Please change browser to ie 9.0 at least .')
+    alert('This browser do not supports localStorage. Please change browser to ie 9.0 at least .')
 }
+Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
+    // console.log(JSON.stringify(data.data.result))
+    new Vue({
+        el: '#app',
+        router,
+        store,
+        components: { App },
+        template: '<App/>',
+        created() {
+            const currentUser = getUerFromLocalStorage()
+            const token = getToken()
+            this.$store.commit('setUser', currentUser)
+            this.$store.commit('setToken', token)
 
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  router,
-  store,
-  components: { App },
-  template: '<App/>'
+            var decoded = jwtDecode(this.$store.getters.token.AccessToken)
+            console.log(JSON.stringify(this.$store.state.users.token))
+            console.log(decoded)
+
+            // console.log(window.abp.pageLoadTime)
+            // console.log(window.abp.utils.getCookieValue('Abp.Localization.CultureName'))
+            // console.log(window.abp.auth.getToken())
+            // console.log(window.abp.multiTenancy.getTenantIdCookie())
+        }
+    })
 })

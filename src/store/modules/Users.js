@@ -1,15 +1,11 @@
 export default {
   state: {
     token: null,
-    currentUser: null,
-    macAddress: null
+    currentUser: null
   },
   mutations: {
     setUser(state, val) {
       state.currentUser = val || null
-    },
-    setMacAddress(state, val) {
-      state.macAddress = val || null
     },
     setToken(state, val) {
       state.token = val || null
@@ -23,9 +19,6 @@ export default {
     },
     currentUser(state) {
       return state.currentUser
-    },
-    macAddress(state) {
-      return state.macAddress
     },
     token(state) {
       return state.token || { AccessToken: null, EncryptedAccessToken: null, ExpireInSeconds: null, RefreshToken: null }

@@ -5,7 +5,7 @@ import swal from 'sweetalert'
 import router from '../router/router.config'
 import store from '../store'
 
-const userLogin = ({ userNameOrEmailAddress, password, macAddress, rememberClient, Rurl = '/home' }) => {
+const userLogin = ({ userNameOrEmailAddress, password, rememberClient, Rurl = '/home' }) => {
   let url = tools.tokenUrl + '/Authenticate'
 
   var postData = {
@@ -26,7 +26,6 @@ const userLogin = ({ userNameOrEmailAddress, password, macAddress, rememberClien
           RefreshToken: result.refreshToken
         }
         setToken(token)
-        setMac(macAddress)
         // router.replace(Rurl)
       } else console.error(json)
     })
