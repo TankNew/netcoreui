@@ -17,7 +17,6 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import './utiltools/abp'
 
-import './plugins/AxiosForm'
 import './plugins/AxiosMultiPart'
 import './plugins/AxiosPlugin'
 import './plugins/vee-validate'
@@ -77,9 +76,8 @@ Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
             const token = getToken()
             this.$store.commit('setUser', currentUser)
             this.$store.commit('setToken', token)
-
             var decoded = jwtDecode(this.$store.getters.token.AccessToken)
-            console.log(JSON.stringify(this.$store.state.users.token))
+            // console.log(JSON.stringify(this.$store.state.users.token))
             console.log(decoded)
 
             // console.log(window.abp.pageLoadTime)

@@ -2,10 +2,12 @@ import axios from 'axios'
 import store from '../store'
 import tools from 'tools'
 import Vue from 'vue'
+import Ajax from '../utiltools/ajax'
+import { setToken, unsetToken } from '../utiltools/auth'
 
 export const Axios = axios.create({
     timeout: 5000,
-    withCredentials: true,
+    // withCredentials: true,
     headers: {
         'Content-Type': 'application/json;charset=UTF-8'
     }
@@ -21,17 +23,19 @@ function subscribeTokenRefresh(cb) {
 }
 
 /*刷新请求（refreshSubscribers数组中的请求得到新的token之后会自执行，用新的token去请求数据）*/
-function onRrefreshed(token) {
-    refreshSubscribers.map(cb => cb(token))
+function onRrefreshed(token, refreshToken) {
+    refreshSubscribers.map(cb => cb(token, refreshToken))
 }
 
 // 设置axios拦截器 cors设置
 Axios.interceptors.request.use(
     config => {
         //添加token
-        if (store.getters.token.AccessToken) {
+        if (store.getters.hastoken) {
             config.headers.Authorization = 'bearer ' + store.getters.token.AccessToken
-            var s = (store.state.Users.currentUser.ExpiresIn - tools.myTime.CurTime()) / 60
+            config.headers.common['RefreshToken'] = store.getters.token.RefreshToken
+
+            var s = (store.getters.token.ExpiresIn - tools.myTime.CurTime()) / 60
             if (s < 5) {
                 if (!window.isRefresh) {
                     console.log('refresh token....................')
@@ -43,27 +47,25 @@ Axios.interceptors.request.use(
                         username: '',
                         password: ''
                     }
-                    var _config = {
-                        timeout: 5000,
-                        withCredentials: true,
-                        headers: {
-                            'Content-Type': 'application/json;charset=UTF-8'
-                        }
-                    }
-                    axios
-                        .post(url, JSON.stringify(postdata), _config)
+                    Ajax.post(url, JSON.stringify(postdata))
                         .then(response => {
                             window.isRefresh = false
                             var json = response.data
-                            store.commit('updateUser', {
-                                UserSign: json.access_token,
-                                ExpiresIn: json.expires_in,
-                                IsLocal: store.state.Users.currentUser.IsLocal
-                            })
-                            /*执行数组里的函数,重新发起被挂起的请求*/
-                            onRrefreshed(json.access_token)
-                            /*执行onRefreshed函数后清空数组中保存的请求*/
-                            refreshSubscribers = []
+                            if (json.success === true) {
+                                let result = json.result
+                                let token = {
+                                    AccessToken: result.accessToken,
+                                    EncryptedAccessToken: result.encryptedAccessToken,
+                                    ExpireInSeconds: result.expireInSeconds,
+                                    RefreshToken: result.refreshToken
+                                }
+                                setToken(token)
+                                store.commit('setToken', token)
+                                /*执行数组里的函数,重新发起被挂起的请求*/
+                                onRrefreshed(token.AccessToken, token.RefreshToken)
+                                /*执行onRefreshed函数后清空数组中保存的请求*/
+                                refreshSubscribers = []
+                            } else console.error(json)
                         })
                         .catch(function(error) {
                             if (error.response) {
@@ -85,8 +87,9 @@ Axios.interceptors.request.use(
                 }
                 let retry = new Promise((resolve, reject) => {
                     /*(token) => {...}这个函数就是回调函数*/
-                    subscribeTokenRefresh(token => {
+                    subscribeTokenRefresh((token, refreshToken) => {
                         config.headers.Authorization = 'Bearer ' + token
+                        config.headers.common['RefreshToken'] = refreshToken
                         /*将请求挂起*/
                         resolve(config)
                     })
