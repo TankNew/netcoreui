@@ -8,6 +8,7 @@ import router from './router/router.config'
 import VueDND from 'awe-dnd'
 import { getToken, getUerFromLocalStorage } from './utiltools/auth'
 import Ajax from './utiltools/ajax'
+import tools from './utiltools/tools'
 import jwtDecode from 'jwt-decode'
 
 //使BootStrap-vue支持到IE11
@@ -67,8 +68,14 @@ router.beforeEach((to, from, next) => {
 if (!window.localStorage) {
     alert('This browser do not supports localStorage. Please change browser to ie 9.0 at least .')
 }
+// 获取防伪令牌
+Ajax.get('/api/AntiForgery/GetToken')
 Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
-    // console.log(JSON.stringify(data.data.result))
+    window.abp = tools.extend(true, window.abp, data.data.result)
+    console.log(JSON.stringify(window.abp))
+    console.log(window.abp.setting.get('App.AppName'))
+    console.log(window.abp.security.antiForgery.getToken())
+
     new Vue({
         el: '#app',
         router,
