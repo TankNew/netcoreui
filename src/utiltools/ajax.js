@@ -7,7 +7,7 @@ const ajax = axios.create({
     timeout: 30000
 })
 let token = getToken()
-
+let currentUser = getUerFromLocalStorage()
 ajax.interceptors.request.use(
     config => {
         /**使用Cookie的方式 */
@@ -16,9 +16,10 @@ ajax.interceptors.request.use(
         // }
         // config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue('Abp.Localization.CultureName')
         // config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
+
         /**使用localStorage的方式 */
-        if (token.AccessToken) {
-            config.headers.Authorization = 'bearer ' + token.AccessToken
+        if (token !== undefined) {
+            config.headers.common['Authorization'] = 'Bearer ' + token.AccessToken
             config.headers.common['RefreshToken'] = token.RefreshToken
             // config.headers.common['.AspNetCore.Culture'] = store.getters.getCulture
             // config.headers.common['Abp.TenantId'] = store.getters.getTenantId

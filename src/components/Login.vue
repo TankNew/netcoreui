@@ -64,7 +64,7 @@ export default {
         return {
             isLoading: false,
             UserModel: {
-                UserName: 'admin',
+                UserName: '',
                 UserPass: '',
                 UserHead: ''
             },

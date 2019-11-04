@@ -3,14 +3,12 @@ import store from '../store'
 import tools from 'tools'
 import Vue from 'vue'
 import Ajax from '../utiltools/ajax'
-import { setToken, unsetToken } from '../utiltools/auth'
+import appconst from '../utiltools/appconst'
+import { setToken, getToken, getUerFromLocalStorage } from '../utiltools/auth'
 
 export const Axios = axios.create({
-    timeout: 5000,
-    // withCredentials: true,
-    headers: {
-        'Content-Type': 'application/json;charset=UTF-8'
-    }
+    baseURL: appconst.remoteServiceBaseUrl,
+    timeout: 5000
 })
 window.isRefresh = false
 
@@ -32,22 +30,20 @@ Axios.interceptors.request.use(
     config => {
         //添加token
         if (store.getters.hastoken) {
-            config.headers.Authorization = 'bearer ' + store.getters.token.AccessToken
+            config.headers.common['Authorization'] = 'Bearer ' + store.getters.token.AccessToken
             config.headers.common['RefreshToken'] = store.getters.token.RefreshToken
-
-            var s = (store.getters.token.ExpiresIn - tools.myTime.CurTime()) / 60
+            // config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(
+            //     'Abp.Localization.CultureName'
+            // )
+            // config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
+            let s = (store.getters.currentUser.exp - tools.myTime.CurTime()) / 60
+            console.log(s)
             if (s < 5) {
                 if (!window.isRefresh) {
                     console.log('refresh token....................')
                     window.isRefresh = true
-                    let url = tools.tokenUrl
-                    var postdata = {
-                        grant_type: 'refresh_token',
-                        islocal: store.state.Users.currentUser.IsLocal,
-                        username: '',
-                        password: ''
-                    }
-                    Ajax.post(url, JSON.stringify(postdata))
+
+                    Ajax.get('/api/TokenAuth/RefreshToken')
                         .then(response => {
                             window.isRefresh = false
                             var json = response.data
@@ -60,7 +56,8 @@ Axios.interceptors.request.use(
                                     RefreshToken: result.refreshToken
                                 }
                                 setToken(token)
-                                store.commit('setToken', token)
+                                store.commit('setUser', getUerFromLocalStorage())
+                                store.commit('setToken', getToken())
                                 /*执行数组里的函数,重新发起被挂起的请求*/
                                 onRrefreshed(token.AccessToken, token.RefreshToken)
                                 /*执行onRefreshed函数后清空数组中保存的请求*/
@@ -88,7 +85,7 @@ Axios.interceptors.request.use(
                 let retry = new Promise((resolve, reject) => {
                     /*(token) => {...}这个函数就是回调函数*/
                     subscribeTokenRefresh((token, refreshToken) => {
-                        config.headers.Authorization = 'Bearer ' + token
+                        config.headers.common['Authorization'] = 'Bearer ' + token.AccessToken
                         config.headers.common['RefreshToken'] = refreshToken
                         /*将请求挂起*/
                         resolve(config)
@@ -111,17 +108,28 @@ Axios.interceptors.response.use(
     },
     error => {
         if (error.response) {
+            console.log(error.response.data.error)
+            swal({
+                title: `远程服务器连接出错：${error.response.status}`,
+                icon: 'error'
+            })
             if (error.response.status === 401) {
                 // 401 说明 token 验证失败
                 // 可以直接跳转到登录页面，重新登录获取 token
-                window.location.href = '#/login'
-                return Promise.reject(error)
             } else if (error.response.status === 500) {
                 // 服务器错误
                 // do something
-                return Promise.reject(error)
             }
+        } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            console.log(error.request)
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message)
         }
+        // console.log(error.config)
         // 返回 response 里的错误信息
         return Promise.reject(error)
     }

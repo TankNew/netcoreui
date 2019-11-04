@@ -46,6 +46,10 @@ if (!abp.utils.getCookieValue('Abp.Localization.CultureName')) {
 }
 
 router.beforeEach((to, from, next) => {
+    const currentUser = getUerFromLocalStorage()
+    const token = getToken()
+    store.commit('setUser', currentUser)
+    store.commit('setToken', token)
     if (to.matched.some(m => m.meta.auth)) {
         // 对路由进行验证
         if (store.getters.isAuthenticated) {
@@ -72,14 +76,10 @@ Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
         components: { App },
         template: '<App/>',
         created() {
-            const currentUser = getUerFromLocalStorage()
-            const token = getToken()
-            this.$store.commit('setUser', currentUser)
-            this.$store.commit('setToken', token)
-            var decoded = jwtDecode(this.$store.getters.token.AccessToken)
-            // console.log(JSON.stringify(this.$store.state.users.token))
-            console.log(decoded)
-
+            if (this.$store.getters.hastoken) {
+                var decoded = jwtDecode(this.$store.getters.token.AccessToken)
+                console.log(decoded)
+            }
             // console.log(window.abp.pageLoadTime)
             // console.log(window.abp.utils.getCookieValue('Abp.Localization.CultureName'))
             // console.log(window.abp.auth.getToken())

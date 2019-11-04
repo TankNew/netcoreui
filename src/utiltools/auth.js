@@ -1,6 +1,8 @@
 import jwtDecode from 'jwt-decode'
 import Cookie from 'js-cookie'
 import tools from 'tools'
+import appconst from './appconst'
+
 const getQueryParams = () => {
     const params = {}
     window.location.href.replace(/([^(?|#)=&]+)(=([^&]*))?/g, ($0, $1, $2, $3) => {
@@ -32,7 +34,16 @@ export const setToken = token => {
     if (process.SERVER_BUILD) return
     window.localStorage.setItem('token', JSON.stringify(token))
     window.localStorage.setItem('currentUser', JSON.stringify(jwtDecode(token.AccessToken)))
-    Cookie.set('jwt', token.AccessToken)
+
+    var tokenExpireDate = new Date(new Date().getTime() + 1000 * token.expireInSeconds)
+    window.abp.auth.setToken(token.AccessToken, tokenExpireDate)
+    window.abp.utils.setCookieValue(
+        appconst.authorization.encrptedAuthTokenName,
+        token.EncryptedAccessToken,
+        tokenExpireDate,
+        window.abp.appPath
+    )
+    // Cookie.set('jwt', token.AccessToken)
 }
 
 export const unsetToken = () => {
@@ -40,7 +51,9 @@ export const unsetToken = () => {
     window.localStorage.removeItem('token')
     window.localStorage.removeItem('currentUser')
     window.localStorage.removeItem('secret')
-    Cookie.remove('jwt')
+    window.abp.auth.clearToken()
+    window.abp.utils.deleteCookie(appconst.authorization.encrptedAuthTokenName, window.abp.appPath)
+    // Cookie.remove('jwt')
     window.localStorage.setItem('logout', Date.now())
 }
 
