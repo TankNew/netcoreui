@@ -34,7 +34,7 @@
           </span>
           <h6>
             文件管理器
-            <code>v1.0</code>
+            <code>v1.1</code>
           </h6>
           <dl class="file-menu">
             <dd>
@@ -68,10 +68,10 @@
               <li v-for="(item,index) in Folders" :key="index" :class="item.open?'active':''">
                 <i class="fas fa-chevron-right" @click="item.open=!item.open"></i>
 
-                <!--<a :class="item.isActive?'active':''" @click="setActive(item)" @dblclick="item.open=!item.open">-->
+                <!--<a :class="item.isActive?'active':''" @click="setTypeRoot(item)" @dblclick="item.open=!item.open">-->
                 <a :class="item.isActive?'active':''" @click="oneClick($event,item)" @contextmenu="rightClick($event,item,true,null)">
                   <i :class="['far','mr-0',item.isActive?'fa-folder-open':'fa-folder']"></i>
-                  {{item.describe}}
+                  {{item.name}}
                 </a>
 
                 <file-fodler-ul
@@ -131,7 +131,7 @@
                         <i class="fas fa-file-excel" v-else-if="getFileExpansion(item1.name)==='excel'"></i>
                         <i class="fas fa-file-pdf" v-else-if="getFileExpansion(item1.name)==='pdf'"></i>
                         <i class="fas fa-file-video" v-else-if="getFileExpansion(item1.name)==='video'"></i>
-                        <img v-else-if="getFileExpansion(item1.name)==='img'" :src="getUrl(item1.url)" />
+                        <img v-else-if="getFileExpansion(item1.name)==='img'" :src="getImgUrl(item1.url)" />
                       </p>
                       <span>{{item1.name}}</span>
                     </dd>
@@ -170,35 +170,8 @@ export default {
             currentFolderParent: {},
             //是否首目录
             isRoot: false,
-            Folders: [
-                {
-                    name: 'files',
-                    describe: '文件',
-                    isSubdir: true,
-                    url: 'UserFiles/Files',
-                    subdir: [],
-                    open: false,
-                    isActive: false
-                },
-                {
-                    name: 'videos',
-                    describe: '视频',
-                    isSubdir: true,
-                    url: 'UserFiles/Videos',
-                    subdir: [],
-                    open: false,
-                    isActive: false
-                },
-                {
-                    name: 'images',
-                    describe: '图片',
-                    isSubdir: true,
-                    url: 'UserFiles/Images',
-                    subdir: [],
-                    open: false,
-                    isActive: false
-                }
-            ],
+            RootPath: null,
+            Folders: [],
             //定义点击双击事件参数
             delay: 300,
             clicks: 0,
@@ -216,26 +189,46 @@ export default {
         fileCallBack: {}
     },
     methods: {
+        //取消选中
         cancelCurrentFile() {
             this.currentFile = null
             this.isUploading = false
         },
+        //后腿
         back() {
             if (this.breadcrumb.length > 1) {
                 this.breadcrumb.splice(-1)
                 this.setCurrentFolderByBreadcrumb(this.breadcrumb[this.breadcrumb.length - 1].value)
             }
         },
+        //刷新
         refresh() {
             this.load()
         },
+        //设置
         setting() {
             console.log('setting')
+        },
+        //刷新滚动条
+        refreshScroll() {
+            this.$refs.content.reload()
+        },
+        //获取数据
+        load() {
+            var that = this
+            that.isLoading = true
+            this.$http.get(tools.fileUrl).then(function(response) {
+                var json = response.data.result
+                that.RootPath = json.rootPath
+                that.Folders = json.folderInfos
+                that.setTypeRoot(that.Folders[0])
+                that.isLoading = false
+            })
         },
         upload() {
             var that = this
             let formdata = new FormData()
-            formdata.append('folder', this.currentFolder.url)
+            formdata.append('folder', that.currentFolder.url)
             that.uploadfiles.forEach(u => formdata.append('file', u))
             //清空input=file的值，否则不能二次上传同名文件
             document.getElementById('uploadfiles').value = null
@@ -243,14 +236,15 @@ export default {
             that.isUploading = true
             that.uploadPercentage = 0
 
-            that.$httpmulti
+            that.$http
                 .post(tools.fileUpload, formdata, {
                     onUploadProgress: function(progressEvent) {
                         that.uploadPercentage = parseInt(Math.round((progressEvent.loaded * 100) / progressEvent.total))
                     }
                 })
                 .then(function(response) {
-                    var json = response.data
+                    var json = response.data.result
+                    console.log(json)
                     json.uploadFilesList.forEach(j => {
                         that.currentFolder.subdir.forEach(c => {
                             if (c.name === j.name)
@@ -258,6 +252,10 @@ export default {
                         })
                         that.currentFolder.subdir.push(j)
                     })
+                    that.isUploading = false
+                })
+                // eslint-disable-next-line handle-callback-err
+                .catch(error => {
                     that.isUploading = false
                 })
         },
@@ -278,8 +276,9 @@ export default {
             }
         },
         //图片获取链接
-        getUrl(val) {
-            return tools.HttpUrl + '/' + val
+        getImgUrl(val) {
+            var that = this
+            return tools.HttpUrl + '/' + that.RootPath + val
         },
         //获取文件名后缀
         getFileExpansion(file) {
@@ -323,21 +322,18 @@ export default {
             }
         },
         /*内容部分的操作*/
+        //面包屑导航点击
         breadcrumbClick(val, index) {
             var that = this
             that.setCurrentFolderByBreadcrumb(val)
             that.breadcrumb.splice(index + 1, that.breadcrumb.length - 1)
         },
-        //刷新内容
-        refreshScroll() {
-            this.$refs.content.reload()
-        },
         //文件左键
         fileLeftClick(val) {
+            var that = this
             this.clicks++
             if (this.clicks >= 2) this.clicks = 2
             if (this.clicks === 1) {
-                var that = this
                 that.currentFile = val
                 that.timer = setTimeout(function() {
                     if (that.clicks === 2) {
@@ -346,7 +342,8 @@ export default {
                             that.setCurrentFolderByBreadcrumb(that.currentFile)
                         } else {
                             //that.$emit('MceSetFile', tools.HttpUrl + '/' + that.currentFile.url)
-                            that.fileCallBack(tools.HttpUrl + '/' + that.currentFile.url)
+                            
+                            that.fileCallBack(tools.HttpUrl + '/' + that.RootPath + that.currentFile.url)
                             that.close()
                         }
                     }
@@ -365,29 +362,15 @@ export default {
         fileDelete() {
             var that = this
             that.currentFolder.subdir.splice(that.currentFolder.subdir.indexOf(that.currentFile), 1)
+            // 如果是文件夹
+            var url = tools.filedeletefolder + '?folderName=' + that.currentFile.url
+            //如果是文件
+            if (!that.currentFile.isSubdir) url = tools.fileDelete + '?fileName=' + that.currentFile.url
 
-            var url = tools.filedeletefolder + '?foldername=' + that.currentFile.url
-            if (!that.currentFile.isSubdir) url = tools.fileDelete + '?filename=' + that.currentFile.url
-
-            that.$http.post(url).then(
-                function(response) {
-                    var json = response.data
-                    console.log(json)
-                },
-                function(error) {
-                    if (error.response) {
-                        swal({
-                            title: 'Error:' + error.response.status + '.' + error.response.data,
-                            icon: 'error'
-                        })
-                    } else if (error.request) {
-                        console.log(error.request)
-                    } else {
-                        console.log('Error', error.message)
-                    }
-                    console.log(error.config)
-                }
-            )
+            that.$http.delete(url).then(function(response) {
+                var json = response.data.result
+                console.log(json)
+            })
         },
         // 导航 - 设置当前内容
         setCurrentFolderByBreadcrumb(val) {
@@ -411,7 +394,7 @@ export default {
         setBreadcrumb(val) {
             this.breadcrumb = val
         },
-        //子目录- 同步组件数据
+        //子目录将-crud数据-同步到根目录集合
         setCurrent(val, key) {
             var that = this
             that.Folders[key].subdir = val
@@ -434,32 +417,19 @@ export default {
             var that = this
             locals.open = true
             that.currentFolder = locals
-            if (that.isRoot) that.setActive(locals)
+            if (that.isRoot) that.setTypeRoot(locals)
             that.currentFile = ''
         },
         //删除子文件夹
         folderDelete() {
             var that = this
             that.currentFolderParent.subdir.splice(that.currentFolderParent.subdir.indexOf(that.currentFolder), 1)
-            that.$http.post(tools.filedeletefolder + '?foldername=' + that.currentFolder.url).then(
-                function(response) {
-                    var json = response.data
+            that.$http
+                .delete(tools.filedeletefolder + '?folderName=' + that.currentFolder.url)
+                .then(function(response) {
+                    var json = response.data.result
                     console.log(json)
-                },
-                function(error) {
-                    if (error.response) {
-                        swal({
-                            title: 'Error:' + error.response.status + '.' + error.response.data,
-                            icon: 'error'
-                        })
-                    } else if (error.request) {
-                        console.log(error.request)
-                    } else {
-                        console.log('Error', error.message)
-                    }
-                    console.log(error.config)
-                }
-            )
+                })
         },
         //增加子文件夹
         folderCreate() {
@@ -483,24 +453,9 @@ export default {
                         isActive: false
                     }
                     that.currentFolder.subdir.push(_newFloder)
-                    that.$http.post(tools.fileCreatefolder + '?foldername=' + _newFloder.url).then(
-                        function(response) {
-                            var json = response.data
-                        },
-                        function(error) {
-                            if (error.response) {
-                                swal({
-                                    title: 'Error:' + error.response.status + '.' + error.response.data,
-                                    icon: 'error'
-                                })
-                            } else if (error.request) {
-                                console.log(error.request)
-                            } else {
-                                console.log('Error', error.message)
-                            }
-                            console.log(error.config)
-                        }
-                    )
+                    that.$http.post(tools.fileCreatefolder + '?folderName=' + _newFloder.url).then(function(response) {
+                        var json = response.data.result
+                    })
                 }
                 swal.stopLoading()
                 swal.close()
@@ -512,7 +467,7 @@ export default {
             if (this.clicks >= 2) this.clicks = 2
             if (this.clicks === 1) {
                 var that = this
-                that.setActive(item)
+                that.setTypeRoot(item)
                 that.timer = setTimeout(function() {
                     if (that.clicks === 2) item.open = !item.open
                     that.clicks = 0
@@ -521,7 +476,7 @@ export default {
             }
         },
         //初始目录- 设置当前活动目录、设置当前路径、设置当前内容
-        setActive(val) {
+        setTypeRoot(val) {
             var that = this
             that.clearCurrent()
             val.isActive = true
@@ -548,34 +503,6 @@ export default {
         close() {
             var that = this
             that.$emit('fileClose')
-        },
-        //获取数据
-        load() {
-            var that = this
-            that.isLoading = true
-            this.$http.get(tools.fileUrl + '?type=File').then(function(response) {
-                var json = response.data.result
-                that.Folders.forEach(f => {
-                    if (f.name === 'files') f.subdir = json
-                })
-                // console.log(response.status)
-            })
-            this.$http.get(tools.fileUrl + '?type=Video').then(function(response) {
-                var json = response.data.result
-                that.Folders.forEach(f => {
-                    if (f.name === 'videos') f.subdir = json
-                })
-            })
-            this.$http.get(tools.fileUrl + '?type=Image').then(function(response) {
-                var json = response.data.result
-                that.Folders.forEach(f => {
-                    if (f.name === 'images') {
-                        f.subdir = json
-                        that.setActive(f)
-                        that.isLoading = false
-                    }
-                })
-            })
         }
     },
     created() {

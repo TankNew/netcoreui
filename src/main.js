@@ -18,7 +18,6 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import './utiltools/abp'
 
-import './plugins/AxiosMultiPart'
 import './plugins/AxiosPlugin'
 import './plugins/vee-validate'
 
@@ -69,7 +68,7 @@ if (!window.localStorage) {
     alert('This browser do not supports localStorage. Please change browser to ie 9.0 at least .')
 }
 // 获取防伪令牌
-Ajax.get('/api/AntiForgery/GetToken')
+Ajax.get('/api/AntiForgery/GetToken') 
 Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
     window.abp = tools.extend(true, window.abp, data.data.result)
     console.log(JSON.stringify(window.abp))

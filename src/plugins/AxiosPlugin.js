@@ -9,7 +9,8 @@ import jwtDecode from 'jwt-decode'
 
 export const Axios = axios.create({
     baseURL: appconst.remoteServiceBaseUrl,
-    timeout: 5000
+    timeout: 5000,
+    withCredentials: true //必须添加，否则服务器无法设置COOKIE
 })
 window.isRefresh = false
 
@@ -38,8 +39,7 @@ Axios.interceptors.request.use(
             // )
             // config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
             let s = (store.getters.currentUser.exp - tools.myTime.CurTime()) / 60
-            if (s < 5) {
-                console.log('push所有请求到数组中....................')
+            if (s < 1) {
                 if (!window.isRefresh) {
                     console.log('refresh token....................')
                     window.isRefresh = true
@@ -58,28 +58,15 @@ Axios.interceptors.request.use(
                                 setToken(token)
                                 store.commit('setUser', jwtDecode(token.AccessToken))
                                 store.commit('setToken', token)
+                                Ajax.get('/api/AntiForgery/GetToken')
                                 /*执行数组里的函数,重新发起被挂起的请求*/
                                 onRrefreshed(token.AccessToken, token.RefreshToken)
                                 /*执行onRefreshed函数后清空数组中保存的请求*/
                                 refreshSubscribers = []
                             } else console.error(json)
                         })
-                        .catch(function(error) {
-                            if (error.response) {
-                                if (error.response.status === 400) {
-                                    swal({
-                                        title: '您的登陆授权已经过期，请重新登陆',
-                                        icon: 'error'
-                                    }).then(() => {
-                                        window.location.href = '#/login'
-                                    })
-                                }
-                            } else if (error.request) {
-                                console.log(error.request)
-                            } else {
-                                console.log('Error', error.message)
-                            }
-                            console.log(error.config)
+                        .catch(error => {
+                            window.isRefresh = false
                         })
                 }
                 let retry = new Promise((resolve, reject) => {

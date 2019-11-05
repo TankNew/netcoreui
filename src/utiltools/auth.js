@@ -12,7 +12,7 @@ const getQueryParams = () => {
 }
 
 export const extractInfoFromHash = () => {
-    if (process.SERVER_BUILD) return
+    // if (process.SERVER_BUILD) return
     // eslint-disable-next-line camelcase
     const { id_token, state } = getQueryParams()
     return {
@@ -31,7 +31,7 @@ export const getToken = () => {
 }
 
 export const setToken = token => {
-    if (process.SERVER_BUILD) return
+    // if (process.SERVER_BUILD) return
     window.localStorage.setItem('token', JSON.stringify(token))
     window.localStorage.setItem('currentUser', JSON.stringify(jwtDecode(token.AccessToken)))
 
@@ -47,7 +47,7 @@ export const setToken = token => {
 }
 
 export const unsetToken = () => {
-    if (process.SERVER_BUILD) return
+    // if (process.SERVER_BUILD) return
     window.localStorage.removeItem('token')
     window.localStorage.removeItem('currentUser')
     window.localStorage.removeItem('secret')

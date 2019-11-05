@@ -38,7 +38,7 @@ const refreshToken = () => {
     Ajax.get(url).then(function(response) {
         var json = response.data
         if (json.success === true) {
-            let result = json.result 
+            let result = json.result
             let token = {
                 AccessToken: result.accessToken,
                 EncryptedAccessToken: result.encryptedAccessToken,
@@ -48,6 +48,7 @@ const refreshToken = () => {
             setToken(token)
             store.commit('setUser', jwtDecode(token.AccessToken))
             store.commit('setToken', token)
+            Ajax.get('/api/AntiForgery/GetToken')
         } else console.error(json)
     })
 }
