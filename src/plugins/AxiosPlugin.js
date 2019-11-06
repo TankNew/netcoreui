@@ -34,10 +34,10 @@ Axios.interceptors.request.use(
         if (store.getters.hastoken) {
             config.headers.common['Authorization'] = 'Bearer ' + store.getters.token.AccessToken
             config.headers.common['RefreshToken'] = store.getters.token.RefreshToken
-            // config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(
-            //     'Abp.Localization.CultureName'
-            // )
-            // config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
+            config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(
+                'Abp.Localization.CultureName'
+            )
+            config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
             let s = (store.getters.currentUser.exp - tools.myTime.CurTime()) / 60
             if (s < 1) {
                 if (!window.isRefresh) {

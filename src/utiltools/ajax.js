@@ -1,6 +1,5 @@
 import axios from 'axios'
 import appconst from './appconst'
-import store from '../store'
 import swal from 'sweetalert'
 import { getToken, getUerFromLocalStorage } from './auth'
 const ajax = axios.create({
@@ -21,14 +20,9 @@ ajax.interceptors.request.use(
         if (getToken() !== undefined) {
             config.headers.common['Authorization'] = 'Bearer ' + getToken().AccessToken
             config.headers.common['RefreshToken'] = getToken().RefreshToken
-        //     console.log(getToken().RefreshToken)
-        // config.headers.common['.AspNetCore.Culture'] = store.getters.getCulture
-        // config.headers.common['Abp.TenantId'] = store.getters.getTenantId
-        }
-        // if (store.getters.hastoken) {
-        //     config.headers.common['Authorization'] = 'Bearer ' + store.getters.token.AccessToken
-        //     config.headers.common['RefreshToken'] = store.getters.token.RefreshToken
-        // }
+            config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue('Abp.Localization.CultureName')
+            config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
+        } 
         return config
     },
     function(error) {

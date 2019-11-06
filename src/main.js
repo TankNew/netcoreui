@@ -35,6 +35,7 @@ Vue.use(Vuex)
 Vue.use(BootstrapVue)
 Vue.config.productionTip = false
 
+// 设置ABP本地化
 if (!abp.utils.getCookieValue('Abp.Localization.CultureName')) {
     let language = navigator.language
     abp.utils.setCookieValue(
