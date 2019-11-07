@@ -1,9 +1,9 @@
 <template>
   <section class="container-fluid">
     <div class="jumbotron">
-      <h1 class="display-4">
+      <h1>
         欢迎您使用{{copy}}
-        <span class="copy">&copy;</span>网站控制台V5.0版
+        <span class="copy">&copy;</span>网站控制台V5.1版
       </h1>
       <p class="small">为了您的网站安全，请不要泄露本程序到公网上，否则造成一切后果由您来承担</p>
       <hr class="my-4" />

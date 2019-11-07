@@ -15,14 +15,19 @@ ajax.interceptors.request.use(
         // }
         // config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue('Abp.Localization.CultureName')
         // config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
+
         /**使用localStorage的方式 */
         // 要即时获取，不能提前获取，否则不能更新数据
         if (getToken() !== undefined) {
             config.headers.common['Authorization'] = 'Bearer ' + getToken().AccessToken
             config.headers.common['RefreshToken'] = getToken().RefreshToken
-            config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue('Abp.Localization.CultureName')
+            config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(
+                'Abp.Localization.CultureName'
+            )
             config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
-        } 
+            // console.log(window.abp.auth.getToken())
+            console.log(`localStorage与cookie同步：${window.abp.auth.getToken() == getToken().AccessToken}`)
+        }
         return config
     },
     function(error) {

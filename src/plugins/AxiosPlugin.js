@@ -58,7 +58,6 @@ Axios.interceptors.request.use(
                                 setToken(token)
                                 store.commit('setUser', jwtDecode(token.AccessToken))
                                 store.commit('setToken', token)
-                                Ajax.get('/api/AntiForgery/GetToken')
                                 /*执行数组里的函数,重新发起被挂起的请求*/
                                 onRrefreshed(token.AccessToken, token.RefreshToken)
                                 /*执行onRefreshed函数后清空数组中保存的请求*/

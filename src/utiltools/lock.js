@@ -48,7 +48,6 @@ const refreshToken = () => {
             setToken(token)
             store.commit('setUser', jwtDecode(token.AccessToken))
             store.commit('setToken', token)
-            Ajax.get('/api/AntiForgery/GetToken')
         } else console.error(json)
     })
 }

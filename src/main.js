@@ -17,12 +17,14 @@ import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import './utiltools/abp'
+import './utiltools/abpbase'
 
 import './plugins/AxiosPlugin'
 import './plugins/vee-validate'
 
 import './assets/main.css'
 import './assets/layout.css'
+import 'famfamfam-flags/dist/sprite/famfamfam-flags.css'
 
 import fileFolderLi from './components/custom/fileFolderLi.vue'
 import filefolderUl from './components/custom/filefolderUl.vue'
@@ -68,14 +70,11 @@ router.beforeEach((to, from, next) => {
 if (!window.localStorage) {
     alert('This browser do not supports localStorage. Please change browser to ie 9.0 at least .')
 }
-// 获取防伪令牌
-Ajax.get('/api/AntiForgery/GetToken') 
+// 设置一个防伪令牌
+Ajax.get('/api/AntiForgery/GetToken')
+
 Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
     window.abp = tools.extend(true, window.abp, data.data.result)
-    console.log(JSON.stringify(window.abp))
-    console.log(window.abp.setting.get('App.AppName'))
-    console.log(window.abp.security.antiForgery.getToken())
-
     new Vue({
         el: '#app',
         router,
@@ -83,14 +82,7 @@ Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
         components: { App },
         template: '<App/>',
         created() {
-            if (this.$store.getters.hastoken) {
-                var decoded = jwtDecode(this.$store.getters.token.AccessToken)
-                console.log(decoded)
-            }
-            // console.log(window.abp.pageLoadTime)
-            // console.log(window.abp.utils.getCookieValue('Abp.Localization.CultureName'))
-            // console.log(window.abp.auth.getToken())
-            // console.log(window.abp.multiTenancy.getTenantIdCookie())
+            console.log(`当前时间：${tools.myTime.CurTime()}`)
         }
     })
 })

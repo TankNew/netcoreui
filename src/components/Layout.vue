@@ -81,28 +81,31 @@
     <div class="content">
       <b-navbar toggleable="md" type="dark" variant="info" style="background-color:#6699CC !important;">
         <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
-        <b-navbar-brand href="javascript:void(0)">网站控制台V5.0</b-navbar-brand>
+        <b-navbar-brand tag="h1">网站控制台V5.0</b-navbar-brand>
         <b-collapse is-nav id="nav_collapse">
           <!-- Right aligned nav items -->
           <b-navbar-nav class="ml-auto">
-            <b-nav-item-dropdown right>
+            <b-nav-item-dropdown right offset="25">
               <template slot="button-content">
                 <i class="fab fa-creative-commons mr_10"></i>语言
               </template>
-              <b-dropdown-item href="javascript:void(0)">英文</b-dropdown-item>
-              <b-dropdown-item href="javascript:void(0)">中文</b-dropdown-item>
+              <b-dropdown-item v-for="(language,index) in languages" :key="index" href="javascript:void(0)">
+                <i :class="[language.icon,'fas']"></i>
+                {{language.displayName}}
+              </b-dropdown-item>
             </b-nav-item-dropdown>
-            <b-nav-item-dropdown right>
+            <b-nav-item-dropdown right offset="125">
               <!-- Using button-content slot -->
               <template slot="button-content">
                 <i class="fas fa-users-cog mr_10"></i>用户
               </template>
               <b-dropdown-item href="javascript:void(0)">个人资料</b-dropdown-item>
-              <b-dropdown-item href="javascript:void(0)" @click="logout">安全退出</b-dropdown-item>
+              <b-dropdown-item href="javascript:void(0)" @click="logout">{{Logout}}</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
         </b-collapse>
       </b-navbar>
+
       <!--内页设置-->
       <section class="content-body">
         <!-- 地址栏 -->
@@ -121,6 +124,7 @@
 import tools from 'tools'
 import scroll from './custom/scroll'
 import jwtDecode from 'jwt-decode'
+import { unsetToken } from '../utiltools/auth'
 export default {
     name: 'layout',
     data() {
@@ -130,10 +134,9 @@ export default {
             path: '/',
             pathname: '',
             UserModel: {
-                UserName: '',
-                UserHead: '',
-                UserRole: '',
-                UserClaims: []
+                UserName: null,
+                UserHead: null,
+                UserRole: null
             },
             menu: '',
             menuIndex: -1,
@@ -162,6 +165,17 @@ export default {
     computed: {
         menuitemClasses: function() {
             return ['leftBar', this.isCollapsed ? 'shrink' : '']
+        },
+        currentLanguage() {
+            return abp.localization.currentLanguage
+        },
+        languages() {
+            return abp.localization.languages.filter(val => {
+                return !val.isDisabled
+            })
+        },
+        Logout() {
+            return this.L('Logout')
         }
     },
     methods: {
@@ -215,7 +229,7 @@ export default {
         },
         //安全退出
         logout() {
-            this.$store.commit('logout')
+            unsetToken()
         },
         // 返回顶部
         topClick() {
@@ -232,7 +246,10 @@ export default {
             this.scorllTopLength = val
         },
         // 预加载
-        load() {}
+        load() {
+            console.log(this.hasPermission('Pages.Users'))
+            console.log(window.abp.auth.allPermissions)
+        }
     },
     created() {
         let that = this
@@ -243,11 +260,11 @@ export default {
             let currentUser = this.$store.getters.currentUser
             that.UserModel.UserName = currentUser.unique_name
             that.UserModel.UserHead = 'static/imgs/128.png'
-            that.UserModel.UserRole = currentUser.roles
-            that.UserModel.UserClaims = currentUser.RolePermissionSetting
+            that.UserModel.UserRole = JSON.parse(currentUser.roles)
         }
-        console.log(tools.myTime.CurTime())
         console.log(JSON.stringify(that.UserModel))
+        that.load()
+        console.log(abp.nav)
     },
     mounted() {
         var that = this
