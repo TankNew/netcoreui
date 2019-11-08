@@ -59,17 +59,17 @@
       </b-input-group>
       <div class="sidebar-menu">
         <ul>
-          <li :class="[item.submenu?'sidebar-dropdown':'sidebar-link',menuIndex==index||path==item.url?'active':'']" v-for="(item,index) in menu" :key="index">
+          <li :class="[item.items.length>0?'sidebar-dropdown':'sidebar-link',menuIndex==index||path==item.url?'active':'']" v-for="(item,index) in menu.items" :key="index">
             <a href="javascript:void(0)" @click="menuClick(item,index)">
-              <i :class="item.img"></i>
-              <span>{{item.title}}</span>
+              <i :class="item.icon"></i>
+              <span>{{item.displayName}}</span>
               <span v-if="item.isnew" class="badge badge-success">New</span>
               <span v-if="item.ispage" class="badge badge-warning">P</span>
             </a>
-            <div class="sidebar-submenu" v-if="item.submenu">
+            <div class="sidebar-submenu" v-if="item.items.length>0">
               <ul>
-                <li v-for="(sub,subindex) in item.submenu" :key="subindex">
-                  <a href="javascript:void(0)" :class="path==sub.url?'active':''" @click="menuClick(sub,subindex)">{{sub.title}}</a>
+                <li v-for="(sub,subindex) in item.items" :key="subindex">
+                  <a href="javascript:void(0)" :class="path==sub.url?'active':''" @click="menuClick(sub,subindex)">{{sub.displayName}}</a>
                 </li>
               </ul>
             </div>
@@ -81,7 +81,7 @@
     <div class="content">
       <b-navbar toggleable="md" type="dark" variant="info" style="background-color:#6699CC !important;">
         <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
-        <b-navbar-brand tag="h1">网站控制台V5.0</b-navbar-brand>
+        <b-navbar-brand tag="h1">网站控制台{{version}}</b-navbar-brand>
         <b-collapse is-nav id="nav_collapse">
           <!-- Right aligned nav items -->
           <b-navbar-nav class="ml-auto">
@@ -122,6 +122,7 @@
 </template>
 <script>
 import tools from 'tools'
+import AppConsts from '../utiltools/appconst'
 import scroll from './custom/scroll'
 import jwtDecode from 'jwt-decode'
 import { unsetToken } from '../utiltools/auth'
@@ -163,6 +164,9 @@ export default {
         scroll: scroll
     },
     computed: {
+        version() {
+            return AppConsts.appVersion
+        },
         menuitemClasses: function() {
             return ['leftBar', this.isCollapsed ? 'shrink' : '']
         },
@@ -182,8 +186,8 @@ export default {
         //初加载同步菜单
         pathToMenu() {
             var that = this
-            that.menu.forEach((m, index) => {
-                if (m.url === that.path) {
+            that.menu.items.forEach((m, index) => {
+                if (m.url && m.url.toLowerCase() === that.path) {
                     that.menuIndex = index
                     that.breadcrumb = [
                         {
@@ -191,11 +195,11 @@ export default {
                             to: { path: '/' }
                         },
                         {
-                            text: m.title
+                            text: m.displayName
                         }
                     ]
-                } else if (m.submenu) {
-                    m.submenu.forEach(s => {
+                } else if (m.items) {
+                    m.items.forEach(s => {
                         if (s.url === that.path) {
                             that.menuIndex = index
                             that.breadcrumb = [
@@ -204,10 +208,10 @@ export default {
                                     to: { path: '/' }
                                 },
                                 {
-                                    text: m.title
+                                    text: m.displayName
                                 },
                                 {
-                                    text: s.title,
+                                    text: s.displayName,
                                     active: true
                                 }
                             ]
@@ -218,7 +222,7 @@ export default {
         },
         //侧导航
         menuClick(item, index) {
-            if (!item.submenu) {
+            if (!item.items.length > 0) {
                 this.$router.push({ path: item.url })
             } else this.menuIndex = index
         },
@@ -253,18 +257,17 @@ export default {
     },
     created() {
         let that = this
-        that.menu = that.$store.state.menu
+        that.menu = abp.nav.menus.MainMenu
         that.path = that.$router.history.current.path
         that.pathToMenu()
         if (that.$store.getters.isAuthenticated) {
-            let currentUser = this.$store.getters.currentUser
+            let currentUser = that.$store.getters.currentUser
             that.UserModel.UserName = currentUser.unique_name
             that.UserModel.UserHead = 'static/imgs/128.png'
-            that.UserModel.UserRole = JSON.parse(currentUser.roles)
+            that.UserModel.UserRole = currentUser.roles
         }
-        console.log(JSON.stringify(that.UserModel))
         that.load()
-        console.log(abp.nav)
+        console.log(that.menu.items)
     },
     mounted() {
         var that = this

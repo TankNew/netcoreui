@@ -3,18 +3,24 @@
     <div class="jumbotron">
       <h1>
         欢迎您使用{{copy}}
-        <span class="copy">&copy;</span>网站控制台V5.1版
+        <span class="copy">&copy;</span>
+        网站控制台{{version}}
       </h1>
       <p class="small">为了您的网站安全，请不要泄露本程序到公网上，否则造成一切后果由您来承担</p>
       <hr class="my-4" />
       <dl>
         <dt>更新新特性:</dt>
         <dd>
-          1.系统核心全面升级到
-          <code>asp.net core 2.1</code>.
+          1.基于
+          <code>Domain Model</code>的现代框架.
         </dd>
-        <dd>2.新版控制台采用前后端分离构建，前端采用单页应用模式.</dd>
-        <dd>3.全新的身份认证系统，提升安全性.</dd>
+        <dd>2.多语言，本地化支持.</dd>
+        <dd>3.多租户支持（租户之间数据完全隔离）.</dd>
+        <dd>4.日志记录.</dd>
+        <dd>5.身份验证令牌与授权管理.</dd>
+        <dd>6.增加管理员与权限自由分配.</dd>
+        <dd>7.开启用户注册.</dd>
+        <dd>8.消息即时通讯(在线与访客无延迟沟通).</dd>
       </dl>
       <hr class="my-4" />
       <h3>核心技术：</h3>
@@ -40,6 +46,7 @@
   </section>
 </template>
 <script>
+import AppConsts from '../utiltools/appconst'
 export default {
     name: 'hello',
     data() {
@@ -51,9 +58,14 @@ export default {
                     info: '最快速度定制企业微信小程序，最低500元起.',
                     link: 'www.ednet.cn'
                 },
-                { title: '企业网页客服', info: '免费定制，多客服，桌面客服端', link: 'www.ednet.cn' },
-                { title: '微信公众号对接', info: '全面对接企业号、服务号、订阅号，最低500元起.', link: 'www.ednet.cn' }
+                { title: '微信公众号对接', info: '全面对接企业号、服务号、订阅号，最低500元起.', link: 'www.ednet.cn' },
+                { title: '企业网页客服', info: '免费定制，多客服，桌面客服端', link: 'www.ednet.cn' }
             ]
+        }
+    },
+    computed: {
+        version() {
+            return AppConsts.appVersion
         }
     },
     methods: {},

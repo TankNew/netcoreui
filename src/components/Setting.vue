@@ -1,8 +1,10 @@
 <template>
   <section class="container-fluid">
     <tinymce ref="tinymce" @refreshScroll="refreshScroll" @reloadScroll="reloadScroll" :editorTop="70" :editorWidth="800" :scorllTopLength="scorllTopLength"></tinymce>
-    <button type="button" class="btn btn-success" @click="getContent">获取</button>
-    <button type="button" class="btn btn-success" @click="setContent">设置</button>
+    <div class="mt-3">
+      <button type="button" class="btn btn-success" @click="getContent">获取</button>
+      <button type="button" class="btn btn-success" @click="setContent">设置</button>
+    </div>
   </section>
 </template>
 <script>
@@ -14,9 +16,7 @@ export default {
     },
     props: ['scorllTopLength'],
     components: { tinymce },
-    computed: {
-        
-    },
+    computed: {},
     methods: {
         getContent() {
             console.log(this.$refs.tinymce.getVal())

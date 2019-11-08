@@ -7,6 +7,7 @@ import App from './App'
 import router from './router/router.config'
 import VueDND from 'awe-dnd'
 import { getToken, getUerFromLocalStorage } from './utiltools/auth'
+import { refreshToken } from './utiltools/lock'
 import Ajax from './utiltools/ajax'
 import tools from './utiltools/tools'
 import jwtDecode from 'jwt-decode'
@@ -49,18 +50,20 @@ if (!abp.utils.getCookieValue('Abp.Localization.CultureName')) {
 }
 
 router.beforeEach((to, from, next) => {
+    /* 为store持久化赋值 */
     const currentUser = getUerFromLocalStorage()
     const token = getToken()
     store.commit('setUser', currentUser)
     store.commit('setToken', token)
+
     if (to.matched.some(m => m.meta.auth)) {
-        // 对路由进行验证
-        if (store.getters.isAuthenticated) {
-            // 已经登陆
+        if (!store.getters.isTokenExpired) {
+            //如果token未过期
             next()
         } else {
             // 未登录则跳转到登陆界面，query:{ Rurl: to.fullPath}表示把当前路由信息传递过去方便登录后跳转回来；
-            next({ path: '/login', query: { Rurl: to.fullPath } })
+            if (store.getters.hastoken) refreshToken(to.fullPath)
+            else next({ path: '/login', query: { Rurl: to.fullPath } })
         }
     } else {
         next()

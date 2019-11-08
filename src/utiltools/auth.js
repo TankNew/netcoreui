@@ -31,10 +31,10 @@ export const getToken = () => {
 }
 
 export const setToken = token => {
+    console.log(`写入localStorage与cookie`)
     // if (process.SERVER_BUILD) return
     window.localStorage.setItem('token', JSON.stringify(token))
     window.localStorage.setItem('currentUser', JSON.stringify(jwtDecode(token.AccessToken)))
-
     //设置到COOKIE
     var tokenExpireDate = new Date(new Date().getTime() + 1000 * token.expireInSeconds)
     window.abp.auth.setToken(token.AccessToken, tokenExpireDate)

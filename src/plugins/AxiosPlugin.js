@@ -38,8 +38,7 @@ Axios.interceptors.request.use(
                 'Abp.Localization.CultureName'
             )
             config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
-            let s = (store.getters.currentUser.exp - tools.myTime.CurTime()) / 60
-            if (s < 1) {
+            if (store.getters.isTokenExpired) {
                 if (!window.isRefresh) {
                     console.log('refresh token....................')
                     window.isRefresh = true

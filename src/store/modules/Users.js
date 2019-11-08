@@ -1,4 +1,4 @@
-import { stat } from 'fs'
+import tools from '../../utiltools/tools'
 
 export default {
     state: {
@@ -26,14 +26,14 @@ export default {
             return !!state.token
         },
         token(state) {
-            return (
-                state.token || {
-                    AccessToken: null,
-                    EncryptedAccessToken: null,
-                    ExpireInSeconds: null,
-                    RefreshToken: null
-                }
-            )
+            return state.token
+        },
+        isTokenExpired(state) {
+            if (!!state.currentUser && !!state.token) {
+                let s = (state.currentUser.exp - tools.myTime.CurTime()) / 60
+                if (s >= 5) return false
+            }
+            return true
         }
     },
     actions: {}

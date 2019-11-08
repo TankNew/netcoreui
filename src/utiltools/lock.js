@@ -32,7 +32,7 @@ const userLogin = ({ userNameOrEmailAddress, password, rememberClient, Rurl = '/
     })
 }
 
-const refreshToken = () => {
+const refreshToken = (Rurl = '/home') => {
     let url = tools.tokenUrl + '/RefreshToken'
 
     Ajax.get(url).then(function(response) {
@@ -48,6 +48,7 @@ const refreshToken = () => {
             setToken(token)
             store.commit('setUser', jwtDecode(token.AccessToken))
             store.commit('setToken', token)
+            router.replace(Rurl)
         } else console.error(json)
     })
 }

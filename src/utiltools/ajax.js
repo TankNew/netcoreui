@@ -25,8 +25,6 @@ ajax.interceptors.request.use(
                 'Abp.Localization.CultureName'
             )
             config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
-            // console.log(window.abp.auth.getToken())
-            console.log(`localStorage与cookie同步：${window.abp.auth.getToken() == getToken().AccessToken}`)
         }
         return config
     },
