@@ -40,7 +40,7 @@ Vue.config.productionTip = false
 // 设置ABP本地化
 if (!abp.utils.getCookieValue('Abp.Localization.CultureName')) {
     let language = navigator.language
-    if (language == 'zh-CN') language = 'zh-Hans'
+    // if (language == 'zh-CN') language = 'zh-Hans'
     abp.utils.setCookieValue(
         'Abp.Localization.CultureName',
         language,
@@ -72,9 +72,9 @@ router.beforeEach((to, from, next) => {
                         store.commit('setToken', token)
                         store.commit('setUser', jwtDecode(token.AccessToken))
                         setToken(token)
-                        next()
-                    } else console.error(json)
+                    } else next({ path: '/login', query: { Rurl: to.fullPath } })
                 })
+                .then(() => next())
                 .catch(() => next({ path: '/login', query: { Rurl: to.fullPath } }))
         }
     } else {
