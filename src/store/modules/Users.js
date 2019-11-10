@@ -1,4 +1,5 @@
 import tools from '../../utiltools/tools'
+import { stat } from 'fs'
 
 export default {
     state: {
@@ -29,7 +30,7 @@ export default {
             return state.token
         },
         isTokenExpired(state) {
-            console.log((state.currentUser.exp - tools.myTime.CurTime()) / 60 )
+            if (!!state.currentUser) console.log((state.currentUser.exp - tools.myTime.CurTime()) / 60)
             return !!state.currentUser && (state.currentUser.exp - tools.myTime.CurTime()) / 60 < 1
         }
     },
