@@ -14,43 +14,56 @@ const userLogin = ({ userNameOrEmailAddress, password, rememberClient, Rurl = '/
     }
 
     let url = tools.tokenUrl + '/Authenticate'
-    Ajax.post(url, postData).then(function(response) {
-        var json = response.data
-        if (json.success === true) {
-            let result = json.result
-            let token = {
-                AccessToken: result.accessToken,
-                EncryptedAccessToken: result.encryptedAccessToken,
-                ExpireInSeconds: result.expireInSeconds,
-                RefreshToken: result.refreshToken
-            }
-            setToken(token)
-            store.commit('setUser', jwtDecode(token.AccessToken))
-            store.commit('setToken', token)
-            router.replace(Rurl)
-        } else console.error(json)
-    })
+    Ajax.post(url, postData)
+        .then(function(response) {
+            var json = response.data
+            if (json.success === true) {
+                let result = json.result
+                let token = {
+                    AccessToken: result.accessToken,
+                    EncryptedAccessToken: result.encryptedAccessToken,
+                    ExpireInSeconds: result.expireInSeconds,
+                    RefreshToken: result.refreshToken
+                }
+                store.commit('setToken', token)
+                store.commit('setUser', jwtDecode(token.AccessToken))
+                setToken(token)
+            } else console.error(json)
+        })
+        .then(() =>
+            Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
+                window.abp = tools.extend(true, window.abp, data.data.result)
+            })
+        )
+        .then(() => router.replace(Rurl))
 }
-
-const refreshToken = (Rurl = '/home') => {
+const refreshToken = toPah => {
     let url = tools.tokenUrl + '/RefreshToken'
 
-    Ajax.get(url).then(function(response) {
-        var json = response.data
-        if (json.success === true) {
-            let result = json.result
-            let token = {
-                AccessToken: result.accessToken,
-                EncryptedAccessToken: result.encryptedAccessToken,
-                ExpireInSeconds: result.expireInSeconds,
-                RefreshToken: result.refreshToken
-            }
-            setToken(token)
-            store.commit('setUser', jwtDecode(token.AccessToken))
-            store.commit('setToken', token)
-            router.replace(Rurl)
-        } else console.error(json)
-    })
+    Ajax.get(url)
+        .then(function(response) {
+            var json = response.data
+            if (json.success === true) {
+                let result = json.result
+                let token = {
+                    AccessToken: result.accessToken,
+                    EncryptedAccessToken: result.encryptedAccessToken,
+                    ExpireInSeconds: result.expireInSeconds,
+                    RefreshToken: result.refreshToken
+                }
+                store.commit('setToken', token)
+                store.commit('setUser', jwtDecode(token.AccessToken))
+                setToken(token)
+            } else console.error(json)
+        })
+        .then(() =>
+            Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
+                window.abp = tools.extend(true, window.abp, data.data.result)
+            })
+        )
+        .then(() => {
+            if (toPah) router.push(toPah)
+        })
 }
 
 const getBaseUrl = () => `${window.location.protocol}//${window.location.host}`

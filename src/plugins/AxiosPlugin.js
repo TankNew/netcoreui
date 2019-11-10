@@ -4,7 +4,7 @@ import tools from 'tools'
 import Vue from 'vue'
 import Ajax from '../utiltools/ajax'
 import appconst from '../utiltools/appconst'
-import { setToken, getToken, getUerFromLocalStorage } from '../utiltools/auth'
+import { setToken } from '../utiltools/auth'
 import jwtDecode from 'jwt-decode'
 
 export const Axios = axios.create({
@@ -54,9 +54,9 @@ Axios.interceptors.request.use(
                                     ExpireInSeconds: result.expireInSeconds,
                                     RefreshToken: result.refreshToken
                                 }
-                                setToken(token)
-                                store.commit('setUser', jwtDecode(token.AccessToken))
                                 store.commit('setToken', token)
+                                store.commit('setUser', jwtDecode(token.AccessToken))
+                                setToken(token)
                                 /*执行数组里的函数,重新发起被挂起的请求*/
                                 onRrefreshed(token.AccessToken, token.RefreshToken)
                                 /*执行onRefreshed函数后清空数组中保存的请求*/

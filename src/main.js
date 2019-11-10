@@ -6,8 +6,7 @@ import store from './store'
 import App from './App'
 import router from './router/router.config'
 import VueDND from 'awe-dnd'
-import { getToken, getUerFromLocalStorage } from './utiltools/auth'
-import { refreshToken } from './utiltools/lock'
+import { setToken, getToken, getUerFromLocalStorage } from './utiltools/auth'
 import Ajax from './utiltools/ajax'
 import tools from './utiltools/tools'
 import jwtDecode from 'jwt-decode'
@@ -41,6 +40,7 @@ Vue.config.productionTip = false
 // 设置ABP本地化
 if (!abp.utils.getCookieValue('Abp.Localization.CultureName')) {
     let language = navigator.language
+    if (language == 'zh-CN') language = 'zh-Hans'
     abp.utils.setCookieValue(
         'Abp.Localization.CultureName',
         language,
@@ -49,21 +49,33 @@ if (!abp.utils.getCookieValue('Abp.Localization.CultureName')) {
     )
 }
 
-router.beforeEach((to, from, next) => {
-    /* 为store持久化赋值 */
-    const currentUser = getUerFromLocalStorage()
-    const token = getToken()
-    store.commit('setUser', currentUser)
-    store.commit('setToken', token)
+store.commit('setToken', getToken())
+store.commit('setUser', getUerFromLocalStorage())
 
+router.beforeEach((to, from, next) => {
     if (to.matched.some(m => m.meta.auth)) {
-        if (!store.getters.isTokenExpired) {
-            //如果token未过期
-            next()
-        } else {
+        if (!store.getters.hastoken) next({ path: '/login', query: { Rurl: to.fullPath } })
+        else if (!store.getters.isTokenExpired) next()
+        else {
             // 未登录则跳转到登陆界面，query:{ Rurl: to.fullPath}表示把当前路由信息传递过去方便登录后跳转回来；
-            if (store.getters.hastoken) refreshToken(to.fullPath)
-            else next({ path: '/login', query: { Rurl: to.fullPath } })
+            Ajax.get(tools.tokenUrl + '/RefreshToken')
+                .then(function(response) {
+                    var json = response.data
+                    if (json.success === true) {
+                        let result = json.result
+                        let token = {
+                            AccessToken: result.accessToken,
+                            EncryptedAccessToken: result.encryptedAccessToken,
+                            ExpireInSeconds: result.expireInSeconds,
+                            RefreshToken: result.refreshToken
+                        }
+                        store.commit('setToken', token)
+                        store.commit('setUser', jwtDecode(token.AccessToken))
+                        setToken(token)
+                        next()
+                    } else console.error(json)
+                })
+                .catch(() => next({ path: '/login', query: { Rurl: to.fullPath } }))
         }
     } else {
         next()
@@ -73,19 +85,19 @@ router.beforeEach((to, from, next) => {
 if (!window.localStorage) {
     alert('This browser do not supports localStorage. Please change browser to ie 9.0 at least .')
 }
+// store.commit('setToken', getToken())
+// store.commit('setUser', getUerFromLocalStorage())
 // 设置一个防伪令牌
-Ajax.get('/api/AntiForgery/GetToken')
-
-Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
-    window.abp = tools.extend(true, window.abp, data.data.result)
-    new Vue({
-        el: '#app',
-        router,
-        store,
-        components: { App },
-        template: '<App/>',
-        created() {
-            console.log(`当前时间：${tools.myTime.CurTime()}`)
-        }
+Ajax.get('/api/AntiForgery/GetToken').then(() =>
+    Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
+        window.abp = tools.extend(true, window.abp, data.data.result)
+        new Vue({
+            el: '#app',
+            router,
+            store,
+            components: { App },
+            template: '<App/>',
+            created() {}
+        })
     })
-})
+)

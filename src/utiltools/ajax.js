@@ -1,5 +1,6 @@
 import axios from 'axios'
 import appconst from './appconst'
+import store from '../store'
 import swal from 'sweetalert'
 import { getToken, getUerFromLocalStorage } from './auth'
 const ajax = axios.create({
@@ -18,9 +19,11 @@ ajax.interceptors.request.use(
 
         /**使用localStorage的方式 */
         // 要即时获取，不能提前获取，否则不能更新数据
-        if (getToken() !== undefined) {
-            config.headers.common['Authorization'] = 'Bearer ' + getToken().AccessToken
-            config.headers.common['RefreshToken'] = getToken().RefreshToken
+        store.commit('setToken', getToken())
+        store.commit('setUser', getUerFromLocalStorage())
+        if (store.getters.token) {
+            config.headers.common['Authorization'] = 'Bearer ' + store.getters.token.AccessToken
+            config.headers.common['RefreshToken'] = store.getters.token.RefreshToken
             config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(
                 'Abp.Localization.CultureName'
             )
@@ -49,6 +52,7 @@ ajax.interceptors.response.use(
                 icon: 'error'
             })
         } else if (!!error.response && !!error.response.data.error && !!error.response.data.error.message) {
+            console.log(error.response)
             swal({
                 title: window.abp.localization.localize('LoginFailed'),
                 content: error.response.data.error.message,

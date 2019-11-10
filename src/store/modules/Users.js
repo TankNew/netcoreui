@@ -29,11 +29,7 @@ export default {
             return state.token
         },
         isTokenExpired(state) {
-            if (!!state.currentUser && !!state.token) {
-                let s = (state.currentUser.exp - tools.myTime.CurTime()) / 60
-                if (s >= 5) return false
-            }
-            return true
+            return !!state.currentUser && (state.currentUser.exp - tools.myTime.CurTime()) / 60 < 13
         }
     },
     actions: {}
