@@ -49,10 +49,9 @@ if (!abp.utils.getCookieValue('Abp.Localization.CultureName')) {
     )
 }
 
-store.commit('setToken', getToken())
-store.commit('setUser', getUerFromLocalStorage())
-
 router.beforeEach((to, from, next) => {
+    store.commit('setToken', getToken())
+    store.commit('setUser', getUerFromLocalStorage())
     if (to.matched.some(m => m.meta.auth)) {
         if (!store.getters.hastoken) next({ path: '/login', query: { Rurl: to.fullPath } })
         else if (!store.getters.isTokenExpired) next()
