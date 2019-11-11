@@ -2,7 +2,7 @@ import axios from 'axios'
 import appconst from './appconst'
 import store from '../store'
 import swal from 'sweetalert'
-import { getToken, getUerFromLocalStorage } from './auth'
+import { getToken, getUerFromLocalStorage, unsetToken } from './auth'
 const ajax = axios.create({
     baseURL: appconst.remoteServiceBaseUrl,
     timeout: 30000,
@@ -48,15 +48,17 @@ ajax.interceptors.response.use(
         ) {
             swal({
                 title: error.response.data.error.message,
-                content: error.response.data.error.details,
+                text: error.response.data.error.details,
                 icon: 'error'
             })
         } else if (!!error.response && !!error.response.data.error && !!error.response.data.error.message) {
-            console.log(error.response)
             swal({
                 title: window.abp.localization.localize('LoginFailed'),
-                content: error.response.data.error.message,
+                text: error.response.data.error.message,
                 icon: 'error'
+            }).then(res => {
+                unsetToken()
+                location.href = '/#/login'
             })
         } else if (!error.response) {
             swal({

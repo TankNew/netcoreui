@@ -44,129 +44,125 @@ import { userLogin } from '../utiltools/lock'
 import swal from 'sweetalert'
 import Loading from './custom/loading'
 export default {
-  data() {
-    return {
-      isLoading: false,
-      UserModel: {
-        UserName: '',
-        UserPass: '',
-        UserHead: ''
-      },
-      hasUser: false,
-      rememberPassword: false
-    }
-  },
-  components: {
-    Loading: Loading
-  },
-  methods: {
-    changeUser() {
-      //注销本地用户
-      this.$store.commit('logout')
-      this.hasUser = false
+    data() {
+        return {
+            isLoading: false,
+            UserModel: {
+                UserName: '',
+                UserPass: '',
+                UserHead: ''
+            },
+            hasUser: false,
+            rememberPassword: false
+        }
     },
-    login() {
-      var that = this
-      var Rurl = that.$route.query.Rurl
-      that.isLoading = true
-      that.$validator
-        .validateAll()
-        .then(result => {
-          that.isLoading = false
-          if (result) {
-            userLogin({
-              userNameOrEmailAddress: that.UserModel.UserName,
-              password: that.UserModel.UserPass,
-              rememberClient: that.rememberPassword,
-              Rurl: Rurl
-            })
-            setTimeout(() => {
-              that.UserModel.UserPass = ''
-            }, 50)
-          } else
-            swal({
-              title: '用户名不存在或者密码错误',
-              icon: 'error'
-            })
-        })
-        .catch(failure => {
-          console.log(failure)
-        })
+    components: {
+        Loading: Loading
+    },
+    methods: {
+        changeUser() {
+            //注销本地用户
+            this.$store.commit('logout')
+            this.hasUser = false
+        },
+        login() {
+            var that = this
+            var Rurl = that.$route.query.Rurl
+            that.isLoading = true
+            that.$validator
+                .validateAll()
+                .then(result => {
+                    that.isLoading = false
+                    if (result) {
+                        userLogin({
+                            userNameOrEmailAddress: that.UserModel.UserName,
+                            password: that.UserModel.UserPass,
+                            rememberClient: that.rememberPassword,
+                            Rurl: Rurl
+                        })
+                        setTimeout(() => {
+                            that.UserModel.UserPass = ''
+                        }, 50)
+                    } else
+                        swal({
+                            title: '用户名不存在或者密码错误',
+                            icon: 'error'
+                        })
+                })
+                .catch(failure => {
+                    console.log(failure)
+                })
+        }
+    },
+    mounted: function() {
+        if (!this.$store.getters.isTokenExpired) this.$router.replace('/Home/Hello')
+        if (this.$store.getters.isAuthenticated) {
+            this.hasUser = true
+            let currentUser = this.$store.getters.currentUser
+            this.UserModel.UserName = currentUser.unique_name
+            this.UserModel.UserHead = 'static/imgs/128.png'
+        }
     }
-  },
-  mounted: function() {
-    if (!this.$store.getters.isTokenExpired) this.$router.replace('/Home/Hello')
-    if (this.$store.getters.isAuthenticated) {
-      this.hasUser = true
-      let currentUser = this.$store.getters.currentUser
-      this.UserModel.UserName = currentUser.unique_name
-      this.UserModel.UserHead = 'static/imgs/128.png'
-    }
-  }
 }
 </script>
 <style scoped>
 .form-control.is-invalid {
-  box-shadow: 0 0 0.8rem 0.2rem rgba(220, 53, 69, 0.35);
+    box-shadow: 0 0 0.8rem 0.2rem rgba(220, 53, 69, 0.35);
 }
 
 hr {
-  border: none;
-  border-bottom: 1px solid #fff;
+    border: none;
+    border-bottom: 1px solid #fff;
 }
 
 .error {
-  margin-top: 10px;
-  display: inline-block;
+    margin-top: 10px;
+    display: inline-block;
 }
 
 .control-label {
-  font-size: 16px;
+    font-size: 16px;
 }
 
 .login-logo {
-  display: block;
-  width: 120px;
-  margin-bottom: 20px;
+    display: block;
+    width: 120px;
+    margin-bottom: 20px;
 }
 
 .login-panel {
-  color: #fff;
-  padding: 40px;
-  width: 480px;
-  max-height: 600px;
-  position: fixed;
-  background: rgba(0, 0, 0, 0.3);
-  left: 50%;
-  top: 40%;
-  border-radius: 8px;
-  z-index: 2;
-  box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.7);
-  -webkit-transform: translate(-50%, -50%);
-  -moz-transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-  -o-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
+    color: #fff;
+    padding: 40px;
+    width: 480px;
+    max-height: 600px;
+    position: fixed;
+    background: rgba(0, 0, 0, 0.3);
+    left: 50%;
+    top: 40%;
+    border-radius: 8px;
+    z-index: 2;
+    box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.7);
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 }
 
 .login-bg {
-  height: 100%;
-  background-color: #ffffff;
-  background-image: url('../assets/img/overlay.png'),
-    -moz-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
-    url('../assets/img/bg.jpg');
-  background-image: url('../assets/img/overlay.png'),
-    -webkit-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
-    url('../assets/img/bg.jpg');
-  background-image: url('../assets/img/overlay.png'),
-    -ms-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
-    url('../assets/img/bg.jpg');
-  background-image: url('../assets/img/overlay1.png'),
-    linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
-    url('../assets/img/bg.jpg');
-  background-repeat: repeat, no-repeat, no-repeat;
-  background-size: 100px 100px, cover, cover;
-  background-position: top left, center center, bottom center;
-  background-attachment: fixed, fixed, fixed;
+    height: 100%;
+    background-color: #ffffff;
+    background-image: url('../assets/img/overlay.png'), -moz-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
+        url('../assets/img/bg.jpg');
+    background-image: url('../assets/img/overlay.png'),
+        -webkit-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff), url('../assets/img/bg.jpg');
+    background-image: url('../assets/img/overlay.png'), -ms-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
+        url('../assets/img/bg.jpg');
+    background-image: url('../assets/img/overlay1.png'), linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
+        url('../assets/img/bg.jpg');
+    background-repeat: repeat, no-repeat, no-repeat;
+    background-size: 100px 100px, cover, cover;
+    background-position: top left, center center, bottom center;
+    background-attachment: fixed, fixed, fixed;
 }
 </style>

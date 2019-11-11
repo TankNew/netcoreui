@@ -2,19 +2,19 @@
 .breadcrumb,
 .breadcrumb a,
 .breadcrumb .active {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 .topButton {
-  left: auto;
-  bottom: 50px;
-  right: 50px;
-  font-size: 50px;
-  border: 4px solid rgba(0, 123, 255, 0.5);
-  line-height: 1;
-  border-radius: 50%;
-  padding: 4px;
-  opacity: 0.7;
+    left: auto;
+    bottom: 50px;
+    right: 50px;
+    font-size: 50px;
+    border: 4px solid rgba(0, 123, 255, 0.5);
+    line-height: 1;
+    border-radius: 50%;
+    padding: 4px;
+    opacity: 0.7;
 }
 </style>
 <template>
@@ -81,7 +81,11 @@
     <div class="content">
       <b-navbar toggleable="md" type="dark" variant="info" style="background-color:#6699CC !important;">
         <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
-        <b-navbar-brand tag="h1">网站控制台{{version}}</b-navbar-brand>
+        <b-navbar-brand tag="h1">
+          {{appName}}
+          <span class="copy">&copy;</span>
+          {{appVersion}}
+        </b-navbar-brand>
         <b-collapse is-nav id="nav_collapse">
           <!-- Right aligned nav items -->
           <b-navbar-nav class="ml-auto">
@@ -112,7 +116,7 @@
         <b-breadcrumb :items="breadcrumb" />
         <section ref="scroll1" class="scroll-container">
           <scroll ref="content" class="scroll" :data="scrollData" :autoScroll="false" @scrollTop="scrollTop">
-            <router-view @refreshScroll="refreshScroll" @reloadScroll="reloadScroll" :scorllTopLength="scorllTopLength"></router-view>
+            <router-view @refreshScroll="refreshScroll" @reloadScroll="reloadScroll" :scorllTopLength="scorllTopLength" :appName="appName" :appVersion="appVersion"></router-view>
           </scroll>
         </section>
       </section>
@@ -127,161 +131,163 @@ import scroll from './custom/scroll'
 import jwtDecode from 'jwt-decode'
 import { unsetToken } from '../utiltools/auth'
 export default {
-  name: 'layout',
-  data() {
-    return {
-      loadState: false, // 加载状态
-      scorllTopLength: 0,
-      path: '/',
-      pathname: '',
-      UserModel: {
-        UserName: null,
-        UserHead: null,
-        UserRole: null
-      },
-      menu: '',
-      menuIndex: -1,
-      isCollapsed: false,
-      breadcrumb: [],
-      scrollData: [],
-      clientHeight: document.body.clientHeight
-    }
-  },
-  watch: {
-    //监测当前路径
-    $route(val) {
-      var that = this
-      that.path = val.path
-      that.pathToMenu()
-      that.reloadScroll()
-    },
-    // 监视窗口大小变化
-    clientHeight(val) {
-      this.refreshScroll()
-    }
-  },
-  components: {
-    scroll: scroll
-  },
-  computed: {
-    version() {
-      return AppConsts.appVersion
-    },
-    menuitemClasses: function() {
-      return ['leftBar', this.isCollapsed ? 'shrink' : '']
-    },
-    currentLanguage() {
-      return abp.localization.currentLanguage
-    },
-    languages() {
-      return abp.localization.languages.filter(val => {
-        return !val.isDisabled
-      })
-    },
-    Logout() {
-      return this.L('Logout')
-    }
-  },
-  methods: {
-    //初加载同步菜单
-    pathToMenu() {
-      var that = this
-      that.menu.items.forEach((m, index) => {
-        if (m.url && m.url.toLowerCase() === that.path) {
-          that.menuIndex = index
-          that.breadcrumb = [
-            {
-              text: '根目录',
-              to: { path: '/' }
+    name: 'layout',
+    data() {
+        return {
+            loadState: false, // 加载状态
+            scorllTopLength: 0,
+            path: '/',
+            pathname: '',
+            UserModel: {
+                UserName: null,
+                UserHead: null,
+                UserRole: null
             },
-            {
-              text: m.displayName
-            }
-          ]
-        } else if (m.items) {
-          m.items.forEach(s => {
-            if (s.url === that.path) {
-              that.menuIndex = index
-              that.breadcrumb = [
-                {
-                  text: '根目录',
-                  to: { path: '/' }
-                },
-                {
-                  text: m.displayName
-                },
-                {
-                  text: s.displayName,
-                  active: true
-                }
-              ]
-            }
-          })
+            menu: '',
+            menuIndex: -1,
+            isCollapsed: false,
+            breadcrumb: [],
+            scrollData: [],
+            clientHeight: document.body.clientHeight
         }
-      })
     },
-    //侧导航
-    menuClick(item, index) {
-      if (!item.items.length > 0) {
-        this.$router.push({ path: item.url })
-      } else this.menuIndex = index
+    watch: {
+        //监测当前路径
+        $route(val) {
+            var that = this
+            that.path = val.path
+            that.pathToMenu()
+            that.reloadScroll()
+        },
+        // 监视窗口大小变化
+        clientHeight(val) {
+            this.refreshScroll()
+        }
     },
-    //隐藏侧导航
-    leftBarChange() {
-      this.isCollapsed = !this.isCollapsed
-      console.log(this.isCollapsed)
+    components: {
+        scroll: scroll
     },
-    //安全退出
-    logout() {
-      unsetToken()
+    computed: {
+        appName() {
+            return AppConsts.appName
+        },
+        appVersion() {
+            return AppConsts.appVersion
+        },
+        menuitemClasses: function() {
+            return ['leftBar', this.isCollapsed ? 'shrink' : '']
+        },
+        currentLanguage() {
+            return abp.localization.currentLanguage
+        },
+        languages() {
+            return abp.localization.languages.filter(val => {
+                return !val.isDisabled
+            })
+        },
+        Logout() {
+            return this.L('Logout')
+        }
     },
-    // 返回顶部
-    topClick() {
-      this.$refs.content.ScrollToTop()
+    methods: {
+        //初加载同步菜单
+        pathToMenu() {
+            var that = this
+            that.menu.items.forEach((m, index) => {
+                if (m.url && m.url.toLowerCase() === that.path) {
+                    that.menuIndex = index
+                    that.breadcrumb = [
+                        {
+                            text: '根目录',
+                            to: { path: '/' }
+                        },
+                        {
+                            text: m.displayName
+                        }
+                    ]
+                } else if (m.items) {
+                    m.items.forEach(s => {
+                        if (s.url === that.path) {
+                            that.menuIndex = index
+                            that.breadcrumb = [
+                                {
+                                    text: '根目录',
+                                    to: { path: '/' }
+                                },
+                                {
+                                    text: m.displayName
+                                },
+                                {
+                                    text: s.displayName,
+                                    active: true
+                                }
+                            ]
+                        }
+                    })
+                }
+            })
+        },
+        //侧导航
+        menuClick(item, index) {
+            if (!item.items.length > 0) {
+                this.$router.push({ path: item.url })
+            } else this.menuIndex = index
+        },
+        //隐藏侧导航
+        leftBarChange() {
+            this.isCollapsed = !this.isCollapsed
+            console.log(this.isCollapsed)
+        },
+        //安全退出
+        logout() {
+            unsetToken()
+        },
+        // 返回顶部
+        topClick() {
+            this.$refs.content.ScrollToTop()
+        },
+        refreshScroll() {
+            this.$refs.content.refresh()
+        },
+        reloadScroll() {
+            if (this.loadState) this.$refs.content.reload()
+        },
+        // 调整工具栏位置
+        scrollTop(val) {
+            this.scorllTopLength = val
+        },
+        // 预加载
+        load() {
+            console.log(this.hasPermission('Pages.Users'))
+            console.log(abp.session)
+        }
     },
-    refreshScroll() {
-      this.$refs.content.refresh()
+    created() {
+        let that = this
+        that.menu = abp.nav.menus.MainMenu
+        that.path = that.$router.history.current.path
+        that.pathToMenu()
+        let currentUser = that.$store.getters.currentUser
+        that.UserModel.UserName = currentUser.unique_name
+        that.UserModel.UserHead = 'static/imgs/128.png'
+        that.UserModel.UserRole = currentUser.roles
+        that.load()
     },
-    reloadScroll() {
-      if (this.loadState) this.$refs.content.reload()
+    mounted() {
+        var that = this
+        window.onresize = () => {
+            return (() => {
+                that.clientHeight = document.body.clientHeight
+            })()
+        }
+        that.$nextTick(() => {
+            that.loadState = true
+            that.reloadScroll()
+        })
     },
-    // 调整工具栏位置
-    scrollTop(val) {
-      this.scorllTopLength = val
-    },
-    // 预加载
-    load() {
-      console.log(this.hasPermission('Pages.Users'))
-      console.log(window.abp.auth.allPermissions)
+    beforeDestory() {
+        console.log('beforeDestory')
+        that.loadState = false
     }
-  },
-  created() {
-    let that = this
-    that.menu = abp.nav.menus.MainMenu
-    that.path = that.$router.history.current.path
-    that.pathToMenu()
-    let currentUser = that.$store.getters.currentUser
-    that.UserModel.UserName = currentUser.unique_name
-    that.UserModel.UserHead = 'static/imgs/128.png'
-    that.UserModel.UserRole = currentUser.roles
-    that.load()
-    console.log(that.menu.items)
-  },
-  mounted() {
-    var that = this
-    window.onresize = () => {
-      return (() => {
-        that.clientHeight = document.body.clientHeight
-      })()
-    }
-    that.$nextTick(() => {
-      that.loadState = true
-      that.reloadScroll()
-    })
-  },
-  beforeDestory() {
-    console.log('beforeDestory')
-    that.loadState = false
-  }
 }
 </script>

@@ -2,25 +2,22 @@
   <section class="container-fluid">
     <div class="jumbotron">
       <h1>
-        欢迎您使用{{copy}}
+        欢迎您使用{{appName}}
         <span class="copy">&copy;</span>
-        网站控制台{{version}}
+        {{appVersion}}
       </h1>
       <p class="small">为了您的网站安全，请不要泄露本程序到公网上，否则造成一切后果由您来承担</p>
       <hr class="my-4" />
       <dl>
         <dt>更新新特性:</dt>
-        <dd>
-          1.基于
-          <code>Domain Model</code>的现代框架.
-        </dd>
+        <dd>1.基于 领域驱动设计(DDD) 的现代框架.</dd>
         <dd>2.多语言，本地化支持.</dd>
-        <dd>3.多租户支持（租户之间数据完全隔离）.</dd>
+        <dd>3.多租户支持（程序共享，数据隔离）.</dd>
         <dd>4.日志记录.</dd>
         <dd>5.身份验证令牌与授权管理.</dd>
         <dd>6.增加管理员与权限自由分配.</dd>
         <dd>7.开启用户注册.</dd>
-        <dd>8.消息即时通讯(在线与访客无延迟沟通).</dd>
+        <dd>8.消息即时通讯(即将开放).</dd>
       </dl>
       <hr class="my-4" />
       <h3>核心技术：</h3>
@@ -34,7 +31,7 @@
       </p>
     </div>
     <div class="card text-center mb-3">
-      <div class="card-header">产品精选</div>
+      <div class="card-header">更多服务</div>
       <div class="card-body ad">
         <div v-for="(item,index) in ads" :key="index">
           <h5 class="card-title">{{item.title}}</h5>
@@ -63,15 +60,10 @@ export default {
             ]
         }
     },
-    computed: {
-        version() {
-            return AppConsts.appVersion
-        }
-    },
+    computed: {},
+    props: ['appVersion', 'appName'],
     methods: {},
-    created() {
-        this.copy = this.$store.state.Counter.title
-    },
+    created() {},
     mounted() {
         var that = this
     }

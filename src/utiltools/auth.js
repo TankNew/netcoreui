@@ -35,15 +35,15 @@ export const setToken = token => {
     window.localStorage.setItem('token', JSON.stringify(token))
     window.localStorage.setItem('currentUser', JSON.stringify(jwtDecode(token.AccessToken)))
     // //设置到COOKIE
-    // var tokenExpireDate = new Date(new Date().getTime() + 1000 * token.expireInSeconds)
-    // window.abp.auth.setToken(token.AccessToken, tokenExpireDate)
-    // window.abp.utils.setCookieValue(
-    //     appconst.authorization.encrptedAuthTokenName,
-    //     token.EncryptedAccessToken,
-    //     tokenExpireDate,
-    //     window.abp.appPath
-    // )
-    console.log(`setToken`)
+    var tokenExpireDate = new Date(new Date().getTime() + 1000 * token.expireInSeconds)
+    window.abp.auth.setToken(token.AccessToken, tokenExpireDate)
+    window.abp.utils.setCookieValue(
+        appconst.authorization.encrptedAuthTokenName,
+        token.EncryptedAccessToken,
+        tokenExpireDate,
+        window.abp.appPath
+    )
+    console.log(`Login`)
     // Cookie.set('jwt', token.AccessToken)
 }
 
