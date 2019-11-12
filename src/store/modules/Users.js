@@ -30,8 +30,7 @@ export default {
             return state.token
         },
         isTokenExpired(state) {
-            if (!!state.currentUser) console.log((state.currentUser.exp - tools.myTime.CurTime()) / 60)
-            return !!state.currentUser && (state.currentUser.exp - tools.myTime.CurTime()) / 60 < 1
+            return !!state.currentUser && (state.currentUser.exp - tools.myTime.CurTime()) / 60 < 4
         }
     },
     actions: {}

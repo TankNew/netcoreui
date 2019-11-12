@@ -63,7 +63,12 @@ export default {
     computed: {},
     props: ['appVersion', 'appName'],
     methods: {},
-    created() {},
+    created() {
+        var that = this
+        that.$http
+            .get('/api/services/app/Session/GetCurrentLoginInformations')
+            .then(res => console.log(res.data.result))
+    },
     mounted() {
         var that = this
     }

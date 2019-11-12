@@ -43,7 +43,7 @@ export const setToken = token => {
         tokenExpireDate,
         window.abp.appPath
     )
-    console.log(`Login`)
+    console.log(`setToken`)
     // Cookie.set('jwt', token.AccessToken)
 }
 

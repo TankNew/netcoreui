@@ -56,7 +56,7 @@ ajax.interceptors.response.use(
                 title: window.abp.localization.localize('LoginFailed'),
                 text: error.response.data.error.message,
                 icon: 'error'
-            }).then(res => {
+            }).then(res => { 
                 unsetToken()
                 location.href = '/#/login'
             })

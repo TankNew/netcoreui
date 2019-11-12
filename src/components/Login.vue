@@ -83,11 +83,7 @@ export default {
                         setTimeout(() => {
                             that.UserModel.UserPass = ''
                         }, 50)
-                    } else
-                        swal({
-                            title: '用户名不存在或者密码错误',
-                            icon: 'error'
-                        })
+                    }
                 })
                 .catch(failure => {
                     console.log(failure)

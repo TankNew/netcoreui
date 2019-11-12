@@ -9,7 +9,7 @@ import jwtDecode from 'jwt-decode'
 
 export const Axios = axios.create({
     baseURL: appconst.remoteServiceBaseUrl,
-    timeout: 5000,
+    timeout: 30000,
     withCredentials: true //必须添加，否则服务器无法设置COOKIE
 })
 window.isRefresh = false
@@ -87,15 +87,15 @@ Axios.interceptors.request.use(
 )
 
 Axios.interceptors.response.use(
-    res => {
+    respon => {
         //对响应数据做些事
-        return res
+        return respon
     },
     error => {
         if (error.response) {
-            console.log(error.response.data.error)
             swal({
-                title: `远程服务器连接出错：${error.response.status}`,
+                title: error.response.status,
+                text: error.response.data.error.message,
                 icon: 'error'
             })
             if (error.response.status === 401) {
@@ -114,7 +114,7 @@ Axios.interceptors.response.use(
             // Something happened in setting up the request that triggered an Error
             console.log('Error', error.message)
         }
-        // console.log(error.config)
+        console.log(error.config)
         // 返回 response 里的错误信息
         return Promise.reject(error)
     }

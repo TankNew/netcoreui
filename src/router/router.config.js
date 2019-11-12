@@ -8,49 +8,75 @@ import Setting from '@/components/Setting'
 import Charts from '@/components/Charts'
 import Announce from '@/components/Announce'
 import Banner from '@/components/Banner'
-import Contact from '@/components/Contact'
-import Pages from '@/components/Pages'
-import CustomPage from '@/components/CustomPage'
-
+import CompanyInfo from '@/components/CompanyInfo'
+import PageConfig from '@/components/PageConfig'
+import Modules from '@/components/Modules'
 
 Vue.use(Router)
 
 export default new Router({
-  routes: [
-    {
-      path: '/home',
-      name: 'Layout',
-      component: Layout,
-      meta: { auth: true },
-      children: [
-        {          path: 'hello',
-          name: 'hello',          component: Hello        },
-        {          path: 'news',
-          name: 'news',          component: News        },
-        {          path: 'announce',
-          name: 'announce',          component: Announce        },
-        {          path: 'charts',
-          name: 'charts',          component: Charts        },
-        {          path: 'setting',
-          name: 'setting',          component: Setting        },
-        {          path: 'custompage',
-          name: 'custompage',          component: CustomPage        },
-        {          path: 'pages',
-          name: 'pages',          component: Pages        },
-        {          path: 'banner',
-          name: 'banner',          component: Banner        },
-        {          path: 'contact',
-          name: 'contact',          component: Contact        }
-      ]
-    },
-    {
-      path: '/',
-      redirect: '/home/hello'
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: Login
-    }
-  ]
+    routes: [
+        {
+            path: '/home',
+            name: 'Layout',
+            component: Layout,
+            meta: { auth: true },
+            children: [
+                {
+                    path: 'hello',
+                    name: 'hello',
+                    component: Hello
+                },
+                {
+                    path: 'news',
+                    name: 'news',
+                    component: News
+                },
+                {
+                    path: 'announce',
+                    name: 'announce',
+                    component: Announce
+                },
+                {
+                    path: 'charts',
+                    name: 'charts',
+                    component: Charts
+                },
+                {
+                    path: 'setting',
+                    name: 'setting',
+                    component: Setting
+                },
+                {
+                    path: 'modules',
+                    name: 'modules',
+                    component: Modules
+                },
+                {
+                    path: 'pageconfig',
+                    name: 'pageconfig',
+                    component: PageConfig
+                },
+                {
+                    path: 'banner',
+                    name: 'banner',
+                    component: Banner
+                },
+                {
+                    path: 'companyinfo',
+                    name: 'companyinfo',
+                    component: CompanyInfo
+                }
+            ]
+        },
+        {
+            path: '/',
+            redirect: '/home/hello'
+        },
+        {
+            path: '/login',
+            name: 'login',
+            component: Login
+        }
+    ]
 })
