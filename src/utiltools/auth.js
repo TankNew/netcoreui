@@ -54,7 +54,7 @@ export const unsetToken = () => {
     window.localStorage.removeItem('secret')
 
     //清除cookie
-    window.abp.auth.clearToken()
+    window.abp.utils.deleteCookie(window.abp.auth.tokenCookieName, window.abp.appPath)
     window.abp.utils.deleteCookie(appconst.authorization.encrptedAuthTokenName, window.abp.appPath)
     // Cookie.remove('jwt')
     window.localStorage.setItem('logout', Date.now())

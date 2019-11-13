@@ -38,19 +38,16 @@ Vue.use(BootstrapVue)
 Vue.config.productionTip = false
 
 // 设置ABP本地化
-if (!abp.utils.getCookieValue('Abp.Localization.CultureName')) {
+if (!abp.utils.getCookieValue(abp.localization.cookieName)) {
     let language = navigator.language
     // if (language == 'zh-CN') language = 'zh-Hans'
     abp.utils.setCookieValue(
-        'Abp.Localization.CultureName',
+        abp.localization.cookieName,
         language,
         new Date(new Date().getTime() + 5 * 365 * 86400000),
         abp.appPath
     )
 }
-
-//测试用，设置租户ID
-abp.multiTenancy.setTenantIdCookie(1)
 
 if (!window.localStorage) {
     alert('This browser do not supports localStorage. Please change browser to ie 9.0 at least .')
@@ -58,7 +55,7 @@ if (!window.localStorage) {
 store.commit('setToken', getToken())
 store.commit('setUser', getUerFromLocalStorage())
 // 设置一个防伪令牌
-Ajax.get('/api/AntiForgery/GetToken').then(async () => {
+let mainLoad = async () => {
     if (!!store.getters.hastoken && store.getters.isTokenExpired)
         await Ajax.get(tools.tokenUrl + '/RefreshToken').then(function(response) {
             var json = response.data
@@ -75,34 +72,35 @@ Ajax.get('/api/AntiForgery/GetToken').then(async () => {
                 setToken(token)
             } else next({ path: '/login', query: { Rurl: to.fullPath } })
         })
-    Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
+    router.beforeEach((to, from, next) => {
+        store.commit('setToken', getToken())
+        store.commit('setUser', getUerFromLocalStorage())
+        if (to.matched.some(m => m.meta.auth)) {
+            if (!store.getters.hastoken) next({ path: '/login', query: { Rurl: to.fullPath } })
+            else if (!store.getters.isTokenExpired) next()
+            else
+                Ajax.get(tools.tokenUrl + '/RefreshToken')
+                    .then(function(response) {
+                        var json = response.data
+                        if (json.success === true) {
+                            let result = json.result
+                            let token = {
+                                AccessToken: result.accessToken,
+                                EncryptedAccessToken: result.encryptedAccessToken,
+                                ExpireInSeconds: result.expireInSeconds,
+                                RefreshToken: result.refreshToken
+                            }
+                            store.commit('setToken', token)
+                            store.commit('setUser', jwtDecode(token.AccessToken))
+                            setToken(token)
+                        } else next({ path: '/login', query: { Rurl: to.fullPath } })
+                    })
+                    .then(() => next())
+        } else next()
+    })
+    await Ajax.get('/api/AntiForgery/GetToken')
+    await Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
         window.abp = tools.extend(true, window.abp, data.data.result)
-        router.beforeEach((to, from, next) => {
-            store.commit('setToken', getToken())
-            store.commit('setUser', getUerFromLocalStorage())
-            if (to.matched.some(m => m.meta.auth)) {
-                if (!store.getters.hastoken) next({ path: '/login', query: { Rurl: to.fullPath } })
-                else if (!store.getters.isTokenExpired) next()
-                else
-                    Ajax.get(tools.tokenUrl + '/RefreshToken')
-                        .then(function(response) {
-                            var json = response.data
-                            if (json.success === true) {
-                                let result = json.result
-                                let token = {
-                                    AccessToken: result.accessToken,
-                                    EncryptedAccessToken: result.encryptedAccessToken,
-                                    ExpireInSeconds: result.expireInSeconds,
-                                    RefreshToken: result.refreshToken
-                                }
-                                store.commit('setToken', token)
-                                store.commit('setUser', jwtDecode(token.AccessToken))
-                                setToken(token)
-                            } else next({ path: '/login', query: { Rurl: to.fullPath } })
-                        })
-                        .then(() => next())
-            } else next()
-        })
         new Vue({
             el: '#app',
             router,
@@ -112,4 +110,6 @@ Ajax.get('/api/AntiForgery/GetToken').then(async () => {
             created() {}
         })
     })
-})
+}
+
+mainLoad()

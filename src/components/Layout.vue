@@ -18,114 +18,133 @@
 }
 </style>
 <template>
-  <section class="main">
-    <!--滚动到顶端-->
-    <div class="fixed-bottom topButton">
-      <a href="javascript:void(0)" @click="topClick">
-        <i class="far fa-arrow-alt-circle-up"></i>
-      </a>
-    </div>
-    <!--左侧菜单设置-->
-    <div :class="menuitemClasses">
-      <span class="left-bar-shrink" @click="leftBarChange">
-        <i class="fas fa-bars"></i>
-      </span>
-      <h5>
-        <img src="@/assets/img/logo.png" />
-      </h5>
-      <div class="sidebar-header">
-        <div class="user-pic">
-          <img class="img-responsive img-rounded mCS_img_loaded" src="static/imgs/64.png" alt />
-        </div>
-        <div class="user-info">
-          <span class="user-name">
-            <strong>{{UserModel.UserName}}</strong>
-          </span>
-          <span class="user-role">{{UserModel.UserRole}}</span>
-          <div class="user-status">
-            <a href="javascript:void(0)">
-              <span class="btn btn-success btn-sm" style="padding:0 0.2rem;">Online</span>
+    <section class="main">
+        <!--滚动到顶端-->
+        <div class="fixed-bottom topButton">
+            <a href="javascript:void(0)" @click="topClick">
+                <i class="far fa-arrow-alt-circle-up"></i>
             </a>
-          </div>
         </div>
-      </div>
-      <b-input-group size="sm">
-        <b-form-input placeholder="搜索设置项"></b-form-input>
-        <b-input-group-append>
-          <b-btn variant="primary">
-            <i class="fas fa-angle-right px-1"></i>
-          </b-btn>
-        </b-input-group-append>
-      </b-input-group>
-      <div class="sidebar-menu">
-        <ul>
-          <li :class="[item.items.length>0?'sidebar-dropdown':'sidebar-link',menuIndex==index||path==item.url?'active':'']" v-for="(item,index) in menu.items" :key="index">
-            <a href="javascript:void(0)" @click="menuClick(item,index)">
-              <i :class="item.icon"></i>
-              <span>{{item.displayName}}</span>
-              <span v-if="item.isnew" class="badge badge-success">New</span>
-              <span v-if="item.ispage" class="badge badge-warning">P</span>
-            </a>
-            <div class="sidebar-submenu" v-if="item.items.length>0">
-              <ul>
-                <li v-for="(sub,subindex) in item.items" :key="subindex">
-                  <a href="javascript:void(0)" :class="path==sub.url?'active':''" @click="menuClick(sub,subindex)">{{sub.displayName}}</a>
-                </li>
-              </ul>
+        <!--左侧菜单设置-->
+        <div :class="menuitemClasses">
+            <span class="left-bar-shrink" @click="leftBarChange">
+                <i class="fas fa-bars"></i>
+            </span>
+            <h5>
+                <img src="@/assets/img/logo.png" />
+            </h5>
+            <div class="sidebar-header">
+                <div class="user-pic">
+                    <img class="img-responsive img-rounded mCS_img_loaded" src="static/imgs/64.png" alt />
+                </div>
+                <div class="user-info">
+                    <span class="user-name">
+                        <strong>{{ UserModel.UserName }}</strong>
+                    </span>
+                    <span class="user-role">{{ UserModel.UserRole }}</span>
+                    <div class="user-status">
+                        <a href="javascript:void(0)">
+                            <span class="btn btn-success btn-sm" style="padding:0 0.2rem;">Online</span>
+                        </a>
+                    </div>
+                </div>
             </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-    <!--主体内容设置-->
-    <div class="content">
-      <b-navbar toggleable="md" type="dark" variant="info" style="background-color:#6699CC !important;">
-        <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
-        <b-navbar-brand tag="h1">
-          {{appName}}
-          <span class="copy">&copy;</span>
-          {{appVersion}}
-        </b-navbar-brand>
-        <b-collapse is-nav id="nav_collapse">
-          <!-- Right aligned nav items -->
-          <b-navbar-nav class="ml-auto">
-            <b-nav-item-dropdown right offset="25">
-              <template slot="button-content">
-                <i class="fab fa-creative-commons mr_10"></i>语言
-              </template>
-              <b-dropdown-item v-for="(language,index) in languages" :key="index" href="javascript:void(0)">
-                <i :class="[language.icon,'fas']"></i>
-                {{language.displayName}}
-              </b-dropdown-item>
-            </b-nav-item-dropdown>
-            <b-nav-item-dropdown right offset="125">
-              <!-- Using button-content slot -->
-              <template slot="button-content">
-                <i class="fas fa-users-cog mr_10"></i>用户
-              </template>
-              <b-dropdown-item href="javascript:void(0)">个人资料</b-dropdown-item>
-              <b-dropdown-item href="javascript:void(0)" @click="logout">{{Logout}}</b-dropdown-item>
-            </b-nav-item-dropdown>
-          </b-navbar-nav>
-        </b-collapse>
-      </b-navbar>
+            <b-input-group size="sm">
+                <b-form-input placeholder="搜索设置项"></b-form-input>
+                <b-input-group-append>
+                    <b-btn variant="primary">
+                        <i class="fas fa-angle-right px-1"></i>
+                    </b-btn>
+                </b-input-group-append>
+            </b-input-group>
+            <div class="sidebar-menu">
+                <ul>
+                    <li
+                        :class="[
+                            item.items.length > 0 ? 'sidebar-dropdown' : 'sidebar-link',
+                            menuIndex == index || path == item.url ? 'active' : ''
+                        ]"
+                        v-for="(item, index) in menu.items"
+                        :key="index"
+                    >
+                        <a href="javascript:void(0)" @click="menuClick(item, index)">
+                            <i :class="item.icon"></i>
+                            <span>{{ item.displayName }}</span>
+                            <span v-if="item.isnew" class="badge badge-success">New</span>
+                            <span v-if="item.ispage" class="badge badge-warning">P</span>
+                        </a>
+                        <div class="sidebar-submenu" v-if="item.items.length > 0">
+                            <ul>
+                                <li v-for="(sub, subindex) in item.items" :key="subindex">
+                                    <a
+                                        href="javascript:void(0)"
+                                        :class="path == sub.url ? 'active' : ''"
+                                        @click="menuClick(sub, subindex)"
+                                        >{{ sub.displayName }}</a
+                                    >
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!--主体内容设置-->
+        <div class="content">
+            <b-navbar toggleable="md" type="dark" variant="info" style="background-color:#6699CC !important;">
+                <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
+                <b-navbar-brand tag="h1">
+                    {{ appName }}<span class="copy">&copy;</span>{{ appVersion }}
+                </b-navbar-brand>
+                <b-collapse is-nav id="nav_collapse">
+                    <!-- Right aligned nav items -->
+                    <b-navbar-nav class="ml-auto">
+                        <b-nav-item-dropdown right offset="25">
+                            <template slot="button-content">
+                                <i class="fab fa-creative-commons mr_10"></i>语言
+                            </template>
+                            <b-dropdown-item
+                                v-for="(language, index) in languages"
+                                :key="index"
+                                @click="changeLanguage(language.name)"
+                            >
+                                <i :class="[language.icon, 'fas']"></i>
+                                {{ language.displayName }}
+                            </b-dropdown-item>
+                        </b-nav-item-dropdown>
+                        <b-nav-item-dropdown right offset="125">
+                            <!-- Using button-content slot -->
+                            <template slot="button-content"> <i class="fas fa-users-cog mr_10"></i>用户 </template>
+                            <b-dropdown-item href="javascript:void(0)">个人资料</b-dropdown-item>
+                            <b-dropdown-item href="javascript:void(0)" @click="logout">{{ Logout }}</b-dropdown-item>
+                        </b-nav-item-dropdown>
+                    </b-navbar-nav>
+                </b-collapse>
+            </b-navbar>
 
-      <!--内页设置-->
-      <section class="content-body">
-        <!-- 地址栏 -->
-        <b-breadcrumb :items="breadcrumb" />
-        <section ref="scroll1" class="scroll-container">
-          <scroll ref="content" class="scroll" :data="scrollData" :autoScroll="false" @scrollTop="scrollTop">
-            <router-view @refreshScroll="refreshScroll" @reloadScroll="reloadScroll" :scorllTopLength="scorllTopLength" :appName="appName" :appVersion="appVersion"></router-view>
-          </scroll>
-        </section>
-      </section>
-    </div>
-    <!--底部-->
-  </section>
+            <!--内页设置-->
+            <section class="content-body">
+                <!-- 地址栏 -->
+                <b-breadcrumb :items="breadcrumb" />
+                <section ref="scroll1" class="scroll-container">
+                    <scroll ref="content" class="scroll" :data="scrollData" :autoScroll="false" @scrollTop="scrollTop">
+                        <router-view
+                            @refreshScroll="refreshScroll"
+                            @reloadScroll="reloadScroll"
+                            :scorllTopLength="scorllTopLength"
+                            :appName="appName"
+                            :appVersion="appVersion"
+                        ></router-view>
+                    </scroll>
+                </section>
+            </section>
+        </div>
+        <!--底部-->
+    </section>
 </template>
 <script>
 import tools from 'tools'
+import Ajax from '../utiltools/ajax'
 import AppConsts from '../utiltools/appconst'
 import scroll from './custom/scroll'
 import jwtDecode from 'jwt-decode'
@@ -238,9 +257,24 @@ export default {
             this.isCollapsed = !this.isCollapsed
             console.log(this.isCollapsed)
         },
+        // 更改语言
+        async changeLanguage(val) {
+            await this.$store.dispatch({
+                type: 'changeLanguage',
+                data: { languageName: val }
+            })
+            abp.utils.setCookieValue(
+                abp.localization.cookieName,
+                val,
+                new Date(new Date().getTime() + 5 * 365 * 86400000), //5 year
+                abp.appPath
+            )
+            location.reload()
+        },
         //安全退出
         logout() {
             unsetToken()
+            location.replace('/#/login')
         },
         // 返回顶部
         topClick() {
@@ -257,16 +291,20 @@ export default {
             this.scorllTopLength = val
         },
         // 预加载
-        load() {
+        async load() {
+            let that = this
+            await that.$http.get('/api/services/app/Session/GetCurrentUserMenu').then(res => {
+                that.menu = res.data.result
+                that.path = that.$router.history.current.path
+                that.pathToMenu()
+            })
             console.log(this.hasPermission('Pages.Users'))
-            console.log(abp.session)
+            this.$http.get('/api/services/app/CatalogGroup/GetAll').then(res => console.log(res))
         }
     },
     created() {
         let that = this
-        that.menu = abp.nav.menus.MainMenu
-        that.path = that.$router.history.current.path
-        that.pathToMenu()
+
         let currentUser = that.$store.getters.currentUser
         that.UserModel.UserName = currentUser.unique_name
         that.UserModel.UserHead = 'static/imgs/128.png'

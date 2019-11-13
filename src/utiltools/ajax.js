@@ -14,7 +14,7 @@ ajax.interceptors.request.use(
         // if (window.abp.auth.getToken()) {
         //     config.headers.common['Authorization'] = 'Bearer ' + window.abp.auth.getToken()
         // }
-        // config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue('Abp.Localization.CultureName')
+        // config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(abp.localization.cookieName)
         // config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
 
         /**使用localStorage的方式 */
@@ -24,11 +24,9 @@ ajax.interceptors.request.use(
         if (store.getters.token) {
             config.headers.common['Authorization'] = 'Bearer ' + store.getters.token.AccessToken
             config.headers.common['RefreshToken'] = store.getters.token.RefreshToken
-            config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(
-                'Abp.Localization.CultureName'
-            )
-            config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
         }
+        config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(abp.localization.cookieName)
+        config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
         return config
     },
     function(error) {
@@ -56,9 +54,9 @@ ajax.interceptors.response.use(
                 title: window.abp.localization.localize('LoginFailed'),
                 text: error.response.data.error.message,
                 icon: 'error'
-            }).then(res => { 
+            }).then(res => {
                 unsetToken()
-                location.href = '/#/login'
+                location.replace = '/#/login'
             })
         } else if (!error.response) {
             swal({

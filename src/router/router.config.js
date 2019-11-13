@@ -18,6 +18,7 @@ export default new Router({
     routes: [
         {
             path: '/home',
+            redirect: '/home/hello',
             name: 'Layout',
             component: Layout,
             meta: { auth: true },

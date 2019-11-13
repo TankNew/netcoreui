@@ -1,47 +1,82 @@
 <template>
-  <div class="login-bg">
-    <div class="login-panel">
-      <Loading :isLoading="isLoading"></Loading>
-      <img class="login-logo" src="@/assets/img/logo.png" v-if="!hasUser" />
-      <hr v-if="!hasUser" />
-      <form class="form-horizontal" @submit.prevent="login" autocomplete="off">
-        <div class="form-group center" v-if="hasUser">
-          <img :src="UserModel.UserHead" />
-          <h5>{{UserModel.UserName}}</h5>
+    <div class="login-bg">
+        <div class="login-panel">
+            <Loading :isLoading="isLoading"></Loading>
+            <img class="login-logo" src="@/assets/img/logo.png" v-if="!hasUser" />
+            <hr v-if="!hasUser" />
+            <form class="form-horizontal" @submit.prevent="login" autocomplete="off">
+                <div class="form-group center" v-if="hasUser">
+                    <img :src="UserModel.UserHead" />
+                    <h5>{{ UserModel.UserName }}</h5>
+                </div>
+                <div class="form-group" v-if="!hasUser">
+                    <label for="inputEmail3" class="control-label">用户名</label>
+                    <div>
+                        <input
+                            type="text"
+                            :class="['form-control', errors.has('用户名') ? 'is-invalid' : '']"
+                            id="inputEmail3"
+                            name="用户名"
+                            placeholder="用户名"
+                            v-model="UserModel.UserName"
+                            v-validate="'required|min:4'"
+                        />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword3" class="control-label">密 码</label>
+                    <div>
+                        <input
+                            type="password"
+                            :class="['form-control', errors.has('密码') ? 'is-invalid' : '']"
+                            id="inputPassword3"
+                            name="密码"
+                            placeholder="密码"
+                            v-model="UserModel.UserPass"
+                            v-validate="'required|min:6'"
+                        />
+                    </div>
+                </div>
+                <div class="form-group text-right">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" v-model="rememberPassword" /> Remember me
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group text-center" v-if="hasUser">
+                    <a href="javascript:void(0)" @click="logout">切换其他账户</a>
+                </div>
+                <hr />
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success px-5 w-100">登陆</button>
+                </div>
+                <div class="text-center">
+                    <p>
+                        <a class="btn btn-outline-secondary" @click="changeTenant">
+                            <span>测试专用</span>
+                            <span v-if="displayTenancyName">MultiTenancySide： {{ displayTenancyName }}</span>
+                            <span v-else>MultiTenancySide：主机</span>
+                        </a>
+                    </p>
+                    <dl>
+                        <dd class="d-inline mr-2" v-for="(language, index) in languages" :key="index">
+                            <a @click="changeLanguage(language.name)" :class="[ 'btn',  'btn-outline-primary',  language.displayName == currentLanguage.displayName ? 'active' : '' ]">
+                                <i :class="['fas', language.icon]" />
+                                {{ language.displayName }}
+                            </a>
+                        </dd>
+                    </dl>
+                </div>
+            </form>
         </div>
-        <div class="form-group" v-if="!hasUser">
-          <label for="inputEmail3" class="control-label">用户名</label>
-          <div>
-            <input type="text" :class="['form-control',errors.has('用户名')?'is-invalid':'']" id="inputEmail3" name="用户名" placeholder="用户名" v-model="UserModel.UserName" v-validate="'required|min:4'" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputPassword3" class="control-label">密 码</label>
-          <div>
-            <input type="password" :class="['form-control',errors.has('密码')?'is-invalid':'']" id="inputPassword3" name="密码" placeholder="密码" v-model="UserModel.UserPass" v-validate="'required|min:6'" />
-          </div>
-        </div>
-        <div class="form-group text-right">
-          <div class="checkbox">
-            <label>
-              <input type="checkbox" v-model="rememberPassword" /> Remember me
-            </label>
-          </div>
-        </div>
-        <div class="form-group text-center" v-if="hasUser">
-          <a href="javascript:void(0)" @click="changeUser">切换其他账户</a>
-        </div>
-        <hr />
-        <div class="form-group text-right">
-          <button type="submit" class="btn btn-success px-5">登陆</button>
-        </div>
-      </form>
     </div>
-  </div>
 </template>
 <script>
 import { userLogin } from '../utiltools/lock'
+import { unsetToken } from '../utiltools/auth'
 import swal from 'sweetalert'
+import Ajax from '../utiltools/ajax'
 import Loading from './custom/loading'
 export default {
     data() {
@@ -53,16 +88,67 @@ export default {
                 UserHead: ''
             },
             hasUser: false,
-            rememberPassword: false
+            rememberPassword: false,
+            changedTenancyName: '',
+            displayTenancyName: ''
         }
     },
     components: {
         Loading: Loading
     },
+    computed: {
+        languages() {
+            return abp.localization.languages.filter(val => {
+                return !val.isDisabled
+            })
+        },
+        currentLanguage() {
+            return abp.localization.currentLanguage
+        }
+    },
     methods: {
-        changeUser() {
+        changeLanguage(languageName) {
+            abp.utils.setCookieValue(
+                abp.localization.cookieName,
+                languageName,
+                new Date(new Date().getTime() + 5 * 365 * 86400000), //5 year
+                abp.appPath
+            )
+            location.reload()
+        },
+        async changeTenant() {
+            if (!this.changedTenancyName) {
+                this.displayTenancyName = 'Default'
+                this.changedTenancyName = 'Default'
+                let tenant = await this.$store.dispatch({
+                    type: 'isTenantAvailable',
+                    data: { tenancyName: this.changedTenancyName }
+                })
+                switch (tenant.state) {
+                    case 1:
+                        abp.multiTenancy.setTenantIdCookie(tenant.tenantId)
+                        // location.reload()
+                        break
+                    case 2:
+                        this.$Modal.error({ title: this.L('Error'), content: this.L('TenantIsNotActive') })
+                        break
+                    case 3:
+                        this.$Modal.error({
+                            title: this.L('Error'),
+                            content: this.L('ThereIsNoTenantDefinedWithName{0}', undefined, this.changedTenancyName)
+                        })
+                        break
+                }
+            } else {
+                this.displayTenancyName = ''
+                this.changedTenancyName = ''
+                abp.multiTenancy.setTenantIdCookie(undefined)
+                // location.reload()
+            }
+        },
+        logout() {
             //注销本地用户
-            this.$store.commit('logout')
+            unsetToken()
             this.hasUser = false
         },
         login() {
@@ -90,8 +176,17 @@ export default {
                 })
         }
     },
-    mounted: function() {
-        if (!this.$store.getters.isTokenExpired) this.$router.replace('/Home/Hello')
+    created() {
+        if (abp.session.tenantId)
+            Ajax.get('/api/services/app/Session/GetCurrentLoginInformations').then(res => {
+                let session = res.data.result
+                this.changedTenancyName = session.tenant.tenancyName
+                this.displayTenancyName = session.tenant.name
+                if (!session.user) this.logout()
+            })
+    },
+    mounted() {
+        // if (!this.$store.getters.isTokenExpired) this.$router.replace('/Home/Hello')
         if (this.$store.getters.isAuthenticated) {
             this.hasUser = true
             let currentUser = this.$store.getters.currentUser

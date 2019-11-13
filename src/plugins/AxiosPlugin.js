@@ -7,7 +7,7 @@ import appconst from '../utiltools/appconst'
 import { setToken } from '../utiltools/auth'
 import jwtDecode from 'jwt-decode'
 
-export const Axios = axios.create({
+const Axios = axios.create({
     baseURL: appconst.remoteServiceBaseUrl,
     timeout: 30000,
     withCredentials: true //必须添加，否则服务器无法设置COOKIE
@@ -30,14 +30,12 @@ function onRrefreshed(accessToken, refreshToken) {
 // 设置axios拦截器 cors设置
 Axios.interceptors.request.use(
     config => {
+        config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(abp.localization.cookieName)
+        config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
         //添加token
         if (store.getters.hastoken) {
             config.headers.common['Authorization'] = 'Bearer ' + store.getters.token.AccessToken
             config.headers.common['RefreshToken'] = store.getters.token.RefreshToken
-            config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(
-                'Abp.Localization.CultureName'
-            )
-            config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
             if (store.getters.isTokenExpired) {
                 if (!window.isRefresh) {
                     console.log('refresh token....................')
@@ -125,3 +123,5 @@ const AxiosProperty = {
     }
 }
 Vue.use(AxiosProperty)
+
+export default Axios

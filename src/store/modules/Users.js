@@ -1,6 +1,6 @@
 import tools from '../../utiltools/tools'
-import { stat } from 'fs'
-
+import ajax from '../../utiltools/ajax'
+import Axios from '../../plugins/AxiosPlugin'
 export default {
     state: {
         token: null,
@@ -30,8 +30,19 @@ export default {
             return state.token
         },
         isTokenExpired(state) {
-            return !!state.currentUser && (state.currentUser.exp - tools.myTime.CurTime()) / 60 < 4
+            if (!!state.currentUser) {
+                console.log((state.currentUser.exp - tools.myTime.CurTime()) / 60)
+            }
+            return !!state.currentUser && (state.currentUser.exp - tools.myTime.CurTime()) / 60 < 1
         }
     },
-    actions: {}
+    actions: {
+        async isTenantAvailable(context, payload) {
+            let rep = await ajax.post('/api/services/app/Account/IsTenantAvailable', payload.data)
+            return rep.data.result
+        },
+        async changeLanguage(context, payload) {
+            await Axios.post('/api/services/app/User/ChangeLanguage', payload.data)
+        }
+    }
 }
