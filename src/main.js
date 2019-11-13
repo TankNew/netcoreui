@@ -54,7 +54,6 @@ if (!window.localStorage) {
 }
 store.commit('setToken', getToken())
 store.commit('setUser', getUerFromLocalStorage())
-// 设置一个防伪令牌
 let mainLoad = async () => {
     if (!!store.getters.hastoken && store.getters.isTokenExpired)
         await Ajax.get(tools.tokenUrl + '/RefreshToken').then(function(response) {

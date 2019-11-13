@@ -76,12 +76,7 @@
                         <div class="sidebar-submenu" v-if="item.items.length > 0">
                             <ul>
                                 <li v-for="(sub, subindex) in item.items" :key="subindex">
-                                    <a
-                                        href="javascript:void(0)"
-                                        :class="path == sub.url ? 'active' : ''"
-                                        @click="menuClick(sub, subindex)"
-                                        >{{ sub.displayName }}</a
-                                    >
+                                    <a href="javascript:void(0)" :class="path == sub.url ? 'active' : ''" @click="menuClick(sub, subindex)">{{ sub.displayName }}</a>
                                 </li>
                             </ul>
                         </div>
@@ -94,7 +89,9 @@
             <b-navbar toggleable="md" type="dark" variant="info" style="background-color:#6699CC !important;">
                 <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
                 <b-navbar-brand tag="h1">
-                    {{ appName }}<span class="copy">&copy;</span>{{ appVersion }}
+                    {{ appName }}
+                    <span class="copy">&copy;</span>
+                    {{ appVersion }}
                 </b-navbar-brand>
                 <b-collapse is-nav id="nav_collapse">
                     <!-- Right aligned nav items -->
@@ -103,18 +100,16 @@
                             <template slot="button-content">
                                 <i class="fab fa-creative-commons mr_10"></i>语言
                             </template>
-                            <b-dropdown-item
-                                v-for="(language, index) in languages"
-                                :key="index"
-                                @click="changeLanguage(language.name)"
-                            >
+                            <b-dropdown-item v-for="(language, index) in languages" :key="index" @click="changeLanguage(language.name)">
                                 <i :class="[language.icon, 'fas']"></i>
                                 {{ language.displayName }}
                             </b-dropdown-item>
                         </b-nav-item-dropdown>
                         <b-nav-item-dropdown right offset="125">
                             <!-- Using button-content slot -->
-                            <template slot="button-content"> <i class="fas fa-users-cog mr_10"></i>用户 </template>
+                            <template slot="button-content">
+                                <i class="fas fa-users-cog mr_10"></i>用户
+                            </template>
                             <b-dropdown-item href="javascript:void(0)">个人资料</b-dropdown-item>
                             <b-dropdown-item href="javascript:void(0)" @click="logout">{{ Logout }}</b-dropdown-item>
                         </b-nav-item-dropdown>
@@ -128,13 +123,7 @@
                 <b-breadcrumb :items="breadcrumb" />
                 <section ref="scroll1" class="scroll-container">
                     <scroll ref="content" class="scroll" :data="scrollData" :autoScroll="false" @scrollTop="scrollTop">
-                        <router-view
-                            @refreshScroll="refreshScroll"
-                            @reloadScroll="reloadScroll"
-                            :scorllTopLength="scorllTopLength"
-                            :appName="appName"
-                            :appVersion="appVersion"
-                        ></router-view>
+                        <router-view @refreshScroll="refreshScroll" @reloadScroll="reloadScroll" :scorllTopLength="scorllTopLength" :appName="appName" :appVersion="appVersion"></router-view>
                     </scroll>
                 </section>
             </section>
@@ -299,7 +288,6 @@ export default {
                 that.pathToMenu()
             })
             console.log(this.hasPermission('Pages.Users'))
-            this.$http.get('/api/services/app/CatalogGroup/GetAll').then(res => console.log(res))
         }
     },
     created() {

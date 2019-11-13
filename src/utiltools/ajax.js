@@ -27,6 +27,8 @@ ajax.interceptors.request.use(
         }
         config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(abp.localization.cookieName)
         config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
+        config.headers.common[abp.security.antiForgery.tokenHeaderName] = window.abp.security.antiForgery.getToken()
+
         return config
     },
     function(error) {

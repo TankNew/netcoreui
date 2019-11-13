@@ -32,6 +32,7 @@ Axios.interceptors.request.use(
     config => {
         config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(abp.localization.cookieName)
         config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
+        config.headers.common[abp.security.antiForgery.tokenHeaderName] = window.abp.security.antiForgery.getToken()
         //添加token
         if (store.getters.hastoken) {
             config.headers.common['Authorization'] = 'Bearer ' + store.getters.token.AccessToken
