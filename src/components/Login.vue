@@ -147,7 +147,6 @@ export default {
             }
         },
         logout() {
-            //注销本地用户
             unsetToken()
             this.hasUser = false
         },
@@ -157,10 +156,10 @@ export default {
             that.isLoading = true
             that.$validator
                 .validateAll()
-                .then(result => {
+                .then(async result => {
                     that.isLoading = false
                     if (result) {
-                        userLogin({
+                        await userLogin({
                             userNameOrEmailAddress: that.UserModel.UserName,
                             password: that.UserModel.UserPass,
                             rememberClient: that.rememberPassword,
@@ -184,16 +183,14 @@ export default {
                 this.displayTenancyName = session.tenant.name
                 if (!session.user) this.logout()
             })
-    },
-    mounted() {
-        // if (!this.$store.getters.isTokenExpired) this.$router.replace('/Home/Hello')
         if (this.$store.getters.isAuthenticated) {
             this.hasUser = true
             let currentUser = this.$store.getters.currentUser
             this.UserModel.UserName = currentUser.unique_name
             this.UserModel.UserHead = 'static/imgs/128.png'
         }
-    }
+    },
+    mounted() {}
 }
 </script>
 <style scoped>

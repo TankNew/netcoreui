@@ -4,12 +4,13 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import store from './store'
 import App from './App'
-import router from './router/router.config'
+import { router } from './router/router.config'
 import VueDND from 'awe-dnd'
 import { setToken, getToken, getUerFromLocalStorage } from './utiltools/auth'
 import Ajax from './utiltools/ajax'
 import tools from './utiltools/tools'
 import jwtDecode from 'jwt-decode'
+import swal from 'sweetalert'
 
 //使BootStrap-vue支持到IE11
 import 'babel-polyfill'
@@ -23,12 +24,15 @@ import './plugins/AxiosPlugin'
 import './plugins/vee-validate'
 
 import './assets/main.css'
-import './assets/layout.css'
+import './assets/layout.less'
 import 'famfamfam-flags/dist/sprite/famfamfam-flags.css'
 
 import fileFolderLi from './components/custom/fileFolderLi.vue'
 import filefolderUl from './components/custom/filefolderUl.vue'
-
+import treeUl from './components/custom/treeUl.vue'
+import treeLi from './components/custom/treeLi.vue'
+Vue.component('treeUl', treeUl)
+Vue.component('treeLi', treeLi)
 Vue.component('file-fodler-li', fileFolderLi)
 Vue.component('file-fodler-ul', filefolderUl)
 
@@ -71,33 +75,6 @@ let mainLoad = async () => {
                 setToken(token)
             } else next({ path: '/login', query: { Rurl: to.fullPath } })
         })
-    router.beforeEach((to, from, next) => {
-        store.commit('setToken', getToken())
-        store.commit('setUser', getUerFromLocalStorage())
-        if (to.matched.some(m => m.meta.auth)) {
-            if (!store.getters.hastoken) next({ path: '/login', query: { Rurl: to.fullPath } })
-            else if (!store.getters.isTokenExpired) next()
-            else
-                Ajax.get(tools.tokenUrl + '/RefreshToken')
-                    .then(function(response) {
-                        var json = response.data
-                        if (json.success === true) {
-                            let result = json.result
-                            let token = {
-                                AccessToken: result.accessToken,
-                                EncryptedAccessToken: result.encryptedAccessToken,
-                                ExpireInSeconds: result.expireInSeconds,
-                                RefreshToken: result.refreshToken
-                            }
-                            store.commit('setToken', token)
-                            store.commit('setUser', jwtDecode(token.AccessToken))
-                            setToken(token)
-                        } else next({ path: '/login', query: { Rurl: to.fullPath } })
-                    })
-                    .then(() => next())
-        } else next()
-    })
-    await Ajax.get('/api/AntiForgery/GetToken')
     await Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
         window.abp = tools.extend(true, window.abp, data.data.result)
         new Vue({

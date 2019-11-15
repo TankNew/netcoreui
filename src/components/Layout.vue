@@ -1,22 +1,3 @@
-<style lang="less" scoped>
-.breadcrumb,
-.breadcrumb a,
-.breadcrumb .active {
-    font-size: 14px;
-}
-
-.topButton {
-    left: auto;
-    bottom: 50px;
-    right: 50px;
-    font-size: 50px;
-    border: 4px solid rgba(0, 123, 255, 0.5);
-    line-height: 1;
-    border-radius: 50%;
-    padding: 4px;
-    opacity: 0.7;
-}
-</style>
 <template>
     <section class="main">
         <!--滚动到顶端-->
@@ -41,22 +22,14 @@
                     <span class="user-name">
                         <strong>{{ UserModel.UserName }}</strong>
                     </span>
-                    <span class="user-role">{{ UserModel.UserRole }}</span>
                     <div class="user-status">
                         <a href="javascript:void(0)">
-                            <span class="btn btn-success btn-sm" style="padding:0 0.2rem;">Online</span>
+                            <span class="btn btn-success btn-sm" style="padding:0 0.2rem;">{{ UserModel.UserRole }}</span>
                         </a>
                     </div>
                 </div>
             </div>
-            <b-input-group size="sm">
-                <b-form-input placeholder="搜索设置项"></b-form-input>
-                <b-input-group-append>
-                    <b-btn variant="primary">
-                        <i class="fas fa-angle-right px-1"></i>
-                    </b-btn>
-                </b-input-group-append>
-            </b-input-group>
+            <hr class="border-primary" />
             <div class="sidebar-menu">
                 <ul>
                     <li
@@ -67,7 +40,11 @@
                         v-for="(item, index) in menu.items"
                         :key="index"
                     >
-                        <a href="javascript:void(0)" @click="menuClick(item, index)">
+                        <a
+                            href="javascript:void(0)"
+                            :class="[menuIndex == index || path == item.url ? 'active' : '']"
+                            @click="menuClick(item, index)"
+                        >
                             <i :class="item.icon"></i>
                             <span>{{ item.displayName }}</span>
                             <span v-if="item.isnew" class="badge badge-success">New</span>
@@ -76,7 +53,11 @@
                         <div class="sidebar-submenu" v-if="item.items.length > 0">
                             <ul>
                                 <li v-for="(sub, subindex) in item.items" :key="subindex">
-                                    <a href="javascript:void(0)" :class="path == sub.url ? 'active' : ''" @click="menuClick(sub, subindex)">{{ sub.displayName }}</a>
+                                    <a
+                                        href="javascript:void(0)"
+                                        :class="path == sub.url ? 'active' : ''"
+                                        @click="menuClick(sub, subindex)"
+                                    >{{ sub.displayName }}</a>
                                 </li>
                             </ul>
                         </div>
@@ -98,9 +79,14 @@
                     <b-navbar-nav class="ml-auto">
                         <b-nav-item-dropdown right offset="25">
                             <template slot="button-content">
-                                <i class="fab fa-creative-commons mr_10"></i>语言
+                                <i class="fab fa-creative-commons mr_10"></i>
+                                {{this.L('Language')}}
                             </template>
-                            <b-dropdown-item v-for="(language, index) in languages" :key="index" @click="changeLanguage(language.name)">
+                            <b-dropdown-item
+                                v-for="(language, index) in languages"
+                                :key="index"
+                                @click="changeLanguage(language.name)"
+                            >
                                 <i :class="[language.icon, 'fas']"></i>
                                 {{ language.displayName }}
                             </b-dropdown-item>
@@ -108,10 +94,11 @@
                         <b-nav-item-dropdown right offset="125">
                             <!-- Using button-content slot -->
                             <template slot="button-content">
-                                <i class="fas fa-users-cog mr_10"></i>用户
+                                <i class="fas fa-users-cog mr_10"></i>
+                                {{this.L('Users')}}
                             </template>
-                            <b-dropdown-item href="javascript:void(0)">个人资料</b-dropdown-item>
-                            <b-dropdown-item href="javascript:void(0)" @click="logout">{{ Logout }}</b-dropdown-item>
+                            <b-dropdown-item href="javascript:void(0)">{{this.L('UserProfile')}}</b-dropdown-item>
+                            <b-dropdown-item href="javascript:void(0)" @click="logout">{{ this.L('Logout') }}</b-dropdown-item>
                         </b-nav-item-dropdown>
                     </b-navbar-nav>
                 </b-collapse>
@@ -123,7 +110,15 @@
                 <b-breadcrumb :items="breadcrumb" />
                 <section ref="scroll1" class="scroll-container">
                     <scroll ref="content" class="scroll" :data="scrollData" :autoScroll="false" @scrollTop="scrollTop">
-                        <router-view @refreshScroll="refreshScroll" @reloadScroll="reloadScroll" :scorllTopLength="scorllTopLength" :appName="appName" :appVersion="appVersion"></router-view>
+                        <router-view
+                            @refreshScroll="refreshScroll"
+                            @reloadScroll="reloadScroll"
+                            @L="L"
+                            :scorllTopLength="scorllTopLength"
+                            :appName="appName"
+                            :appVersion="appVersion"
+                            :contentTitle="contentTitle"
+                        ></router-view>
                     </scroll>
                 </section>
             </section>
@@ -152,6 +147,7 @@ export default {
                 UserRole: null
             },
             menu: '',
+            contentTitle: '',
             menuIndex: -1,
             isCollapsed: false,
             breadcrumb: [],
@@ -160,10 +156,11 @@ export default {
         }
     },
     watch: {
-        //监测当前路径
         $route(val) {
             var that = this
-            that.path = val.path
+            //获取当前router完整路径
+            that.contentTitle = that.L(val.meta.title)
+            that.path = val.fullPath
             that.pathToMenu()
             that.reloadScroll()
         },
@@ -182,7 +179,7 @@ export default {
         appVersion() {
             return AppConsts.appVersion
         },
-        menuitemClasses: function() {
+        menuitemClasses() {
             return ['leftBar', this.isCollapsed ? 'shrink' : '']
         },
         currentLanguage() {
@@ -192,44 +189,34 @@ export default {
             return abp.localization.languages.filter(val => {
                 return !val.isDisabled
             })
-        },
-        Logout() {
-            return this.L('Logout')
         }
     },
     methods: {
+        breadcrumbInsert(parent, val) {
+            var that = this
+            that.breadcrumb = [
+                {
+                    text: '根目录',
+                    to: { path: '/' }
+                }
+            ]
+            if (parent) {
+                that.breadcrumb.push({ text: parent })
+                that.breadcrumb.push({ text: val, active: true })
+            } else that.breadcrumb.push({ text: val })
+        },
         //初加载同步菜单
         pathToMenu() {
             var that = this
             that.menu.items.forEach((m, index) => {
-                if (m.url && m.url.toLowerCase() === that.path) {
+                if (m.url && m.url.toLowerCase() === that.path.toLowerCase()) {
                     that.menuIndex = index
-                    that.breadcrumb = [
-                        {
-                            text: '根目录',
-                            to: { path: '/' }
-                        },
-                        {
-                            text: m.displayName
-                        }
-                    ]
+                    that.breadcrumbInsert(null, m.displayName)
                 } else if (m.items) {
                     m.items.forEach(s => {
-                        if (s.url === that.path) {
+                        if (s.url && s.url.toLowerCase() === that.path.toLowerCase()) {
                             that.menuIndex = index
-                            that.breadcrumb = [
-                                {
-                                    text: '根目录',
-                                    to: { path: '/' }
-                                },
-                                {
-                                    text: m.displayName
-                                },
-                                {
-                                    text: s.displayName,
-                                    active: true
-                                }
-                            ]
+                            that.breadcrumbInsert(m.displayName, s.displayName)
                         }
                     })
                 }
@@ -244,7 +231,6 @@ export default {
         //隐藏侧导航
         leftBarChange() {
             this.isCollapsed = !this.isCollapsed
-            console.log(this.isCollapsed)
         },
         // 更改语言
         async changeLanguage(val) {
@@ -284,15 +270,14 @@ export default {
             let that = this
             await that.$http.get('/api/services/app/Session/GetCurrentUserMenu').then(res => {
                 that.menu = res.data.result
-                that.path = that.$router.history.current.path
+                that.path = that.$route.fullPath
+                that.contentTitle = that.L(that.$route.meta.title)
                 that.pathToMenu()
             })
-            console.log(this.hasPermission('Pages.Users'))
         }
     },
-    created() {
+    async created() {
         let that = this
-
         let currentUser = that.$store.getters.currentUser
         that.UserModel.UserName = currentUser.unique_name
         that.UserModel.UserHead = 'static/imgs/128.png'
@@ -312,8 +297,26 @@ export default {
         })
     },
     beforeDestory() {
-        console.log('beforeDestory')
         that.loadState = false
     }
 }
 </script>
+<style lang="less" scoped>
+.breadcrumb,
+.breadcrumb a,
+.breadcrumb .active {
+    font-size: 14px;
+}
+
+.topButton {
+    left: auto;
+    bottom: 50px;
+    right: 50px;
+    font-size: 50px;
+    border: 4px solid rgba(0, 123, 255, 0.5);
+    line-height: 1;
+    border-radius: 50%;
+    padding: 4px;
+    opacity: 0.7;
+}
+</style>

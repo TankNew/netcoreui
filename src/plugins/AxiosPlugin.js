@@ -1,11 +1,10 @@
-import axios from 'axios'
-import store from '../store'
-import tools from 'tools'
 import Vue from 'vue'
+import axios from 'axios'
+import jwtDecode from 'jwt-decode'
+import store from '../store'
 import Ajax from '../utiltools/ajax'
 import appconst from '../utiltools/appconst'
-import { setToken } from '../utiltools/auth'
-import jwtDecode from 'jwt-decode'
+import { setToken, getToken, getUerFromLocalStorage } from '../utiltools/auth'
 
 const Axios = axios.create({
     baseURL: appconst.remoteServiceBaseUrl,
@@ -30,9 +29,10 @@ function onRrefreshed(accessToken, refreshToken) {
 // 设置axios拦截器 cors设置
 Axios.interceptors.request.use(
     config => {
+        store.commit('setToken', getToken())
+        store.commit('setUser', getUerFromLocalStorage())
         config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(abp.localization.cookieName)
         config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
-        config.headers.common[abp.security.antiForgery.tokenHeaderName] = window.abp.security.antiForgery.getToken()
         //添加token
         if (store.getters.hastoken) {
             config.headers.common['Authorization'] = 'Bearer ' + store.getters.token.AccessToken
@@ -91,19 +91,26 @@ Axios.interceptors.response.use(
         return respon
     },
     error => {
-        if (error.response) {
+        if (
+            !!error.response &&
+            !!error.response.data.error &&
+            !!error.response.data.error.message &&
+            error.response.data.error.details
+        ) {
             swal({
-                title: error.response.status,
-                text: error.response.data.error.message,
+                title: error.response.data.error.message,
+                text: error.response.data.error.details,
                 icon: 'error'
             })
-            if (error.response.status === 401) {
-                // 401 说明 token 验证失败
-                // 可以直接跳转到登录页面，重新登录获取 token
-            } else if (error.response.status === 500) {
-                // 服务器错误
-                // do something
-            }
+        } else if (!!error.response && !!error.response.data.error && !!error.response.data.error.message) {
+            swal({
+                title: window.abp.localization.localize('LoginFailed'),
+                text: error.response.data.error.message,
+                icon: 'error'
+            }).then(res => {
+                unsetToken()
+                location.replace = '/#/login'
+            })
         } else if (error.request) {
             // The request was made but no response was received
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
