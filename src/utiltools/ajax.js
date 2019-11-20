@@ -57,7 +57,7 @@ ajax.interceptors.response.use(
                 icon: 'error'
             }).then(res => {
                 unsetToken()
-                location.replace = '/#/login'
+                location.replace = '/login'
             })
         } else if (!error.response) {
             swal({

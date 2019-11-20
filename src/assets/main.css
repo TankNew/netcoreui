@@ -31,18 +31,9 @@ body {
     margin: 0px;
     font-size: 16px;
 }
-
-.swal-button {
-    padding: 7px 19px;
-    border-radius: 2px;
-    background-color: #3399ff;
-    font-size: 12px;
-    border: 1px solid #3e549a;
-}
-
 .swal-footer {
     background-color: rgb(245, 248, 250);
-    margin-top: 32px;
+    margin-top: 20px;
     border-top: 1px solid #e9eef1;
     overflow: hidden;
 }

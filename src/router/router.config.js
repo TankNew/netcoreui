@@ -20,6 +20,7 @@ import swal from 'sweetalert'
 Vue.use(Router)
 
 export const router = new Router({
+    mode: 'history',
     routes: [
         {
             path: '/home',
@@ -113,7 +114,7 @@ router.beforeEach(async (to, from, next) => {
     store.commit('setUser', getUerFromLocalStorage())
     if (to.matched.some(m => m.meta.auth)) {
         if (!store.getters.hastoken) next({ path: '/login', query: { Rurl: to.fullPath } })
-        else if (store.getters.isTokenExpired)
+        else if (store.getters.isTokenExpired) {
             await Ajax.get(tools.tokenUrl + '/RefreshToken').then(function(response) {
                 var json = response.data
                 if (json.success === true) {
@@ -129,6 +130,8 @@ router.beforeEach(async (to, from, next) => {
                     setToken(token)
                 } else next({ path: '/login', query: { Rurl: to.fullPath } })
             })
+        }
+
         if (window.abp.auth.hasPermission(to.meta.permission)) {
             next()
         } else

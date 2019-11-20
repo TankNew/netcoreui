@@ -16,7 +16,11 @@
             </h5>
             <div class="sidebar-header">
                 <div class="user-pic">
-                    <img class="img-responsive img-rounded mCS_img_loaded" src="static/imgs/64.png" alt />
+                    <img
+                        class="img-responsive img-rounded w-100"
+                        :src="UserModel.UserHead"
+                        alt
+                    />
                 </div>
                 <div class="user-info">
                     <span class="user-name">
@@ -24,7 +28,10 @@
                     </span>
                     <div class="user-status">
                         <a href="javascript:void(0)">
-                            <span class="btn btn-success btn-sm" style="padding:0 0.2rem;">{{ UserModel.UserRole }}</span>
+                            <span
+                                class="btn btn-success btn-sm"
+                                style="padding:0 0.2rem;"
+                            >{{ UserModel.UserRole }}</span>
                         </a>
                     </div>
                 </div>
@@ -47,12 +54,24 @@
                         >
                             <i :class="item.icon"></i>
                             <span>{{ item.displayName }}</span>
-                            <span v-if="item.isnew" class="badge badge-success">New</span>
-                            <span v-if="item.ispage" class="badge badge-warning">P</span>
+                            <span
+                                v-if="item.isnew"
+                                class="badge badge-success"
+                            >New</span>
+                            <span
+                                v-if="item.ispage"
+                                class="badge badge-warning"
+                            >P</span>
                         </a>
-                        <div class="sidebar-submenu" v-if="item.items.length > 0">
+                        <div
+                            class="sidebar-submenu"
+                            v-if="item.items.length > 0"
+                        >
                             <ul>
-                                <li v-for="(sub, subindex) in item.items" :key="subindex">
+                                <li
+                                    v-for="(sub, subindex) in item.items"
+                                    :key="subindex"
+                                >
                                     <a
                                         href="javascript:void(0)"
                                         :class="path == sub.url ? 'active' : ''"
@@ -67,7 +86,12 @@
         </div>
         <!--主体内容设置-->
         <div class="content">
-            <b-navbar toggleable="md" type="dark" variant="info" style="background-color:#6699CC !important;">
+            <b-navbar
+                toggleable="md"
+                type="dark"
+                variant="info"
+                style="background-color:#6699CC !important;"
+            >
                 <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
                 <b-navbar-brand tag="h1">
                     {{ appName }}
@@ -97,8 +121,13 @@
                                 <i class="fas fa-users-cog mr_10"></i>
                                 {{this.L('Users')}}
                             </template>
-                            <b-dropdown-item href="javascript:void(0)">{{this.L('UserProfile')}}</b-dropdown-item>
-                            <b-dropdown-item href="javascript:void(0)" @click="logout">{{ this.L('Logout') }}</b-dropdown-item>
+                            <b-dropdown-item
+                                href="javascript:void(0)"
+                            >{{this.L('UserProfile')}}</b-dropdown-item>
+                            <b-dropdown-item
+                                href="javascript:void(0)"
+                                @click="logout"
+                            >{{ this.L('Logout') }}</b-dropdown-item>
                         </b-nav-item-dropdown>
                     </b-navbar-nav>
                 </b-collapse>
@@ -109,7 +138,13 @@
                 <!-- 地址栏 -->
                 <b-breadcrumb :items="breadcrumb" />
                 <section ref="scroll1" class="scroll-container">
-                    <scroll ref="content" class="scroll" :data="scrollData" :autoScroll="false" @scrollTop="scrollTop">
+                    <scroll
+                        ref="content"
+                        class="scroll"
+                        :data="scrollData"
+                        :autoScroll="false"
+                        @scrollTop="scrollTop"
+                    >
                         <router-view
                             @refreshScroll="refreshScroll"
                             @reloadScroll="reloadScroll"
@@ -249,7 +284,7 @@ export default {
         //安全退出
         logout() {
             unsetToken()
-            location.replace('/#/login')
+            location.replace('/login')
         },
         // 返回顶部
         topClick() {
@@ -280,7 +315,7 @@ export default {
         let that = this
         let currentUser = that.$store.getters.currentUser
         that.UserModel.UserName = currentUser.unique_name
-        that.UserModel.UserHead = 'static/imgs/128.png'
+        that.UserModel.UserHead = '/static/imgs/128.png'
         that.UserModel.UserRole = currentUser.roles
         that.load()
     },

@@ -4,7 +4,7 @@ import jwtDecode from 'jwt-decode'
 import store from '../store'
 import Ajax from '../utiltools/ajax'
 import appconst from '../utiltools/appconst'
-import { setToken, getToken, getUerFromLocalStorage } from '../utiltools/auth'
+import { setToken, getToken, unsetToken, getUerFromLocalStorage } from '../utiltools/auth'
 
 const Axios = axios.create({
     baseURL: appconst.remoteServiceBaseUrl,
@@ -103,24 +103,25 @@ Axios.interceptors.response.use(
                 icon: 'error'
             })
         } else if (!!error.response && !!error.response.data.error && !!error.response.data.error.message) {
+            console.log(window.abp)
             swal({
-                title: window.abp.localization.localize('LoginFailed'),
+                title: `${window.abp.localization.localize('Error')}:Code${error.response.data.error.code}`,
                 text: error.response.data.error.message,
                 icon: 'error'
-            }).then(res => {
-                unsetToken()
-                location.replace = '/#/login'
             })
+            console.log(error.response.data)
         } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
+            swal({
+                title: error.request.status,
+                text: error.request.statusText,
+                icon: 'error'
+            })
             console.log(error.request)
         } else {
             // Something happened in setting up the request that triggered an Error
             console.log('Error', error.message)
+            console.log(error.config)
         }
-        console.log(error.config)
         // 返回 response 里的错误信息
         return Promise.reject(error)
     }

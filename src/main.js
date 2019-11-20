@@ -19,6 +19,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import './utiltools/abp'
 import './utiltools/abpbase'
+import appconst from './utiltools/appconst'
 
 import './plugins/AxiosPlugin'
 import './plugins/vee-validate'
@@ -29,10 +30,6 @@ import 'famfamfam-flags/dist/sprite/famfamfam-flags.css'
 
 import fileFolderLi from './components/custom/fileFolderLi.vue'
 import filefolderUl from './components/custom/filefolderUl.vue'
-import treeUl from './components/custom/treeUl.vue'
-import treeLi from './components/custom/treeLi.vue'
-Vue.component('treeUl', treeUl)
-Vue.component('treeLi', treeLi)
 Vue.component('file-fodler-li', fileFolderLi)
 Vue.component('file-fodler-ul', filefolderUl)
 
@@ -77,6 +74,7 @@ let mainLoad = async () => {
         })
     await Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
         window.abp = tools.extend(true, window.abp, data.data.result)
+        window.abp.localization.defaultSourceName = appconst.localization.defaultLocalizationSourceName
         new Vue({
             el: '#app',
             router,

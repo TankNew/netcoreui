@@ -15,7 +15,7 @@
                             v-validate="'required'"
                         ></b-form-input>
                     </b-input-group>
-                    <b-input-group size="sm" prepend="企业 LOGO" class="mb-3" :state="!errors.has('企业名称') ">
+                    <b-input-group size="sm" prepend="企业 LOGO" class="mb-3" :state="!errors.has('企业名称')">
                         <div class="info-img">
                             <img :src="companyInfo.logo" />
                         </div>
@@ -28,10 +28,10 @@
                                     image-class="v1-image"
                                     input-class="v1-file"
                                     :max-size="customImageMaxSize"
+                                    :disable-preview="true"
                                     @size-exceeded="onSizeExceeded"
                                     @file="onFile"
                                     @load="onLoad"
-                                    :disable-preview="true"
                                 />
                             </b-btn>
                         </b-input-group-append>
@@ -49,10 +49,10 @@
                                     image-class="v1-image"
                                     input-class="v1-file"
                                     :max-size="customImageMaxSize"
+                                    :disable-preview="true"
                                     @size-exceeded="onSizeExceeded"
                                     @file="onFile"
                                     @load="onLoadWX"
-                                    :disable-preview="true"
                                 />
                             </b-btn>
                         </b-input-group-append>
@@ -66,17 +66,17 @@
                     <b-input-group size="sm" prepend="联系人" class="mb-3">
                         <b-form-input
                             v-model="companyInfo.contacter"
+                            v-validate="'title'"
                             name="联系人"
                             :state="hasError(companyInfo.contacter,'联系人')"
-                            v-validate="'title'"
                         ></b-form-input>
                     </b-input-group>
                     <b-input-group size="sm" prepend="Email" class="mb-3">
                         <b-form-input
                             v-model="companyInfo.email"
+                            v-validate="'email'"
                             name="Email"
                             :state="hasError(companyInfo.email,'Email')"
-                            v-validate="'email'"
                         ></b-form-input>
                     </b-input-group>
                     <b-input-group size="sm" prepend="地址" class="mb-3">
