@@ -4,146 +4,205 @@
 }
 </style>
 <template>
-  <!-- 过渡动画 -->
-  <transition name="fade">
-    <div class="file-view" v-if="fileShow" @contextmenu="rightClickNull($event)">
-      <context-menu id="context-menu" ref="ctxMenu" @ctx-open="onCtxOpen">
-        <li @click="folderCreate">
-          <i class="far fa-plus-square mr-1"></i>创建子文件夹
-        </li>
-        <li @click="folderDelete" :class="isRoot?'disabled':''">
-          <i class="far fa-minus-square mr-1"></i>删除
-        </li>
-      </context-menu>
+    <!-- 过渡动画 -->
+    <transition name="fade">
+        <div
+            class="file-view"
+            v-if="fileShow"
+            @contextmenu="rightClickNull($event)"
+        >
+            <context-menu id="context-menu" ref="ctxMenu" @ctx-open="onCtxOpen">
+                <li @click="folderCreate">
+                    <i class="far fa-plus-square mr-1"></i>创建子文件夹
+                </li>
+                <li @click="folderDelete" :class="isRoot?'disabled':''">
+                    <i class="far fa-minus-square mr-1"></i>删除
+                </li>
+            </context-menu>
 
-      <context-menu id="list-menu" ref="listMenu">
-        <li @click="fileDelete">
-          <i class="far fa-minus-square mr-1"></i>删除
-        </li>
-      </context-menu>
+            <context-menu id="list-menu" ref="listMenu">
+                <li @click="fileDelete">
+                    <i class="far fa-minus-square mr-1"></i>删除
+                </li>
+            </context-menu>
 
-      <!-- 遮罩层 -->
-      <div class="file-container" ref="fileContainer">
-        <div class="progress-container" v-if="isUploading">
-          <p class="lead">上传中 {{uploadPercentage}}%</p>
-          <b-progress :value="uploadPercentage" class="m-3 w95" style="height:3px;"></b-progress>
+            <!-- 遮罩层 -->
+            <div class="file-container" ref="fileContainer">
+                <div class="progress-container" v-if="isUploading">
+                    <p class="lead">上传中 {{uploadPercentage}}%</p>
+                    <b-progress
+                        :value="uploadPercentage"
+                        class="m-3 w95"
+                        style="height:3px;"
+                    ></b-progress>
+                </div>
+                <div class="file-toolbar" @mousedown="mousedown($event)">
+                    <span class="file-close-bar" @click="close">
+                        <i class="fa-times fas"></i>
+                    </span>
+                    <h6>
+                        文件管理器
+                        <code>v1.1</code>
+                    </h6>
+                    <dl class="file-menu">
+                        <dd>
+                            <a href="javascript:void(0)" @click="back">
+                                <i class="far fa-arrow-alt-circle-left"></i>
+                            </a>
+                        </dd>
+                        <dd>
+                            <a href="javascript:void(0)" @click="refresh">
+                                <i class="fas fa-sync-alt"></i>
+                            </a>
+                        </dd>
+                        <dd>
+                            <a href="javascript:void(0)" @click="setting">
+                                <i class="fas fa-cog"></i>
+                            </a>
+                        </dd>
+                        <dd>
+                            <label for="uploadfiles">
+                                <i class="fas fa-file-upload"></i>
+                            </label>
+                            <b-form-file
+                                id="uploadfiles"
+                                v-model="uploadfiles"
+                                class="d-none"
+                                plain
+                                multiple
+                                @input="upload"
+                            >上传</b-form-file>
+                        </dd>
+                    </dl>
+                </div>
+
+                <div class="row file-content">
+                    <!--目录列表-->
+                    <div class="col-2 file-folder-container">
+                        <ul class="file-folder">
+                            <li
+                                v-for="(item,index) in Folders"
+                                :key="index"
+                                :class="item.open?'active':''"
+                            >
+                                <i
+                                    class="fas fa-chevron-right"
+                                    @click="item.open=!item.open"
+                                ></i>
+
+                                <!--<a :class="item.isActive?'active':''" @click="setTypeRoot(item)" @dblclick="item.open=!item.open">-->
+                                <a
+                                    :class="item.isActive?'active':''"
+                                    @click="oneClick($event,item)"
+                                    @contextmenu="rightClick($event,item,true,null)"
+                                >
+                                    <i
+                                        :class="['far','mr-0',item.isActive?'fa-folder-open':'fa-folder']"
+                                    ></i>
+                                    {{item.name}}
+                                </a>
+
+                                <file-fodler-ul
+                                    :model="item.subdir"
+                                    :index="index"
+                                    :breadcrumb="breadcrumb"
+                                    :parent="item"
+                                    @clearCurrent="clearCurrent"
+                                    @setCurrent="setCurrent"
+                                    @setCurrentFolder="setCurrentFolder"
+                                    @setBreadcrumb="setBreadcrumb"
+                                    @rightClick="rightClick"
+                                />
+                            </li>
+                        </ul>
+                    </div>
+                    <!--活动目录内容-->
+                    <div class="col-10 file-list" @click="cancelCurrentFile">
+                        <Loading
+                            :isLoading="isLoading"
+                            style="border-radius:0;"
+                        ></Loading>
+                        <section ref="scroll1" class="scroll-container">
+                            <scroll
+                                ref="content"
+                                class="scroll"
+                                :data="currentFolder.subdir"
+                                :autoScroll="false"
+                            >
+                                <section>
+                                    <ol class="breadcrumb">
+                                        <li
+                                            :class="['breadcrumb-item',item.value==currentFolder?'active':'']"
+                                            v-for="(item,index) in breadcrumb"
+                                            :key="index"
+                                            @click.stop="breadcrumbClick(item.value,index)"
+                                        >{{item.text}}</li>
+                                    </ol>
+                                    <dl>
+                                        <dd
+                                            v-for="(item,index) in currentFolder.subdir"
+                                            :key="index"
+                                            @click.stop="fileLeftClick(item)"
+                                            :class="currentFile==item?'active':''"
+                                            v-if="item.isSubdir"
+                                            @contextmenu="fileRightClick($event,item)"
+                                        >
+                                            <p v-if="item.isSubdir">
+                                                <i class="fas fa-folder"></i>
+                                            </p>
+                                            <p v-else>
+                                                <img src="static/imgs/128.png" />
+                                            </p>
+                                            <span>{{item.name}}</span>
+                                        </dd>
+                                        <dd
+                                            v-for="(item1,index1) in currentFolder.subdir"
+                                            :key="index1"
+                                            @click.stop="fileLeftClick(item1)"
+                                            :class="currentFile==item1?'active':''"
+                                            v-if="!item1.isSubdir"
+                                            @contextmenu="fileRightClick($event,item1)"
+                                        >
+                                            <p v-if="item1.isSubdir">
+                                                <i class="fas fa-folder"></i>
+                                            </p>
+                                            <p v-else>
+                                                <i
+                                                    class="fas fa-file-archive"
+                                                    v-if="getFileExpansion(item1.name)==='zip'"
+                                                ></i>
+                                                <i
+                                                    class="fas fa-file-word"
+                                                    v-else-if="getFileExpansion(item1.name)==='word'"
+                                                ></i>
+                                                <i
+                                                    class="fas fa-file-excel"
+                                                    v-else-if="getFileExpansion(item1.name)==='excel'"
+                                                ></i>
+                                                <i
+                                                    class="fas fa-file-pdf"
+                                                    v-else-if="getFileExpansion(item1.name)==='pdf'"
+                                                ></i>
+                                                <i
+                                                    class="fas fa-file-video"
+                                                    v-else-if="getFileExpansion(item1.name)==='video'"
+                                                ></i>
+                                                <img
+                                                    v-else-if="getFileExpansion(item1.name)==='img'"
+                                                    :src="getImgUrl(item1.url)"
+                                                />
+                                            </p>
+                                            <span>{{item1.name}}</span>
+                                        </dd>
+                                    </dl>
+                                </section>
+                            </scroll>
+                        </section>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="file-toolbar" @mousedown="mousedown($event)">
-          <span class="file-close-bar" @click="close">
-            <i class="fa-times fas"></i>
-          </span>
-          <h6>
-            文件管理器
-            <code>v1.1</code>
-          </h6>
-          <dl class="file-menu">
-            <dd>
-              <a href="javascript:void(0)" @click="back">
-                <i class="far fa-arrow-alt-circle-left"></i>
-              </a>
-            </dd>
-            <dd>
-              <a href="javascript:void(0)" @click="refresh">
-                <i class="fas fa-sync-alt"></i>
-              </a>
-            </dd>
-            <dd>
-              <a href="javascript:void(0)" @click="setting">
-                <i class="fas fa-cog"></i>
-              </a>
-            </dd>
-            <dd>
-              <label for="uploadfiles">
-                <i class="fas fa-file-upload"></i>
-              </label>
-              <b-form-file id="uploadfiles" v-model="uploadfiles" class="d-none" plain multiple @input="upload">上传</b-form-file>
-            </dd>
-          </dl>
-        </div>
-
-        <div class="row file-content">
-          <!--目录列表-->
-          <div class="col-2 file-folder-container">
-            <ul class="file-folder">
-              <li v-for="(item,index) in Folders" :key="index" :class="item.open?'active':''">
-                <i class="fas fa-chevron-right" @click="item.open=!item.open"></i>
-
-                <!--<a :class="item.isActive?'active':''" @click="setTypeRoot(item)" @dblclick="item.open=!item.open">-->
-                <a :class="item.isActive?'active':''" @click="oneClick($event,item)" @contextmenu="rightClick($event,item,true,null)">
-                  <i :class="['far','mr-0',item.isActive?'fa-folder-open':'fa-folder']"></i>
-                  {{item.name}}
-                </a>
-
-                <file-fodler-ul
-                  :model="item.subdir"
-                  :index="index"
-                  :breadcrumb="breadcrumb"
-                  :parent="item"
-                  @clearCurrent="clearCurrent"
-                  @setCurrent="setCurrent"
-                  @setCurrentFolder="setCurrentFolder"
-                  @setBreadcrumb="setBreadcrumb"
-                  @rightClick="rightClick"
-                />
-              </li>
-            </ul>
-          </div>
-          <!--活动目录内容-->
-          <div class="col-10 file-list" @click="cancelCurrentFile">
-            <Loading :isLoading="isLoading" style="border-radius:0;"></Loading>
-            <section ref="scroll1" class="scroll-container">
-              <scroll ref="content" class="scroll" :data="currentFolder.subdir" :autoScroll="false">
-                <section>
-                  <ol class="breadcrumb">
-                    <li :class="['breadcrumb-item',item.value==currentFolder?'active':'']" v-for="(item,index) in breadcrumb" :key="index" @click.stop="breadcrumbClick(item.value,index)">{{item.text}}</li>
-                  </ol>
-                  <dl>
-                    <dd
-                      v-for="(item,index) in currentFolder.subdir"
-                      :key="index"
-                      @click.stop="fileLeftClick(item)"
-                      :class="currentFile==item?'active':''"
-                      v-if="item.isSubdir"
-                      @contextmenu="fileRightClick($event,item)"
-                    >
-                      <p v-if="item.isSubdir">
-                        <i class="fas fa-folder"></i>
-                      </p>
-                      <p v-else>
-                        <img src="static/imgs/128.png" />
-                      </p>
-                      <span>{{item.name}}</span>
-                    </dd>
-                    <dd
-                      v-for="(item1,index1) in currentFolder.subdir"
-                      :key="index1"
-                      @click.stop="fileLeftClick(item1)"
-                      :class="currentFile==item1?'active':''"
-                      v-if="!item1.isSubdir"
-                      @contextmenu="fileRightClick($event,item1)"
-                    >
-                      <p v-if="item1.isSubdir">
-                        <i class="fas fa-folder"></i>
-                      </p>
-                      <p v-else>
-                        <i class="fas fa-file-archive" v-if="getFileExpansion(item1.name)==='zip'"></i>
-                        <i class="fas fa-file-word" v-else-if="getFileExpansion(item1.name)==='word'"></i>
-                        <i class="fas fa-file-excel" v-else-if="getFileExpansion(item1.name)==='excel'"></i>
-                        <i class="fas fa-file-pdf" v-else-if="getFileExpansion(item1.name)==='pdf'"></i>
-                        <i class="fas fa-file-video" v-else-if="getFileExpansion(item1.name)==='video'"></i>
-                        <img v-else-if="getFileExpansion(item1.name)==='img'" :src="getImgUrl(item1.url)" />
-                      </p>
-                      <span>{{item1.name}}</span>
-                    </dd>
-                  </dl>
-                </section>
-              </scroll>
-            </section>
-          </div>
-        </div>
-      </div>
-    </div>
-  </transition>
+    </transition>
 </template>
 <script>
 import tools from 'tools'
@@ -179,7 +238,17 @@ export default {
         }
     },
     components: { contextMenu, scroll, Loading },
-    watch: {},
+    watch: {
+        fileShow: {
+            handler(newVal) {
+                if (newVal) {
+                    this.load()
+                }
+            },
+            deep: true,
+            immediate: true
+        }
+    },
     computed: {},
     props: {
         fileShow: {
@@ -342,7 +411,7 @@ export default {
                             that.setCurrentFolderByBreadcrumb(that.currentFile)
                         } else {
                             //that.$emit('MceSetFile', tools.HttpUrl + '/' + that.currentFile.url)
-                            
+
                             that.fileCallBack(tools.HttpUrl + '/' + that.RootPath + that.currentFile.url)
                             that.close()
                         }
@@ -505,9 +574,7 @@ export default {
             that.$emit('fileClose')
         }
     },
-    created() {
-        this.load()
-    },
+    created() {},
     mounted() {
         var that = this
         that.$nextTick(() => {})

@@ -103,20 +103,17 @@ Axios.interceptors.response.use(
                 icon: 'error'
             })
         } else if (!!error.response && !!error.response.data.error && !!error.response.data.error.message) {
-            console.log(window.abp)
             swal({
                 title: `${window.abp.localization.localize('Error')}:Code${error.response.data.error.code}`,
                 text: error.response.data.error.message,
                 icon: 'error'
             })
-            console.log(error.response.data)
         } else if (error.request) {
             swal({
                 title: error.request.status,
                 text: error.request.statusText,
                 icon: 'error'
             })
-            console.log(error.request)
         } else {
             // Something happened in setting up the request that triggered an Error
             console.log('Error', error.message)

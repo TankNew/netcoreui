@@ -149,6 +149,7 @@
                             @refreshScroll="refreshScroll"
                             @reloadScroll="reloadScroll"
                             @L="L"
+                            @getMenu="getMenu"
                             :scorllTopLength="scorllTopLength"
                             :appName="appName"
                             :appVersion="appVersion"
@@ -300,8 +301,7 @@ export default {
         scrollTop(val) {
             this.scorllTopLength = val
         },
-        // 预加载
-        async load() {
+        async getMenu() {
             let that = this
             await that.$http.get('/api/services/app/Session/GetCurrentUserMenu').then(res => {
                 that.menu = res.data.result
@@ -309,6 +309,10 @@ export default {
                 that.contentTitle = that.L(that.$route.meta.title)
                 that.pathToMenu()
             })
+        },
+        // 预加载
+        async load() {
+            await this.getMenu()
         }
     },
     async created() {
@@ -330,9 +334,6 @@ export default {
             that.loadState = true
             that.reloadScroll()
         })
-    },
-    beforeDestory() {
-        that.loadState = false
     }
 }
 </script>

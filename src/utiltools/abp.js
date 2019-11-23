@@ -890,4 +890,7 @@
 
         return !settings.crossDomain
     }
+
+
+    abp.banner = abp.banner || {}
 })()

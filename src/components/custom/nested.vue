@@ -12,8 +12,16 @@
     >
         <li v-for="(element,index) in children" :key="element.id">
             <div v-if="parentId!==0" class="o-line-up"></div>
-            <a @mouseover="imgtools=index" @mouseout="imgtools=-1">
-                <div v-show="imgtools==index" class="img-cover-toolbar">
+            <a
+                @mouseover="imgtools=index"
+                @mouseout="imgtools=-1"
+                :style="hasbind&&!element.isActive?'background-color:#efefef':''"
+            >
+                <div
+                    v-if="hasToolbar"
+                    v-show="imgtools==index"
+                    class="img-cover-toolbar"
+                >
                     <button
                         v-if="parentId!==0"
                         type="button"
@@ -25,6 +33,7 @@
                         <i class="fas fa-minus" aria-hidden="true"></i>
                     </button>
                     <button
+                        v-if="parentId!==0"
                         type="button"
                         title="编辑"
                         v-b-tooltip.hover
@@ -34,25 +43,26 @@
                         <i class="fas fa-pencil-alt" aria-hidden="true"></i>
                     </button>
                     <button
-                        v-if="hasbind&&!element.isMenu"
+                        v-if="hasbind&&parentId!==0"
                         type="button"
-                        title="绑定"
+                        title="切换"
                         v-b-tooltip.hover
                         class="btn btn-secondary btn-xs"
-                        @click="bind(index,element)"
+                        @click="unbind(index,element)"
                     >
-                        <i class="fas fa-link" aria-hidden="true"></i>
+                        <i class="fas fa-exchange-alt" aria-hidden="true"></i>
                     </button>
                     <button
                         v-if="hasbind&&!element.isMenu"
                         type="button"
-                        title="取消绑定"
+                        title="绑定"
                         v-b-tooltip.hover
-                        class="btn btn-warning btn-xs"
-                        @click="unbind(index,element)"
+                        class="btn btn-primary btn-xs"
+                        @click="bind(index,element)"
                     >
-                        <i class="fas fa-unlink" aria-hidden="true"></i>
+                        <i class="fas fa-link" aria-hidden="true"></i>
                     </button>
+
                     <button
                         v-if="!hasbind||(hasbind&&element.isMenu)"
                         type="button"
@@ -70,18 +80,24 @@
                         模块:{{element.webModule?element.webModule.name:'null'}}
                         <i
                             class="fas fa-cube"
-                            v-if="element.webModule&&element.webModule.isLock"
+                            v-if="element.webModule "
                         ></i>
                     </small>
                     <small v-else>菜单</small>
                 </span>
             </a>
-            <div class="o-line-down" v-if="element.children.length>0"></div>
+            <div
+                class="o-line-down"
+                v-if="element.isMenu&&element.children.length>0"
+            ></div>
             <nested-draggable
+                v-if="(hasbind&&element.isMenu)||!hasbind"
+                :dragging="dragging"
                 :dragUrl="dragUrl"
                 :children="element.children"
                 :parentId="element.id"
                 :hasbind="hasbind"
+                :hasToolbar="hasToolbar"
                 @onDrag="onDrag"
                 @add="add"
                 @del="del"
@@ -110,7 +126,11 @@ export default {
         parentId: Number,
         dragging: Boolean,
         dragUrl: String,
-        hasbind: Boolean
+        hasbind: Boolean,
+        hasToolbar: {
+            type: Boolean,
+            default: true
+        }
     },
     components: {
         draggable

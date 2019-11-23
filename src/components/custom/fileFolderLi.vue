@@ -1,23 +1,33 @@
 <template>
-  <li :class="licss">
-    <i v-if="hasChild" class="fas fa-chevron-right" @click="item.open=!item.open"></i>
-    <a :class="item.isActive?'active':''" @click="oneClick($event)" @contextmenu="rightClick($event,item,false,parent)">
-      <i :class="['far','mr-1',item.isActive?'fa-folder-open':'fa-folder']"></i>
-      {{item.name}}
-    </a>
-    <file-fodler-ul
-      v-if="item.isSubdir"
-      :model="item.subdir"
-      :index="1"
-      :breadcrumb="bread"
-      :parent="item"
-      @setCurrent="setCurrent"
-      @clearCurrent="clearCurrent"
-      @setCurrentFolder="setCurrentFolder"
-      @rightClick="rightC"
-      @setBreadcrumb="setBreadcrumb"
-    ></file-fodler-ul>
-  </li>
+    <li v-if="folder.isSubdir" :class="licss">
+        <i
+            v-if="hasChild"
+            class="fas fa-chevron-right"
+            @click="folder.open=!folder.open"
+        ></i>
+        <a
+            :class="folder.isActive?'active':''"
+            @click="oneClick($event)"
+            @contextmenu="rightClick($event,folder,false,parent)"
+        >
+            <i
+                :class="['far','mr-1',folder.isActive?'fa-folder-open':'fa-folder']"
+            ></i>
+            {{folder.name}}
+        </a>
+        <file-fodler-ul
+            v-if="folder.isSubdir"
+            :model="folder.subdir"
+            :index="1"
+            :breadcrumb="bread"
+            :parent="folder"
+            @setCurrent="setCurrent"
+            @clearCurrent="clearCurrent"
+            @setCurrentFolder="setCurrentFolder"
+            @rightClick="rightC"
+            @setBreadcrumb="setBreadcrumb"
+        ></file-fodler-ul>
+    </li>
 </template>
 <script>
 export default {
@@ -34,16 +44,16 @@ export default {
         bread() {
             return this.breadcrumb
         },
-        item() {
+        folder() {
             return this.model
         },
         licss() {
-            if (this.item.open) return 'active'
+            if (this.folder.open) return 'active'
         },
         hasChild() {
             var res = false
-            if (this.item.isSubdir)
-                this.item.subdir.forEach(m => {
+            if (this.folder.isSubdir)
+                this.folder.subdir.forEach(m => {
                     if (m.isSubdir) res = true
                 })
             return res
@@ -53,7 +63,7 @@ export default {
     methods: {
         rightClick(e, item, bool, parent) {
             var that = this
-            that.item.open = true
+            that.folder.open = true
             that.$emit('rightClick', e, item, bool, parent)
             that.setActive()
         },
@@ -68,7 +78,7 @@ export default {
                 var that = this
                 that.setActive()
                 that.timer = setTimeout(function() {
-                    if (that.clicks === 2) that.item.open = !that.item.open
+                    if (that.clicks === 2) that.folder.open = !that.folder.open
                     that.clicks = 0
                     clearTimeout(that.timer)
                 }, this.delay)
@@ -77,26 +87,26 @@ export default {
         setActive() {
             var that = this
             that.clearCurrent()
-            that.setCurrentFolder(that.item)
+            that.setCurrentFolder(that.folder)
             setTimeout(() => {
-                that.bread.unshift({ text: that.item.name, value: that.item })
+                that.bread.unshift({ text: that.folder.name, value: that.folder })
                 that.$emit('setBreadcrumb', that.bread)
                 setTimeout(() => {
-                    that.item.isActive = true
-                    that.$emit('setCurrent', that.item, that.index)
+                    that.folder.isActive = true
+                    that.$emit('setCurrent', that.folder, that.index)
                 }, 0)
             }, 0)
         },
         setCurrent(val, _index) {
             var that = this
-            that.item.subdir = val
-            that.$emit('setCurrent', that.item, that.index)
+            that.folder.subdir = val
+            that.$emit('setCurrent', that.folder, that.index)
         },
         clearCurrent() {
             this.$emit('clearCurrent')
         },
         setBreadcrumb(val) {
-            val.unshift({ text: this.item.name, value: this.item })
+            val.unshift({ text: this.folder.name, value: this.folder })
             this.$emit('setBreadcrumb', val)
         },
         setCurrentFolder(val) {

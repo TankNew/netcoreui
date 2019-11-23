@@ -2,30 +2,28 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import Vuex from 'vuex'
+import jwtDecode from 'jwt-decode'
+//使BootStrap-vue支持到IE11
+import 'babel-polyfill'
+import PortalVue from 'portal-vue'
+import BootstrapVue from 'bootstrap-vue'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
 import store from './store'
 import App from './App'
 import { router } from './router/router.config'
-import VueDND from 'awe-dnd'
-import { setToken, getToken, getUerFromLocalStorage } from './utiltools/auth'
-import Ajax from './utiltools/ajax'
-import tools from './utiltools/tools'
-import jwtDecode from 'jwt-decode'
-import swal from 'sweetalert'
-
-//使BootStrap-vue支持到IE11
-import 'babel-polyfill'
-import BootstrapVue from 'bootstrap-vue'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-
 import './utiltools/abp'
 import './utiltools/abpbase'
 import appconst from './utiltools/appconst'
+import Ajax from './utiltools/ajax'
+import tools from './utiltools/tools'
+import { setToken, getToken, getUerFromLocalStorage } from './utiltools/auth'
 
 import './plugins/AxiosPlugin'
 import './plugins/vee-validate'
 
-import './assets/main.css'
-import './assets/layout.less'
+import './assets/layout.css'
 import 'famfamfam-flags/dist/sprite/famfamfam-flags.css'
 
 import fileFolderLi from './components/custom/fileFolderLi.vue'
@@ -33,8 +31,8 @@ import filefolderUl from './components/custom/filefolderUl.vue'
 Vue.component('file-fodler-li', fileFolderLi)
 Vue.component('file-fodler-ul', filefolderUl)
 
-Vue.use(VueDND)
 Vue.use(Vuex)
+Vue.use(PortalVue)
 Vue.use(BootstrapVue)
 Vue.config.productionTip = false
 
@@ -55,7 +53,7 @@ if (!window.localStorage) {
 }
 store.commit('setToken', getToken())
 store.commit('setUser', getUerFromLocalStorage())
-let mainLoad = async () => {
+;(async () => {
     if (!!store.getters.hastoken && store.getters.isTokenExpired)
         await Ajax.get(tools.tokenUrl + '/RefreshToken').then(function(response) {
             var json = response.data
@@ -75,6 +73,14 @@ let mainLoad = async () => {
     await Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
         window.abp = tools.extend(true, window.abp, data.data.result)
         window.abp.localization.defaultSourceName = appconst.localization.defaultLocalizationSourceName
+        window.abp.banner = {
+            HomePageWidth: abp.setting.getInt('App.Banner.HomePageWidth'),
+            HomePageHeight: abp.setting.getInt('App.Banner.HomePageHeight'),
+            Width: abp.setting.getInt('App.Banner.Width'),
+            Height: abp.setting.getInt('App.Banner.Height'),
+            Interval: abp.setting.getInt('App.Banner.Interval')
+        }
+        console.log(window.abp)
         new Vue({
             el: '#app',
             router,
@@ -84,6 +90,4 @@ let mainLoad = async () => {
             created() {}
         })
     })
-}
-
-mainLoad()
+})()

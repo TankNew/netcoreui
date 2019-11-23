@@ -8,7 +8,6 @@ import Charts from '@/components/Charts'
 import Announce from '@/components/Announce'
 import Banner from '@/components/Banner'
 import CompanyInfo from '@/components/CompanyInfo'
-import PageConfig from '@/components/PageConfig'
 import Modules from '@/components/Modules'
 import store from '../store'
 import Ajax from '../utiltools/ajax'
@@ -38,8 +37,14 @@ export const router = new Router({
                 {
                     path: 'hello',
                     name: 'hello',
-                    meta: { title: 'HomePage', permission: 'Pages.Content' },
+                    meta: { title: 'Hello', permission: 'Pages.Content' },
                     component: () => import('@/components/Hello')
+                },
+                {
+                    path: 'homepage',
+                    name: 'homepage',
+                    meta: { title: 'HomePage', permission: 'Pages.Content' },
+                    component: () => import('@/components/HomePage')
                 },
                 {
                     path: 'hr',
@@ -78,10 +83,10 @@ export const router = new Router({
                     component: Modules
                 },
                 {
-                    path: 'pageconfig',
-                    name: 'pageconfig',
-                    meta: { title: 'PageConfig', permission: 'Pages.Content' },
-                    component: PageConfig
+                    path: 'navbar',
+                    name: 'navbar',
+                    meta: { title: 'Navbar', permission: 'Pages.Content' },
+                    component: () => import('@/components/Navbar')
                 },
                 {
                     path: 'banner',
