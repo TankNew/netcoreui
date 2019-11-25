@@ -284,12 +284,12 @@ export default {
             if (window.history && window.history.pushState) {
                 history.pushState(null, null, document.URL)
                 window.addEventListener('popstate', this.closeViews, false)
-                window.addEventListener('beforeunload', this.beforeunloadFn)
+                window.addEventListener('beforeunload', this.beforeunloadFn, false)
             }
         },
         afterpopstate() {
             window.removeEventListener('popstate', this.closeViews, false)
-            window.removeEventListener('beforeunload', this.beforeunloadFn)
+            window.removeEventListener('beforeunload', this.beforeunloadFn, false)
         },
         beforeunloadFn(e) {
             e.returnValue = ``

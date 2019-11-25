@@ -80,7 +80,6 @@ store.commit('setUser', getUerFromLocalStorage())
             Height: abp.setting.getInt('App.Banner.Height'),
             Interval: abp.setting.getInt('App.Banner.Interval')
         }
-        console.log(window.abp)
         new Vue({
             el: '#app',
             router,

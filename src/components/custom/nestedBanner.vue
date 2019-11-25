@@ -55,19 +55,6 @@
                             <i class="fas fa-plus" aria-hidden="true"></i>
                         </button>
                     </p>
-                    <p
-                        v-if="parentId!==0&&getCodeNumber(element)>=3&&element.bannerImgs.length>0"
-                    >
-                        <button
-                            type="button"
-                            title="切换"
-                            v-b-tooltip.hover
-                            class="btn btn-secondary btn-xs"
-                            @click="change(index,element)"
-                        >
-                            <i class="fas fa-exchange-alt" aria-hidden="true"></i>
-                        </button>
-                    </p>
                 </div>
                 <span
                     class="text_with_1px_border float-left ml-3 color-Purple font-weight-bold"
@@ -85,7 +72,6 @@
                 @add="add"
                 @del="del"
                 @edit="edit"
-                @change="change"
             />
         </li>
     </draggable>
@@ -141,9 +127,6 @@ export default {
         },
         del(index, item) {
             this.$emit('del', index, item)
-        },
-        change(index, item) {
-            this.$emit('unbind', index, item)
         }
     }
 }
