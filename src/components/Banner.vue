@@ -304,7 +304,10 @@ export default {
     },
     watch: {
         slide(val) {
-            this.currentBanner = this.currentPage.bannerImgs.length > 0 ? this.currentPage.bannerImgs[val] : {}
+            this.currentBanner =
+                this.currentPage.bannerImgs && this.currentPage.bannerImgs.length > 0
+                    ? this.currentPage.bannerImgs[val]
+                    : {}
         }
     },
     methods: {

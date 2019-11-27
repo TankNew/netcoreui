@@ -11,21 +11,22 @@ const tokenUrl = '/api/TokenAuth'
 
 //转换日期
 const date = function(dateObject) {
-    if (dateObject !== null) {
+    if (dateObject.length > 0) {
         if (dateObject.indexOf('T') === -1) dateObject = dateObject.replace(/-/g, '/')
-        var d = new Date(dateObject)
-        var day = d.getDate()
-        var month = d.getMonth() + 1
-        var year = d.getFullYear()
+        let d = new Date(dateObject)
+        let day = d.getDate()
+        let month = d.getMonth() + 1
+        let year = d.getFullYear()
         if (day < 10) {
             day = '0' + day
         }
         if (month < 10) {
             month = '0' + month
         }
-        var date = year + '.' + month + '.' + day
+        let date = year + '.' + month + '.' + day
         return date
     }
+    return 'null'
 }
 //过滤空格
 var trimspace = function(vStr) {

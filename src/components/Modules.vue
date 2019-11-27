@@ -338,6 +338,7 @@ export default {
         }
     }
     .card {
+        min-width: calc(20% - 30px);
         max-width: calc(20% - 30px);
         margin-bottom: 10px;
         cursor: pointer;

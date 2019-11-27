@@ -73,6 +73,11 @@
                                 @input="upload"
                             >上传</b-form-file>
                         </dd>
+                        <dd>
+                            <a href="javascript:void(0)" @click="setnull">
+                                <i class="fas fa-ban"></i>
+                            </a>
+                        </dd>
                     </dl>
                 </div>
 
@@ -572,6 +577,10 @@ export default {
         close() {
             var that = this
             that.$emit('fileClose')
+        },
+        setnull() {
+            this.fileCallBack(null)
+            this.close()
         }
     },
     created() {},

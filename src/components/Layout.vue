@@ -146,11 +146,10 @@
                         @scrollTop="scrollTop"
                     >
                         <router-view
+                            :scorllTopLength="scorllTopLength"
                             @refreshScroll="refreshScroll"
                             @reloadScroll="reloadScroll"
-                            @L="L"
                             @getMenu="getMenu"
-                            :scorllTopLength="scorllTopLength"
                             :appName="appName"
                             :appVersion="appVersion"
                             :contentTitle="contentTitle"
@@ -173,18 +172,13 @@ export default {
     name: 'layout',
     data() {
         return {
+            UserModel: {},
             loadState: false, // 加载状态
             scorllTopLength: 0,
             path: '/',
-            pathname: '',
-            UserModel: {
-                UserName: null,
-                UserHead: null,
-                UserRole: null
-            },
             menu: '',
-            contentTitle: '',
             menuIndex: -1,
+            contentTitle: '',
             isCollapsed: false,
             breadcrumb: [],
             scrollData: [],

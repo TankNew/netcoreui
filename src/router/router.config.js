@@ -1,20 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Layout from '@/components/Layout'
-import Login from '@/components/Login'
-import News from '@/components/News'
-import Setting from '@/components/Setting'
-import Charts from '@/components/Charts'
-import Announce from '@/components/Announce'
-import Banner from '@/components/Banner'
-import CompanyInfo from '@/components/CompanyInfo'
-import Modules from '@/components/Modules'
+import jwtDecode from 'jwt-decode'
+import swal from 'sweetalert'
 import store from '../store'
 import Ajax from '../utiltools/ajax'
 import tools from '../utiltools/tools'
 import { setToken, getToken, getUerFromLocalStorage } from '../utiltools/auth'
-import jwtDecode from 'jwt-decode'
-import swal from 'sweetalert'
 
 Vue.use(Router)
 
@@ -22,11 +13,31 @@ export const router = new Router({
     mode: 'history',
     routes: [
         {
-            path: '/home',
-            redirect: '/home/hello',
-            name: 'Layout',
-            component: Layout,
+            path: '/Administration',
+            name: 'Administration',
+            component: () => import('@/components/Layout'),
             meta: { auth: true },
+            children: [
+                {
+                    path: 'Users',
+                    meta: { title: 'Users', permission: 'Pages.Content' },
+                    name: 'Users',
+                    component: () => import('@/components/Users')
+                },
+                {
+                    path: 'Roles',
+                    meta: { title: 'Roles', permission: 'Pages.Content' },
+                    name: 'Roles',
+                    component: () => import('@/components/Roles')
+                }
+            ]
+        },
+        {
+            path: '/home',
+            meta: { auth: true },
+            name: 'Layout',
+            redirect: '/home/hello',
+            component: () => import('@/components/Layout'),
             children: [
                 {
                     path: 'organization',
@@ -56,31 +67,31 @@ export const router = new Router({
                     path: 'news',
                     name: 'news',
                     meta: { title: 'News', permission: 'Pages.Content' },
-                    component: News
+                    component: () => import('@/components/News')
                 },
                 {
                     path: 'announce',
                     name: 'announce',
                     meta: { title: 'Announce', permission: 'Pages.Content' },
-                    component: Announce
+                    component: () => import('@/components/Announce')
                 },
                 {
                     path: 'charts',
                     name: 'charts',
                     meta: { title: 'Charts', permission: 'Pages.Content' },
-                    component: Charts
+                    component: () => import('@/components/Charts')
                 },
                 {
                     path: 'setting',
                     name: 'setting',
                     meta: { title: 'Setting', permission: 'Pages.Content' },
-                    component: Setting
+                    component: () => import('@/components/Setting')
                 },
                 {
                     path: 'modules',
                     name: 'modules',
                     meta: { title: 'Modules', permission: 'Pages.Content' },
-                    component: Modules
+                    component: () => import('@/components/Modules')
                 },
                 {
                     path: 'navbar',
@@ -92,13 +103,13 @@ export const router = new Router({
                     path: 'banner',
                     name: 'banner',
                     meta: { title: 'Banner', permission: 'Pages.Content' },
-                    component: Banner
+                    component: () => import('@/components/Banner')
                 },
                 {
                     path: 'companyinfo',
                     name: 'companyinfo',
                     meta: { title: 'CompanyInfo', permission: 'Pages.Content' },
-                    component: CompanyInfo
+                    component: () => import('@/components/CompanyInfo')
                 }
             ]
         },
@@ -109,7 +120,7 @@ export const router = new Router({
         {
             path: '/login',
             name: 'login',
-            component: Login
+            component: () => import('@/components/Login')
         }
     ]
 })
