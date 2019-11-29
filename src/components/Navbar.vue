@@ -63,11 +63,12 @@
                     导航绑定
                 </h5>
                 <div>
-                    <b-form-radio-group
+                    <b-form-checkbox
+                        switch
                         @change="switchActive(page)"
                         v-model="page.isActive"
-                        :options="[{text:'启用',value:true},{text:'禁用',value:false} ]"
-                    />
+                        size="lg"
+                    >启用</b-form-checkbox>
                 </div>
             </template>
             <section>

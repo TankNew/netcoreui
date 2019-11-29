@@ -325,26 +325,3 @@ export default {
     }
 }
 </script>
-<style lang="less" scoped>
-.custom-module-list {
-    h4 {
-        & > span {
-            position: relative;
-        }
-        & .badge {
-            position: absolute;
-            right: -64px;
-            top: 0;
-        }
-    }
-    .card {
-        min-width: calc(20% - 30px);
-        max-width: calc(20% - 30px);
-        margin-bottom: 10px;
-        cursor: pointer;
-        &:hover {
-            background-color: #17a2b81a;
-        }
-    }
-}
-</style>

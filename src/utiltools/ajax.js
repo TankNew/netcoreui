@@ -65,6 +65,7 @@ ajax.interceptors.response.use(
                 icon: 'error'
             })
         }
+        console.log(`ajax error`)
         return Promise.reject(error)
     }
 )

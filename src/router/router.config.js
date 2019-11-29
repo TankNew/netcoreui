@@ -20,13 +20,13 @@ export const router = new Router({
             children: [
                 {
                     path: 'Users',
-                    meta: { title: 'Users', permission: 'Pages.Content' },
+                    meta: { title: 'Users', permission: 'Pages.Users' },
                     name: 'Users',
                     component: () => import('@/components/Users')
                 },
                 {
                     path: 'Roles',
-                    meta: { title: 'Roles', permission: 'Pages.Content' },
+                    meta: { title: 'Roles', permission: 'Pages.Roles' },
                     name: 'Roles',
                     component: () => import('@/components/Roles')
                 }
@@ -40,17 +40,18 @@ export const router = new Router({
             component: () => import('@/components/Layout'),
             children: [
                 {
+                    path: 'hello',
+                    name: 'hello',
+                    meta: { title: 'Hello' },
+                    component: () => import('@/components/Hello')
+                },
+                {
                     path: 'organization',
                     meta: { title: 'Organization', permission: 'Pages.Content' },
                     name: 'organization',
                     component: () => import('@/components/Organization')
                 },
-                {
-                    path: 'hello',
-                    name: 'hello',
-                    meta: { title: 'Hello', permission: 'Pages.Content' },
-                    component: () => import('@/components/Hello')
-                },
+
                 {
                     path: 'homepage',
                     name: 'homepage',
@@ -64,7 +65,7 @@ export const router = new Router({
                     component: () => import('@/components/Hr')
                 },
                 {
-                    path: 'news',
+                    path: 'news/:id',
                     name: 'news',
                     meta: { title: 'News', permission: 'Pages.Content' },
                     component: () => import('@/components/News')
@@ -148,12 +149,13 @@ router.beforeEach(async (to, from, next) => {
             })
         }
 
-        if (window.abp.auth.hasPermission(to.meta.permission)) {
+        if ((!!to.meta.permission && window.abp.auth.hasPermission(to.meta.permission)) || !!!to.meta.permission) {
             next()
-        } else
+        } else {
             swal({
-                title: window.abp.localization.localize('LoginFailed'),
+                title: `权限不足`,
                 icon: 'error'
             })
+        }
     } else next()
 })

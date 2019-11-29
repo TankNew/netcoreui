@@ -119,6 +119,7 @@ Axios.interceptors.response.use(
             console.log('Error', error.message)
             console.log(error.config)
         }
+        console.log(`$http error`)
         // 返回 response 里的错误信息
         return Promise.reject(error)
     }

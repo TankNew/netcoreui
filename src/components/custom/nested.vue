@@ -187,8 +187,5 @@ export default {
 }
 </script>
 <style lang='less' scoped>
-.ghost {
-    opacity: 0.5;
-    background: #c8ebfb;
-}
+
 </style>

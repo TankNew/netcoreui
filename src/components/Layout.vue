@@ -38,50 +38,13 @@
             </div>
             <hr class="border-primary" />
             <div class="sidebar-menu">
-                <ul>
-                    <li
-                        :class="[
-                            item.items.length > 0 ? 'sidebar-dropdown' : 'sidebar-link',
-                            menuIndex == index || path == item.url ? 'active' : ''
-                        ]"
-                        v-for="(item, index) in menu.items"
-                        :key="index"
-                    >
-                        <a
-                            href="javascript:void(0)"
-                            :class="[menuIndex == index || path == item.url ? 'active' : '']"
-                            @click="menuClick(item, index)"
-                        >
-                            <i :class="item.icon"></i>
-                            <span>{{ item.displayName }}</span>
-                            <span
-                                v-if="item.isnew"
-                                class="badge badge-success"
-                            >New</span>
-                            <span
-                                v-if="item.ispage"
-                                class="badge badge-warning"
-                            >P</span>
-                        </a>
-                        <div
-                            class="sidebar-submenu"
-                            v-if="item.items.length > 0"
-                        >
-                            <ul>
-                                <li
-                                    v-for="(sub, subindex) in item.items"
-                                    :key="subindex"
-                                >
-                                    <a
-                                        href="javascript:void(0)"
-                                        :class="path == sub.url ? 'active' : ''"
-                                        @click="menuClick(sub, subindex)"
-                                    >{{ sub.displayName }}</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                </ul>
+                <sidebar-menu
+                    :menu="menu"
+                    :path="path"
+                    :isRoot="true"
+                    :menuIndex="menuIndex"
+                    @menuClick="menuClick"
+                ></sidebar-menu>
             </div>
         </div>
         <!--主体内容设置-->
@@ -168,6 +131,7 @@ import AppConsts from '../utiltools/appconst'
 import scroll from './custom/scroll'
 import jwtDecode from 'jwt-decode'
 import { unsetToken } from '../utiltools/auth'
+import sidebarMenu from './custom/sidebarMenu'
 export default {
     name: 'layout',
     data() {
@@ -176,8 +140,8 @@ export default {
             loadState: false, // 加载状态
             scorllTopLength: 0,
             path: '/',
-            menu: '',
-            menuIndex: -1,
+            menu: {},
+            menuIndex: '',
             contentTitle: '',
             isCollapsed: false,
             breadcrumb: [],
@@ -189,9 +153,9 @@ export default {
         $route(val) {
             var that = this
             //获取当前router完整路径
-            that.contentTitle = that.L(val.meta.title)
             that.path = val.fullPath
-            that.pathToMenu()
+            that.breadcrumbFromat()
+            that.pathToMenu(that.menu)
             that.reloadScroll()
         },
         // 监视窗口大小变化
@@ -200,7 +164,8 @@ export default {
         }
     },
     components: {
-        scroll: scroll
+        scroll: scroll,
+        sidebarMenu: sidebarMenu
     },
     computed: {
         appName() {
@@ -222,41 +187,47 @@ export default {
         }
     },
     methods: {
-        breadcrumbInsert(parent, val) {
-            var that = this
-            that.breadcrumb = [
+        breadcrumbFromat() {
+            this.breadcrumb = [
                 {
-                    text: '根目录',
+                    text: 'Home',
                     to: { path: '/' }
                 }
             ]
-            if (parent) {
-                that.breadcrumb.push({ text: parent })
-                that.breadcrumb.push({ text: val, active: true })
-            } else that.breadcrumb.push({ text: val })
+        },
+        breadcrumbInsert(displayName, isActive = false) {
+            this.breadcrumb.push({ text: displayName, active: isActive })
+        },
+        getFromUrl(menu) {
+            var that = this
+            menu.items.forEach((m, index) => {
+                if (m.url && m.url.toLowerCase() === that.path.toLowerCase()) {
+                    that.menuIndex = m.customData
+                } else if (m.items && m.items.length > 0) {
+                    that.getFromUrl(m)
+                }
+            })
         },
         //初加载同步菜单
-        pathToMenu() {
+        pathToMenu(menu) {
             var that = this
-            that.menu.items.forEach((m, index) => {
+            menu.items.forEach((m, index) => {
                 if (m.url && m.url.toLowerCase() === that.path.toLowerCase()) {
-                    that.menuIndex = index
-                    that.breadcrumbInsert(null, m.displayName)
-                } else if (m.items) {
-                    m.items.forEach(s => {
-                        if (s.url && s.url.toLowerCase() === that.path.toLowerCase()) {
-                            that.menuIndex = index
-                            that.breadcrumbInsert(m.displayName, s.displayName)
-                        }
-                    })
+                    that.menuIndex = m.customData
+                    that.contentTitle = m.displayName
+
+                    that.breadcrumbInsert(m.displayName, true)
+                } else if (m.items && m.items.length > 0) {
+                    if (that.menuIndex.indexOf(m.customData) > -1) that.breadcrumbInsert(m.displayName)
+                    that.pathToMenu(m)
                 }
             })
         },
         //侧导航
-        menuClick(item, index) {
-            if (!item.items.length > 0) {
+        menuClick(item, customData) {
+            if (!item.items.length > 0 || item.url) {
                 this.$router.push({ path: item.url })
-            } else this.menuIndex = index
+            } else this.menuIndex = customData
         },
         //隐藏侧导航
         leftBarChange() {
@@ -301,7 +272,9 @@ export default {
                 that.menu = res.data.result
                 that.path = that.$route.fullPath
                 that.contentTitle = that.L(that.$route.meta.title)
-                that.pathToMenu()
+                that.getFromUrl(that.menu)
+                that.breadcrumbFromat()
+                that.pathToMenu(that.menu)
             })
         },
         // 预加载

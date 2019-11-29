@@ -12,6 +12,7 @@
             :deleteUrl="deleteUrl"
             :hasAttach="false"
             :hasCover="false"
+            :hasGroup="false"
             @refreshScroll="refreshScroll"
             @reloadScroll="reloadScroll"
             :scorllTopLength="scorllTopLength"
