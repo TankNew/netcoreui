@@ -1,80 +1,6 @@
 <template>
     <section>
         <section v-show="editMode" style="height:100%; position:relative;">
-            <b-modal
-                ref="attachModal"
-                size="lg"
-                scrollable
-                :ok-title="'确认'"
-                :cancel-title="'取消'"
-                :title="modalName"
-                @ok="modalOk"
-                @hidden="modalReset"
-            >
-                <section>
-                    <file
-                        :fileShow="attachShow"
-                        :fileCallBack="attachCallBack"
-                        @fileClose="attachClose"
-                    ></file>
-                    <div class="mb-3 center">
-                        <div class="news-cover" @click="attachOpen">
-                            <img :src="getPicture()" />
-                        </div>
-                    </div>
-                    <b-form
-                        @submit.stop.prevent="submitPicture"
-                        autocomplete="off"
-                        data-vv-scope="form-picture"
-                    >
-                        <b-form-group
-                            label="图片地址:"
-                            label-for="p-url"
-                            description="选取图片库自动生成链接，或者手动填写外链."
-                        >
-                            <b-form-input
-                                id="p-url"
-                                type="text"
-                                v-model="currentPicture.picUrl"
-                                name="图片地址"
-                                :state="!errors.has('form-picture.图片地址') "
-                                v-validate="'required'"
-                                placeholder="图片地址"
-                            ></b-form-input>
-                        </b-form-group>
-                        <b-form-group
-                            label="标题:"
-                            label-for="p-title"
-                            description="请填写5-30个字的标题."
-                        >
-                            <b-form-input
-                                id="p-title"
-                                type="text"
-                                v-model="currentPicture.picTitle"
-                                name="图片标题"
-                                placeholder="图片标题"
-                            ></b-form-input>
-                        </b-form-group>
-                        <b-form-group
-                            label="描述:"
-                            label-for="p-content"
-                            description="简单的文字描述，不允许换行以及链接."
-                        >
-                            <b-form-textarea
-                                id="p-content"
-                                size="lg"
-                                v-model="currentPicture.picContent"
-                                placeholder="文字描述"
-                            ></b-form-textarea>
-                        </b-form-group>
-                    </b-form>
-                </section>
-            </b-modal>
-            <file
-                :fileShow="fileShow"
-                :fileCallBack="fileCallBack"
-                @fileClose="fileClose"
-            ></file>
             <div class="alert alert-success" role="alert">
                 <i class="far fa-bell mx-1"></i>
                 您当前正处于{{editModeTitle}}模式
@@ -84,7 +10,7 @@
                     @click="outEditMode"
                 >退出{{editModeTitle}}模式</button>
             </div>
-            <div class="mb-3 center">
+            <div class="mb-3 center isTop isHot">
                 <b-button-group>
                     <b-button
                         class="px-5"
@@ -103,11 +29,17 @@
                     <img :src="getCover()" @click="coverOpen" />
                 </div>
             </div>
+            <file
+                v-if="hasCover"
+                :fileShow="fileShow"
+                :fileCallBack="fileCallBack"
+                @fileClose="fileClose"
+            ></file>
             <b-form
+                v-if="formShow"
                 @submit="onSubmit"
                 @reset="onReset"
                 autocomplete="off"
-                v-if="formShow"
                 data-vv-scope="form-update"
             >
                 <b-form-group
@@ -141,7 +73,6 @@
                         <option slot="first" :value="null">无</option>
                     </b-form-select>
                 </b-form-group>
-
                 <div class="news-edit-editmode">
                     <label>编辑模式:</label>
                     <button
@@ -191,13 +122,95 @@
                         </li>
                     </draggable>
                 </div>
-
+                <b-modal
+                    v-if="hasAttach"
+                    ref="attachModal"
+                    size="lg"
+                    scrollable
+                    :ok-title="'确认'"
+                    :cancel-title="'取消'"
+                    :title="attachModalName"
+                    @ok="attachModalOk"
+                    @hidden="attachModalHide"
+                >
+                    <file
+                        :fileShow="attachShow"
+                        :fileCallBack="attachCallBack"
+                        @fileClose="attachClose"
+                    ></file>
+                    <div class="mb-3 center">
+                        <div class="news-cover" @click="attachOpen">
+                            <img :src="getPicture()" />
+                        </div>
+                    </div>
+                    <b-form
+                        @submit.stop.prevent="attachModalSubmit"
+                        autocomplete="off"
+                        data-vv-scope="form-picture"
+                    >
+                        <b-form-group
+                            label="图片地址:"
+                            label-for="p-url"
+                            description="选取图片库自动生成链接，或者手动填写外链."
+                        >
+                            <b-form-input
+                                id="p-url"
+                                type="text"
+                                v-model="currentPicture.picUrl"
+                                name="图片地址"
+                                :state="!errors.has('form-picture.图片地址') "
+                                v-validate="'required'"
+                                placeholder="图片地址"
+                            ></b-form-input>
+                        </b-form-group>
+                        <b-form-group
+                            label="标题:"
+                            label-for="p-title"
+                            description="请填写5-30个字的标题."
+                        >
+                            <b-form-input
+                                id="p-title"
+                                type="text"
+                                v-model="currentPicture.picTitle"
+                                name="图片标题"
+                                placeholder="图片标题"
+                            ></b-form-input>
+                        </b-form-group>
+                        <b-form-group
+                            label="描述:"
+                            label-for="p-content"
+                            description="简单的文字描述，不允许换行以及链接."
+                        >
+                            <b-form-textarea
+                                id="p-content"
+                                size="lg"
+                                v-model="currentPicture.picContent"
+                                placeholder="文字描述"
+                            ></b-form-textarea>
+                        </b-form-group>
+                    </b-form>
+                </b-modal>
                 <hr />
                 <b-button type="submit" variant="primary">确认</b-button>
                 <b-button type="reset" variant="light">重置</b-button>
             </b-form>
         </section>
         <section v-show="!editMode">
+            <!-- Info modal -->
+            <b-modal
+                id="modalInfo"
+                size="lg"
+                ok-only
+                :title="modalInfo.title"
+                @shown="modalInfoShow"
+                @hide="modalInfoHide"
+            >
+                <section class="scroll-container">
+                    <scroll ref="content" class="scroll" :autoScroll="false">
+                        <div ref="focusThis" v-html="modalInfo.content"></div>
+                    </scroll>
+                </section>
+            </b-modal>
             <div>
                 <b-alert show dismissible>
                     <b>Info:</b> 拖动条目即可排序（稍后上线）。选择快捷工具‘单页显示条目’可改变显示的条目总数。
@@ -297,7 +310,6 @@
                     </b-input-group>
                 </dd>
             </dl>
-
             <div class="mb-3 ml-4" v-if="enableAddButton">
                 <button
                     type="button"
@@ -394,26 +406,6 @@
                     @change="pageChange"
                     class="my-0"
                 />
-
-                <!-- Info modal -->
-                <b-modal
-                    id="modalInfo"
-                    @hide="resetModal"
-                    :title="modalInfo.title"
-                    ok-only
-                    @shown="focusMyElement"
-                    size="lg"
-                >
-                    <section class="scroll-container">
-                        <scroll
-                            ref="content"
-                            class="scroll"
-                            :autoScroll="false"
-                        >
-                            <div ref="focusThis" v-html="modalInfo.content"></div>
-                        </scroll>
-                    </section>
-                </b-modal>
             </div>
         </section>
     </section>
@@ -457,18 +449,16 @@ export default {
             },
             fileShow: false,
             fileCallBack: function(x) {
-                console.log(x)
             },
 
             /*图片组设置*/
-            modalName: '',
+            attachModalName: '',
             dragging: false,
             currentPictureIsUpdate: false, //新增或者更新
             currentPicture: {}, //当前编辑的图片
             currentPictureIndex: 0, //当前编辑图片的INDEX
             attachShow: false, // 打开/关闭文件管理器
             attachCallBack: function(x) {
-                console.log(x)
             },
             /**分组设置 */
             isSubGroupUpdating: false,
@@ -614,26 +604,26 @@ export default {
                 picTitle: '',
                 picContent: ''
             }
-            this.modalName = ` 添加图片：`
+            this.attachModalName = ` 添加图片：`
             this.$refs.attachModal.show()
         },
         editPicture(item, index) {
             this.currentPictureIsUpdate = true
             this.currentPicture = JSON.parse(JSON.stringify(item))
             this.currentPictureIndex = index
-            this.modalName = ` 编辑图片`
+            this.attachModalName = ` 编辑图片`
             this.$refs.attachModal.show()
         },
-        modalReset() {
+        attachModalHide() {
             this.currentPictureIsUpdate = false
             this.currentPicture = {}
-            this.modalName = null
+            this.attachModalName = null
         },
-        modalOk(e) {
+        attachModalOk(e) {
             e.preventDefault()
-            this.submitPicture()
+            this.attachModalSubmit()
         },
-        async submitPicture() {
+        async attachModalSubmit() {
             if (await this.validate('form-picture')) {
                 if (!this.currentPictureIsUpdate) {
                     this.form.pictureWithInfos.push(JSON.parse(JSON.stringify(this.currentPicture)))
@@ -709,11 +699,11 @@ export default {
             })
         },
         //重置查看
-        resetModal() {
+        modalInfoHide() {
             this.modalInfo = {}
         },
         //modal打开时焦点设置
-        focusMyElement(e) {
+        modalInfoShow(e) {
             this.$refs.focusThis.focus()
         },
         //刷新滚动轴
@@ -781,7 +771,6 @@ export default {
         coverSet(fileUrl) {
             this.form.cover = fileUrl
             this.form.miniCover = fileUrl
-            console.log(fileUrl)
         },
         getCover() {
             if (this.form.cover !== null && this.form.cover !== '' && this.form.cover !== undefined) {
@@ -827,7 +816,7 @@ export default {
         attachClose() {
             this.attachShow = false
         },
-        /**附件管理 over*/
+        // 编辑模式
         outEditMode() {
             this.editMode = false
             this.isUpdate = false
@@ -840,6 +829,21 @@ export default {
                 res = result
             })
             return res
+        },
+        //重置
+        onReset(evt) {
+            evt.preventDefault()
+            /* Reset our form values */
+            this.form = JSON.parse(JSON.stringify(this.editRow))
+            /* 重置或者清除浏览器的验证状态 */
+            this.$refs.tinymceNews.destroy()
+            this.formShow = false
+            this.$nextTick(() => {
+                this.formShow = true
+                setTimeout(() => {
+                    this.$refs.tinymceNews._initScroll()
+                }, 20)
+            })
         },
         async onSubmit(evt) {
             evt.preventDefault()
@@ -870,21 +874,8 @@ export default {
                 })
             }
         },
-        //重置
-        onReset(evt) {
-            evt.preventDefault()
-            /* Reset our form values */
-            this.form = JSON.parse(JSON.stringify(this.editRow))
-            /* 重置或者清除浏览器的验证状态 */
-            this.$refs.tinymceNews.destroy()
-            this.formShow = false
-            this.$nextTick(() => {
-                this.formShow = true
-                setTimeout(() => {
-                    this.$refs.tinymceNews._initScroll()
-                }, 20)
-            })
-        },
+
+        // 子分类管理
         getSubGroups() {
             this.subGroups = []
             this.$http.get(this.dataGroupListUrl, { params: { id: this.dataGroup } }).then(res => {

@@ -1,6 +1,6 @@
 <template>
     <section class="container-fluid">
-        <div class="jumbotron">
+        <div class="jumbotron py-5">
             <h1>
                 欢迎您使用{{ appName }}
                 <span class="copy">&copy;</span>
@@ -53,11 +53,15 @@ export default {
             ads: [
                 {
                     title: '微信小程序企业标准版',
-                    info: '最快速度定制企业微信小程序，最低500元起.',
-                    link: 'www.ednet.cn'
+                    info: '最快速度定制企业微信小程序.',
+                    link: 'http://www.ednet.cn'
                 },
-                { title: '微信公众号对接', info: '全面对接企业号、服务号、订阅号，最低500元起.', link: 'www.ednet.cn' },
-                { title: '企业网页客服', info: '免费定制，多客服，桌面客服端', link: 'www.ednet.cn' }
+                {
+                    title: '微信公众号对接',
+                    info: '全面对接企业号、服务号、订阅号.',
+                    link: 'http://www.ednet.cn'
+                },
+                { title: '企业网页客服', info: '免费定制，多客服，桌面客服端', link: 'http://www.ednet.cn' }
             ]
         }
     },
@@ -72,19 +76,18 @@ export default {
     }
 }
 </script>
-<style scoped>
+<style lang="less" scoped>
 .ad {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-}
-
-.ad > div {
-    display: inline-block;
-    width: 50%;
-    padding: 0 20px;
-    flex-shrink: 0;
-    margin: 20px 0;
+    > div {
+        display: inline-block;
+        width: 50%;
+        padding: 0 20px;
+        flex-shrink: 0;
+        margin: 20px 0;
+    }
 }
 
 .copy {
@@ -94,13 +97,12 @@ export default {
 
 .tec {
     margin-top: 50px;
-}
-
-.tec img {
-    padding: 4px;
-    border: 2px solid #fff;
-    border-radius: 4px;
-    height: 48px;
+    img {
+        padding: 4px;
+        border: 2px solid #fff;
+        border-radius: 4px;
+        height: 48px;
+    }
 }
 
 @media (min-width: 1200px) {

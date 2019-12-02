@@ -98,7 +98,6 @@ export default {
             await this.$http.get(this.dataGroupUrl, { params: { id: this.dataGroup } }).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
-                    console.log(json)
                     this.currentGroup = json
                     this.currentGroupType = this.currentGroup.catalogType
                 }

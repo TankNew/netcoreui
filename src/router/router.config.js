@@ -20,15 +20,21 @@ export const router = new Router({
             children: [
                 {
                     path: 'Users',
-                    meta: { title: 'Users', permission: 'Pages.Users' },
                     name: 'Users',
+                    meta: { title: 'Users', permission: 'Pages.Users' },
                     component: () => import('@/components/Users')
                 },
                 {
                     path: 'Roles',
-                    meta: { title: 'Roles', permission: 'Pages.Roles' },
                     name: 'Roles',
+                    meta: { title: 'Roles', permission: 'Pages.Roles' },
                     component: () => import('@/components/Roles')
+                },
+                {
+                    path: 'Tenants',
+                    name: 'Tenants',
+                    meta: { title: 'Tenants', permission: 'Pages.Tenants' },
+                    component: () => import('@/components/Tenants')
                 }
             ]
         },

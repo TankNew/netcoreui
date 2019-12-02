@@ -33,7 +33,6 @@
                         <i class="fas fa-minus" aria-hidden="true"></i>
                     </button>
                     <button
-                        v-if="parentId!==0"
                         type="button"
                         title="编辑"
                         v-b-tooltip.hover

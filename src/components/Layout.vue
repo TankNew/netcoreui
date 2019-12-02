@@ -174,6 +174,9 @@ export default {
         appVersion() {
             return AppConsts.appVersion
         },
+        tenant() {
+            return abp.session.tenant
+        },
         menuitemClasses() {
             return ['leftBar', this.isCollapsed ? 'shrink' : '']
         },
@@ -225,9 +228,10 @@ export default {
         },
         //侧导航
         menuClick(item, customData) {
+            this.menuIndex = customData
             if (!item.items.length > 0 || item.url) {
                 this.$router.push({ path: item.url })
-            } else this.menuIndex = customData
+            }
         },
         //隐藏侧导航
         leftBarChange() {
@@ -277,9 +281,20 @@ export default {
                 that.pathToMenu(that.menu)
             })
         },
+        async getSessionInfo() {
+            await this.$http.get('/api/services/app/Session/GetCurrentLoginInformations').then(res => {
+                if (res.data.success) {
+                    let json = res.data.result
+                    window.abp.session.application = json.application
+                    window.abp.session.tenant = json.tenant
+                    window.abp.session.user = json.user
+                }
+            })
+        },
         // 预加载
         async load() {
             await this.getMenu()
+            await this.getSessionInfo()
         }
     },
     async created() {
