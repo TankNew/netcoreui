@@ -6,8 +6,67 @@
             <span class="small">
                 <b-badge pill variant="info">{{catalogTypeName}}</b-badge>
             </span>
+            <span class="small">
+                <b-button
+                    v-if="!editMode"
+                    size="sm"
+                    variant="outline-info"
+                    @click="formOpen"
+                >编辑</b-button>
+                <b-button
+                    v-else
+                    size="sm"
+                    variant="outline-secondary"
+                    @click="formHide"
+                >取消编辑</b-button>
+            </span>
         </p>
-
+        <section class="catalog-group-info mb-3" v-if="editMode">
+            <b-form
+                v-if="formShow"
+                @submit.stop.prevent="onSubmit"
+                @reset="onReset"
+                autocomplete="off"
+            >
+                <b-input-group
+                    size="sm"
+                    prepend="封面"
+                    class="mb-3 info-img-container"
+                >
+                    <div class="info-img">
+                        <img :src="form.cover" />
+                    </div>
+                    <b-input-group-append>
+                        <b-btn size="sm" variant="primary">
+                            选择
+                            <vue-base64-file-upload
+                                class="v1"
+                                accept="image/png, image/jpeg"
+                                image-class="v1-image"
+                                input-class="v1-file"
+                                :max-size="customImageMaxSize"
+                                :disable-preview="true"
+                                @size-exceeded="onSizeExceeded"
+                                @file="onFile"
+                                @load="onLoadCover"
+                            />
+                        </b-btn>
+                    </b-input-group-append>
+                </b-input-group>
+                <p class="px-5">
+                    <b-form-textarea
+                        id="p-content"
+                        v-model="form.info"
+                        placeholder="模块简介"
+                    ></b-form-textarea>
+                </p>
+                <hr />
+                <p class="center">
+                    <b-button type="submit" variant="primary">确认</b-button>
+                    <b-button type="reset" variant="light">重置</b-button>
+                </p>
+            </b-form>
+        </section>
         <tank-news
             v-if="hackReset"
             :dataGroup="dataGroup"
@@ -25,17 +84,24 @@
             @getMenu="getMenu"
             @refreshScroll="refreshScroll"
             @reloadScroll="reloadScroll"
+            :editorTop="0"
+            :scollMinTop="676"
             :scorllTopLength="scorllTopLength"
         ></tank-news>
     </section>
 </template>
 <script>
 import tankNews from '@/components/custom/tankNews'
+import VueBase64FileUpload from 'vue-base64-file-upload'
 
 export default {
     name: 'news',
     data() {
         return {
+            customImageMaxSize: 0.5,
+            editMode: false,
+            form: {},
+            formShow: true,
             hackReset: true,
             dataUrl: '/api/services/app/Catalog/GetAll',
             sortUrl: '/api/services/app/Catalog/Move',
@@ -54,7 +120,8 @@ export default {
         }
     },
     components: {
-        tankNews
+        tankNews,
+        VueBase64FileUpload
     },
     computed: {
         catalogTypeName() {
@@ -85,6 +152,16 @@ export default {
     },
     props: ['scorllTopLength', 'contentTitle'],
     methods: {
+        onFile(file) {},
+        onLoadCover(dataUri) {
+            this.form.cover = dataUri
+        },
+        onSizeExceeded(size) {
+            swal({
+                title: '请上传500K以内的图片',
+                icon: 'error'
+            })
+        },
         refreshScroll() {
             this.$emit('refreshScroll')
         },
@@ -102,6 +179,31 @@ export default {
                     this.currentGroupType = this.currentGroup.catalogType
                 }
             })
+        },
+        //重置
+        onReset(evt) {
+            evt.preventDefault()
+            this.formShow = false
+            this.form = JSON.parse(JSON.stringify(this.currentGroup))
+            this.$nextTick(() => {
+                this.formShow = true
+            })
+        },
+        onSubmit() {
+            this.$http.put(this.dataGroupUpdateUrl, this.form).then(res => {
+                if (res.data.success) {
+                    this.currentGroup = res.data.result
+                    this.formHide()
+                }
+            })
+        },
+        formOpen() {
+            this.editMode = true
+            this.form = JSON.parse(JSON.stringify(this.currentGroup))
+        },
+        formHide() {
+            this.editMode = false
+            this.form = {}
         }
     },
     async created() {

@@ -11,8 +11,9 @@
             <span class="left-bar-shrink" @click="leftBarChange">
                 <i class="fas fa-bars"></i>
             </span>
-            <h5>
-                <img src="@/assets/img/logo.png" />
+            <h5 class="app-name">
+                {{ appName }}
+                <span class="small copy">&copy;</span>
             </h5>
             <div class="sidebar-header">
                 <div class="user-pic">
@@ -23,20 +24,15 @@
                     />
                 </div>
                 <div class="user-info">
-                    <span class="user-name">
+                    <span class="user-name p-1">
                         <strong>{{ UserModel.UserName }}</strong>
                     </span>
-                    <div class="user-status">
-                        <a href="javascript:void(0)">
-                            <span
-                                class="btn btn-success btn-sm"
-                                style="padding:0 0.2rem;"
-                            >{{ UserModel.UserRole }}</span>
-                        </a>
-                    </div>
+                    <span
+                        class="btn btn-outline-success p-0"
+                    >{{ UserModel.UserRole }}</span>
                 </div>
             </div>
-            <hr class="border-primary" />
+            <hr class="border-light" />
             <div class="sidebar-menu">
                 <sidebar-menu
                     :menu="menu"
@@ -56,11 +52,7 @@
                 style="background-color:#6699CC !important;"
             >
                 <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
-                <b-navbar-brand tag="h1">
-                    {{ appName }}
-                    <span class="copy">&copy;</span>
-                    {{ appVersion }}
-                </b-navbar-brand>
+                <b-navbar-brand tag="h1">{{tenantTitle}}</b-navbar-brand>
                 <b-collapse is-nav id="nav_collapse">
                     <!-- Right aligned nav items -->
                     <b-navbar-nav class="ml-auto">
@@ -86,7 +78,8 @@
                             </template>
                             <b-dropdown-item
                                 href="javascript:void(0)"
-                            >{{this.L('UserProfile')}}</b-dropdown-item>
+                                @click="editUserProfile"
+                            >{{this.L('ChangePassword')}}</b-dropdown-item>
                             <b-dropdown-item
                                 href="javascript:void(0)"
                                 @click="logout"
@@ -122,6 +115,56 @@
             </section>
         </div>
         <!--底部-->
+
+        <b-modal
+            id="modalChangePassword"
+            :title="modalTitle"
+            :ok-title="'确认'"
+            :cancel-title="'取消'"
+            @ok="modalOk"
+            @shown="modalInfoShow"
+            @hidden="modalInfoHide"
+        >
+            <section>
+                <b-form
+                    @submit.stop.prevent="changePassword"
+                    autocomplete="off"
+                    data-vv-scope="form-changePassword"
+                >
+                    <b-form-group
+                        label="原密码:"
+                        label-for="p-currentPassword"
+                        description="原密码."
+                    >
+                        <b-form-input
+                            ref="focusThis"
+                            id="p-currentPassword"
+                            type="password"
+                            v-model="currentPassword"
+                            name="原密码"
+                            :state="!errors.has('form-changePassword.原密码') "
+                            v-validate="'required'"
+                            placeholder="原密码"
+                        ></b-form-input>
+                    </b-form-group>
+                    <b-form-group
+                        label="新密码"
+                        label-for="p-newPassword"
+                        description="新密码."
+                    >
+                        <b-form-input
+                            id="p-newPassword"
+                            type="password"
+                            v-model="newPassword"
+                            name="新密码"
+                            :state="!errors.has('form-changePassword.新密码') "
+                            v-validate="'required'"
+                            placeholder="新密码"
+                        ></b-form-input>
+                    </b-form-group>
+                </b-form>
+            </section>
+        </b-modal>
     </section>
 </template>
 <script>
@@ -137,6 +180,8 @@ export default {
     data() {
         return {
             UserModel: {},
+            currentPassword: null,
+            newPassword: null,
             loadState: false, // 加载状态
             scorllTopLength: 0,
             path: '/',
@@ -168,14 +213,18 @@ export default {
         sidebarMenu: sidebarMenu
     },
     computed: {
+        modalTitle() {
+            return '更改密码'
+        },
         appName() {
             return AppConsts.appName
         },
         appVersion() {
             return AppConsts.appVersion
         },
-        tenant() {
-            return abp.session.tenant
+        tenantTitle() {
+            if (abp.session.tenant) return `${abp.session.tenant.name} / ${abp.session.tenant.tenancyName}`
+            else return `当前处于主机模式`
         },
         menuitemClasses() {
             return ['leftBar', this.isCollapsed ? 'shrink' : '']
@@ -251,6 +300,42 @@ export default {
             )
             location.reload()
         },
+        // 更改密码
+        async changePassword() {
+            if (await this.validate('form-changePassword')) {
+                await this.$store.dispatch({
+                    type: 'changePassword',
+                    data: {
+                        currentPassword: this.currentPassword,
+                        newPassword: this.newPassword
+                    }
+                })
+                this.modalInfoHide()
+                location.reload()
+            } else {
+                swal({
+                    title: '请填写必要的选项!',
+                    icon: 'warning'
+                })
+            }
+        },
+        modalInfoHide() {
+            this.currentPassword = null
+            this.newPassword = null
+        },
+
+        modalInfoShow(e) {
+            this.$refs.focusThis.focus()
+        },
+        modalOk(e) {
+            e.preventDefault()
+            this.changePassword()
+        },
+
+        // 用户资料
+        editUserProfile() {
+            this.$root.$emit('bv::show::modal', 'modalChangePassword')
+        },
         //安全退出
         logout() {
             unsetToken()
@@ -290,6 +375,13 @@ export default {
                     window.abp.session.user = json.user
                 }
             })
+        },
+        async validate(scope) {
+            let res
+            await this.$validator.validateAll(scope).then(async result => {
+                res = result
+            })
+            return res
         },
         // 预加载
         async load() {
@@ -336,5 +428,12 @@ export default {
     border-radius: 50%;
     padding: 4px;
     opacity: 0.7;
+}
+.app-name {
+    position: relative;
+    .copy {
+        position: absolute;
+        top: -2px;
+    }
 }
 </style>

@@ -37,7 +37,7 @@
                 >退出{{editModeTitle}}模式</button>
             </div>
             <div class="row">
-                <div class="col-9">
+                <div class="col-8">
                     <b-carousel
                         id="myCarousel"
                         ref="myCarousel"
@@ -75,7 +75,7 @@
                         </b-carousel-slide>
                     </b-carousel>
                 </div>
-                <div class="col-3 banner-tools py-3">
+                <div class="col-4 banner-tools py-3">
                     <p class="lead py-2 border-bottom">
                         <i class="fas fa-wrench mr-1 text-info"></i>
                         <small>《{{currentPage.displayName}}》</small>

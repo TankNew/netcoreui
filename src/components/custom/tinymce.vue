@@ -31,10 +31,11 @@
         ></file>
         <div
             :id="tinymceId"
+            ref="editorContainer"
             class="editor"
+            v-html="initial"
             @blur="refreshScroll"
             @keyup="refreshScroll"
-            ref="editorContainer"
         ></div>
     </section>
 </template>
@@ -61,7 +62,7 @@ export default {
                 maxtop = maxtop - this.editorTop
                 if (this.roll) clearTimeout(this.roll)
                 this.roll = setTimeout(() => {
-                    this.$refs.editorToolbar.style.top = Math.round(maxtop) + 'px'
+                    this.$refs.editorToolbar.style.top = Math.round(maxtop) - 70 + 'px'
                     this.roll = null
                 }, 20)
             }
@@ -87,10 +88,14 @@ export default {
         editorTop: {
             type: Number,
             default: 70
+        },
+        initial: {
+            type: String,
+            default: null
         }
     },
     methods: {
-        _initScroll() {
+        init() {
             var that = this
             tinymce.init({
                 selector: `#${this.tinymceId}`,
@@ -182,12 +187,19 @@ export default {
                 template_cdate_format: '%Y/%m/%d',
                 template_popup_height: '600',
                 template_popup_width: '950',
-                templates: [{ title: '新闻模板', description: '适用于一般新闻使用', url: '../template/tmp.html' }]
+                templates: [
+                    {
+                        title: '公司简介类模板',
+                        description: '适用于《公司简介》《关于我们》等描述性模块',
+                        url: '/static/template/tmp.html'
+                    }
+                ]
             })
+            console.log('tinymce is loaded')
         },
         reload() {
             this.destroy()
-            this.$nextTick(() => this._initScroll())
+            this.$nextTick(() => this.init())
         },
         destroy() {
             if (tinymce.get(this.tinymceId) != null) tinymce.get(this.tinymceId).remove()
@@ -239,8 +251,7 @@ export default {
         }
     },
     mounted() {
-        this.$nextTick(() => this._initScroll())
-        console.log('tinymce is loaded')
+        // this.$nextTick(() => this.init())
     }
 }
 </script>

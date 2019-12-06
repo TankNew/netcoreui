@@ -18,24 +18,8 @@
                 </div>
                 <p class="lead">自定义模块</p>
                 <div class="w-50" style="min-width:640px;">
-                    <b-form @submit="onSubmit" autocomplete="off">
-                        <b-form-group
-                            id="exampleInputGroup1"
-                            label="标识名称:"
-                            label-for="exampleInput1"
-                            description="设置一个便于您识别的标识名称，该名称不会显示在任何前端页面中."
-                        >
-                            <b-form-input
-                                id="exampleInput1"
-                                type="text"
-                                v-model="module.name"
-                                placeholder="输入一个标识名称"
-                                required
-                            ></b-form-input>
-                        </b-form-group>
-
+                    <b-form @submit.stop.prevent="onSubmit" autocomplete="off">
                         <div v-if="!isUpdate">
-                            <hr />
                             <b-button
                                 variant="outline-info"
                                 :class="module.catalogType==1?'active':''"
@@ -61,7 +45,57 @@
                                 <i class="fas fa-pen-nib mr-1"></i>
                                 自由编辑类
                             </b-button>
+                            <hr />
                         </div>
+                        <b-form-group
+                            id="exampleInputGroup1"
+                            label="标识名称:"
+                            label-for="exampleInput1"
+                            description="设置一个便于您识别的标识名称，该名称不会显示在任何前端页面中."
+                        >
+                            <b-form-input
+                                id="exampleInput1"
+                                type="text"
+                                v-model="module.name"
+                                placeholder="输入一个标识名称"
+                                required
+                            ></b-form-input>
+                        </b-form-group>
+
+                        <b-input-group size="sm" prepend="封面" class="mb-3">
+                            <div class="info-img">
+                                <img :src="module.cover" />
+                            </div>
+                            <b-input-group-append>
+                                <b-btn size="sm" variant="primary">
+                                    选择
+                                    <vue-base64-file-upload
+                                        class="v1"
+                                        accept="image/png, image/jpeg"
+                                        image-class="v1-image"
+                                        input-class="v1-file"
+                                        :max-size="customImageMaxSize"
+                                        :disable-preview="true"
+                                        @size-exceeded="onSizeExceeded"
+                                        @file="onFile"
+                                        @load="onLoadCover"
+                                    />
+                                </b-btn>
+                            </b-input-group-append>
+                        </b-input-group>
+                        <b-form-group
+                            label="简介:"
+                            label-for="p-content"
+                            description="简单的文字描述，不允许换行以及链接."
+                        >
+                            <b-form-textarea
+                                id="p-content"
+                                v-model="module.info"
+                                placeholder="模块简介"
+                                rows="5"
+                                max-rows="10"
+                            ></b-form-textarea>
+                        </b-form-group>
                         <hr />
                         <b-button type="submit" variant="primary">确认</b-button>
                     </b-form>
@@ -141,10 +175,13 @@
 <script>
 import swal from 'sweetalert'
 import tools from '../utiltools/tools'
-const basicPage = { name: '', catalogType: 1 }
+import VueBase64FileUpload from 'vue-base64-file-upload'
+
+const basicPage = { name: '', catalogType: 1, cover: '', info: '' }
 export default {
     data() {
         return {
+            customImageMaxSize: 0.5,
             module: {},
             editRow: {},
             editMode: false,
@@ -161,6 +198,9 @@ export default {
             return this.isUpdate ? '编辑' : '新增'
         }
     },
+    components: {
+        VueBase64FileUpload
+    },
     props: ['contentTitle'],
 
     watch: {
@@ -173,6 +213,16 @@ export default {
         }
     },
     methods: {
+        onFile(file) {},
+        onLoadCover(dataUri) {
+            this.module.cover = dataUri
+        },
+        onSizeExceeded(size) {
+            swal({
+                title: '请上传500K以内的图片',
+                icon: 'error'
+            })
+        },
         getPageListBorder(item) {
             if (item.catalogGroup) {
                 switch (item.catalogGroup.catalogType) {
@@ -222,6 +272,8 @@ export default {
                 await this.$http.put('/api/services/app/WebModule/Update', this.module).then(res => {
                     if (res.data.success) {
                         this.editRow.name = this.module.name
+                        this.editRow.cover = this.module.cover
+                        this.editRow.info = this.module.info
                     }
                 })
             }
@@ -277,6 +329,11 @@ export default {
                 if (res.data.success) {
                     let json = res.data.result
                     this.customSections = json
+                    this.customSections.forEach(x => {
+                        x.cover = x.catalogGroup.cover
+                        x.info = x.catalogGroup.info
+                    })
+                    console.log(this.customSections)
                 }
             })
         },
@@ -324,4 +381,4 @@ export default {
         this.afterpopstate()
     }
 }
-</script>
+</script> 

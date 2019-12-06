@@ -37,7 +37,7 @@
             ></file>
             <b-form
                 v-if="formShow"
-                @submit="onSubmit"
+                @submit.stop.prevent="onSubmit"
                 @reset="onReset"
                 autocomplete="off"
                 data-vv-scope="form-update"
@@ -66,7 +66,7 @@
                     description="可选标签"
                 >
                     <b-form-select
-                        id="Input3"
+                        id="mark"
                         :options="marks"
                         v-model="form.mark"
                     >
@@ -85,17 +85,15 @@
                 </div>
                 <b-form-group label="正文" label-for="detail">
                     <!--正文-->
-                    <section class="news-content">
-                        <tinymce
-                            ref="tinymceNews"
-                            @refreshScroll="refreshScroll"
-                            @reloadScroll="reloadScroll"
-                            :editorTop="70"
-                            :editorWidth="editModeWidth"
-                            :scollMinTop="386"
-                            :scorllTopLength="scorllTopLength"
-                        ></tinymce>
-                    </section>
+                    <tinymce
+                        ref="tinymceNews"
+                        @refreshScroll="refreshScroll"
+                        @reloadScroll="reloadScroll"
+                        :editorTop="editorTop"
+                        :editorWidth="editModeWidth"
+                        :scollMinTop="scollMinTop"
+                        :scorllTopLength="scorllTopLength"
+                    ></tinymce>
                 </b-form-group>
                 <div v-if="hasAttach" class="news-img-with-info">
                     <draggable
@@ -183,7 +181,6 @@
                         >
                             <b-form-textarea
                                 id="p-content"
-                                size="lg"
                                 v-model="currentPicture.picContent"
                                 placeholder="文字描述"
                             ></b-form-textarea>
@@ -203,7 +200,7 @@
                 ok-only
                 :title="modalInfo.title"
                 @shown="modalInfoShow"
-                @hide="modalInfoHide"
+                @hidden="modalInfoHide"
             >
                 <section class="scroll-container">
                     <scroll ref="content" class="scroll" :autoScroll="false">
@@ -251,10 +248,16 @@
                                 @click="updateSubGroup"
                             >更新</b-button>
                             <b-button
+                                v-if="!isSubGroupUpdating"
                                 class="px-5"
                                 variant="dark"
                                 @click="delSubGroup"
                             >删除</b-button>
+                            <b-button
+                                v-else
+                                class="px-5"
+                                @click="cancelSubGroup"
+                            >取消</b-button>
                         </b-input-group-append>
                     </b-input-group>
                 </dd>
@@ -310,7 +313,10 @@
                     </b-input-group>
                 </dd>
             </dl>
-            <div class="mb-3 ml-4" v-if="enableAddButton">
+            <div
+                class="mb-3 ml-4"
+                v-if="(hasGroup&&enableAddButton)||!hasGroup"
+            >
                 <button
                     type="button"
                     class="btn btn-primary btn-sm px-5"
@@ -351,6 +357,9 @@
                         </template>
                         <template v-slot:cell(number)="row">
                             <span class="news-number">{{parseInt(row.value)}}</span>
+                        </template>
+                        <template v-slot:cell(catalogGroupId)="row">
+                            <span>{{row.item.catalogGroup.displayName}}</span>
                         </template>
                         <!-- <template v-slot:cell(number)="row">
                             <span
@@ -448,8 +457,7 @@ export default {
                 inline: true
             },
             fileShow: false,
-            fileCallBack: function(x) {
-            },
+            fileCallBack: function(x) {},
 
             /*图片组设置*/
             attachModalName: '',
@@ -458,10 +466,10 @@ export default {
             currentPicture: {}, //当前编辑的图片
             currentPictureIndex: 0, //当前编辑图片的INDEX
             attachShow: false, // 打开/关闭文件管理器
-            attachCallBack: function(x) {
-            },
+            attachCallBack: function(x) {},
             /**分组设置 */
             isSubGroupUpdating: false,
+            isSubGroupLoading: true,
             subGroupUpdating: {},
             subGroupIndex: null,
             newSubGroup: {},
@@ -472,7 +480,7 @@ export default {
             perPage: 10,
             totalRows: 1,
             pageOptions: [5, 10, 20, 50, 100],
-            sortBy: null,
+            sortBy: 'number',
             sortDesc: true,
             sortDirection: 'desc',
             keyWord: null,
@@ -519,6 +527,8 @@ export default {
         dataGroupCreateUrl: String,
         dataGroupUpdateUrl: String,
         dataGroupDeleteUrl: String,
+        editorTop: Number,
+        scollMinTop: Number,
         scorllTopLength: Number
     },
     components: {
@@ -535,7 +545,7 @@ export default {
             if (val === true) {
                 this.formShow = true
                 that.$nextTick(() => {
-                    this.$refs.tinymceNews._initScroll()
+                    this.$refs.tinymceNews.init()
                     this.$refs.tinymceNews.setVal(this.form.content)
                 })
             } else {
@@ -552,7 +562,7 @@ export default {
     },
     computed: {
         enableAddButton() {
-            return this.subGroups.length === 0
+            return this.isSubGroupLoading ? false : this.subGroups.length === 0
         },
         editModeTitle() {
             return this.isUpdate ? '编辑' : '新增'
@@ -573,14 +583,14 @@ export default {
                 {
                     key: 'isTop',
                     label: '置顶',
-                    class: 'text-center w10'
+                    class: 'text-center'
                 },
                 {
                     key: 'number',
                     label: '顺序号',
                     sortable: true,
                     sortDirection: 'desc',
-                    class: 'text-center w10'
+                    class: 'text-center'
                 },
                 { key: 'mark', label: '标签', class: 'text-center' },
                 { key: 'title', label: '标题', sortable: true, sortDirection: 'desc' },
@@ -590,9 +600,16 @@ export default {
                     sortable: true,
                     class: 'text-center'
                 },
-                { key: 'actions', label: '操作', class: 'text-center w25' }
+                { key: 'actions', label: '操作', class: 'text-center' }
             ]
-
+            var group = {
+                key: 'catalogGroupId',
+                label: '分组',
+                class: 'text-center',
+                sortable: true,
+                sortDirection: 'desc'
+            }
+            if (this.hasGroup) fields.splice(4, 0, group)
             return fields
         }
     },
@@ -657,14 +674,24 @@ export default {
             // Here we don't set isBusy prop, so busy state will be
             // handled by table itself
             // this.isBusy = true
+            let sorts = ['IsTop DESC']
+            let sort = String(this.sortBy)
+            if (sort !== null && sort !== undefined && sort !== '') {
+                sort = sort.replace(sort[0], sort[0].toUpperCase())
+                sort += ' '
+                sort += this.sortDesc ? 'DESC' : 'ASC'
+                sorts.push(sort)
+            }
             let params = {
                 params: {
                     Keyword: ctx.filter,
                     IsActive: true,
                     SkipCount: (ctx.currentPage - 1) * ctx.perPage,
-                    MaxResultCount: ctx.perPage
+                    MaxResultCount: ctx.perPage,
+                    Sorting: sorts.toString()
                 }
             }
+
             if (this.hasGroup) params.params.catalogGroupId = this.dataGroup
             let promise = this.$http.get(this.dataUrl, params)
             return promise
@@ -726,13 +753,11 @@ export default {
         },
         //新增
         _new() {
-            if (this.enableAddButton) {
-                this.isUpdate = false
-                this.editRow = {}
-                this.form = JSON.parse(JSON.stringify(baseFrom))
-                this.form.pictureWithInfos = []
-                this.editMode = true
-            }
+            this.isUpdate = false
+            this.editRow = {}
+            this.form = JSON.parse(JSON.stringify(baseFrom))
+            this.form.pictureWithInfos = []
+            this.editMode = true
         },
         _delete(item, index, button) {
             swal({
@@ -758,7 +783,7 @@ export default {
             this.$refs.tinymceNews.destroy()
             that.editModeWidth = val
             setTimeout(() => {
-                this.$refs.tinymceNews._initScroll()
+                this.$refs.tinymceNews.init()
             }, 20)
             //刷新滚动轴
             that.refreshScroll()
@@ -841,7 +866,7 @@ export default {
             this.$nextTick(() => {
                 this.formShow = true
                 setTimeout(() => {
-                    this.$refs.tinymceNews._initScroll()
+                    this.$refs.tinymceNews.init()
                 }, 20)
             })
         },
@@ -884,6 +909,7 @@ export default {
                     json.forEach(element => {
                         this.subGroups.push({ text: element.displayName, value: element.id })
                     })
+                    this.isSubGroupLoading = false
                 }
             })
         },
@@ -923,6 +949,11 @@ export default {
                     title: '请填写必要的选项!',
                     icon: 'warning'
                 })
+        },
+        cancelSubGroup() {
+            this.subGroupUpdating = {}
+            this.subGroupIndex = null
+            this.isSubGroupUpdating = false
         },
         async updateSubGroup() {
             if (await this.validate('form-subGroup')) {

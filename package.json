@@ -27,6 +27,7 @@
     "vue-base64-file-upload": "^1.0.4",
     "vue-chartjs": "^3.4.0",
     "vue-context-menu": "^2.0.6",
+    "vue-date-pick": "^1.2.1",
     "vue-router": "^3.0.1",
     "vuedraggable": "^2.23.2",
     "vuex": "^3.0.1"

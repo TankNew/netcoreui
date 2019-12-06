@@ -4,6 +4,19 @@
 @success: #28a745;
 @bule: #61affe;
 @purple: #7e57c2;
+.table-img img {
+    max-width: 70px;
+    max-height: 32px;
+}
+.table td {
+    vertical-align: middle;
+}
+.vdpComponent > input {
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
 .thead-bTable th {
     background-color: #f8f8f9;
     border-bottom-width: 1px !important;
@@ -125,7 +138,6 @@
 }
 .sidebar-header {
     margin: 20px;
-
     .user-pic {
         width: 64px;
         height: 64px;
@@ -142,13 +154,6 @@
     .user-name {
         font-size: 120%;
         color: #eee;
-    }
-    .user-role {
-        color: #ccc;
-        font-size: 75%;
-    }
-    .user-status {
-        margin-top: 5px;
     }
 }
 .sidebar-menu {
@@ -971,4 +976,29 @@
             }
         }
     }
+}
+.info-img-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    > * {
+        height: 64px;
+    }
+}
+.info-img {
+    padding: 0;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    max-width: 140px;
+    min-width: 64px;
+    height: 64px;
+    text-align: center;
+}
+.info-img > img {
+    max-height: 64px;
+}
+
+.catalog-group-info {
+    
 }

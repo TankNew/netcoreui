@@ -28,7 +28,6 @@
                         switch
                         @change="currentBlock.isActive=!currentBlock.isActive"
                         v-model="currentBlock.isActive"
-                        size="lg"
                     >启用</b-form-checkbox>
                 </div>
             </template>
@@ -50,11 +49,11 @@
                 >
                     <b-form-group
                         label="图片地址:"
-                        label-for="p-url"
+                        label-for="p-img"
                         description="选取图片库自动生成链接，或者手动填写外链."
                     >
                         <b-form-input
-                            id="p-url"
+                            id="p-img"
                             type="text"
                             v-model="currentBlock.img"
                             name="图片地址"
@@ -64,13 +63,25 @@
                         ></b-form-input>
                     </b-form-group>
                     <b-form-group
+                        label="广告链接:"
+                        label-for="p-url"
+                        description="如果广告无链接，留空即可."
+                    >
+                        <b-form-input
+                            id="p-url"
+                            type="text"
+                            v-model="currentBlock.url"
+                            name="广告链接"
+                            placeholder="广告链接"
+                        ></b-form-input>
+                    </b-form-group>
+                    <b-form-group
                         label="描述:"
                         label-for="p-content"
                         description="简单的文字描述，不允许换行以及链接."
                     >
                         <b-form-textarea
                             id="p-content"
-                            size="lg"
                             v-model="currentBlock.text"
                             placeholder="文字描述"
                         ></b-form-textarea>
@@ -370,8 +381,8 @@ export default {
                 })
             }
             let l = list.length
-            if (l < 4) {
-                for (let i = 0; i < 4 - l; i++) {
+            if (l < 6) {
+                for (let i = 0; i < 6 - l; i++) {
                     list.push({ noActive: true })
                 }
             }

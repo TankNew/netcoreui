@@ -23,7 +23,7 @@ const date = function(dateObject) {
         if (month < 10) {
             month = '0' + month
         }
-        let date = year + '.' + month + '.' + day
+        let date = year + '-' + month + '-' + day
         return date
     }
     return 'null'
@@ -147,7 +147,7 @@ var myTime = {
         }
         var time = new Date(unixTime * 1000)
         var ymdhis = ''
-        ymdhis += time.getUTCFullYear() + '.'
+        ymdhis += time.getUTCFullYear() + '-'
         var month = time.getUTCMonth() + 1
         if (month < 10) {
             month = '0' + month
@@ -158,7 +158,7 @@ var myTime = {
             if (day < 10) {
                 day = '0' + day
             }
-            ymdhis += '.' + day
+            ymdhis += '-' + day
         }
         return ymdhis
     }

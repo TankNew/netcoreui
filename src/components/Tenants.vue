@@ -38,7 +38,7 @@
                             ></b-form-input>
                         </b-form-group>
                         <b-form-group
-                            label="公司域名："
+                            label="标识"
                             label-for="p-tenancyName"
                             description="这将作为租户的唯一标识."
                         >
@@ -46,15 +46,15 @@
                                 id="p-tenancyName"
                                 type="text"
                                 v-model="editRow.tenancyName"
-                                name="公司域名："
-                                :state="!errors.has('form-modal.公司域名：') "
+                                name="标识"
+                                :state="!errors.has('form-modal.标识') "
                                 v-validate="'required'"
-                                placeholder="公司域名："
+                                placeholder="标识"
                             ></b-form-input>
                         </b-form-group>
                         <b-form-group
                             v-if="!isUpdate"
-                            label="数据库连接:"
+                            label="数据库连接"
                             label-for="p-connectionString"
                             description="可选. 如果你不知道自己在干什么，请留空"
                         >
@@ -68,7 +68,7 @@
                         </b-form-group>
                         <b-form-group
                             v-if="!isUpdate"
-                            label="管理员邮箱地址:"
+                            label="管理员邮箱地址"
                             label-for="p-adminEmailAddress"
                             description="必填，管理员可以通过邮箱地址找回自己的密钥."
                         >
@@ -260,11 +260,11 @@ export default {
                 {
                     key: 'isActive',
                     label: '状态',
-                    class: 'text-center w10'
+                    class: 'text-center'
                 },
 
                 { key: 'name', label: '企业名称', sortable: true, sortDirection: 'desc' },
-                { key: 'tenancyName', label: '域名', class: 'text-center' },
+                { key: 'tenancyName', label: '标识', class: 'text-center' },
                 { key: 'actions', label: '操作', class: 'text-center w25' }
             ]
 
@@ -303,6 +303,14 @@ export default {
                     MaxResultCount: ctx.perPage
                 }
             }
+            let sort = String(this.sortBy)
+            if (sort !== null && sort !== undefined && sort !== '') {
+                sort = sort.replace(sort[0], sort[0].toUpperCase())
+                sort += ' '
+                sort += this.sortDesc ? 'DESC' : 'ASC'
+                params.params.Sorting = sort
+            }
+
             let promise = this.$http.get(this.getAllUrl, params)
             return promise
                 .then(res => {
@@ -398,7 +406,7 @@ export default {
             })
         },
         async create(item) {
-            await this.$http.put(this.createUrl, item).then(res => {
+            await this.$http.post(this.createUrl, item).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     return json

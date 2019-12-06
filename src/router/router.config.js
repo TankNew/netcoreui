@@ -52,6 +52,18 @@ export const router = new Router({
                     component: () => import('@/components/Hello')
                 },
                 {
+                    path: 'honor',
+                    name: 'honor',
+                    meta: { title: 'Honor', permission: 'Pages.Content' },
+                    component: () => import('@/components/Honor')
+                },
+                {
+                    path: 'partner',
+                    name: 'partner',
+                    meta: { title: 'Partner', permission: 'Pages.Content' },
+                    component: () => import('@/components/Partner')
+                },
+                {
                     path: 'organization',
                     meta: { title: 'Organization', permission: 'Pages.Content' },
                     name: 'organization',

@@ -15,6 +15,8 @@
             :hasGroup="false"
             @refreshScroll="refreshScroll"
             @reloadScroll="reloadScroll"
+            :editorTop="0"
+            :scollMinTop="422"
             :scorllTopLength="scorllTopLength"
         ></tank-news>
     </section>

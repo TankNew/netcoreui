@@ -41,6 +41,9 @@ export default {
             let rep = await ajax.post('/api/services/app/Account/IsTenantAvailable', payload.data)
             return rep.data.result
         },
+        async changePassword(context, payload) {
+            await Axios.post('/api/services/app/User/ChangePassword', payload.data)
+        },
         async changeLanguage(context, payload) {
             await Axios.post('/api/services/app/User/ChangeLanguage', payload.data)
         }

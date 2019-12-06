@@ -99,44 +99,14 @@ body {
 .w100 {
   width: 100%;
 }
-.w95 {
-  width: 95%;
-}
-.w80 {
-  width: 80%;
-}
 .w75 {
   width: 75%;
-}
-.w60 {
-  width: 60%;
-}
-.w55 {
-  width: 55%;
 }
 .w50 {
   width: 50%;
 }
-.w30 {
-  width: 30%;
-}
 .w25 {
   width: 25%;
-}
-.w20 {
-  width: 20%;
-}
-.w15 {
-  width: 15%;
-}
-.w10 {
-  width: 10%;
-}
-.w8 {
-  width: 8%;
-}
-.w5 {
-  width: 5%;
 }
 .center {
   text-align: center;
@@ -177,6 +147,19 @@ body {
 }
 .text_with_2px_border {
   text-shadow: -1px -1px 0px #fff, 0px -1px 0px #fff, 1px -1px 0px #fff, -1px 0px 0px #fff, 1px 0px 0px #fff, -1px 1px 0px #fff, 0px 1px 0px #fff, 1px 1px 0px #fff, /* second layer at 2px */ -2px -2px 0px #fff, -1px -2px 0px #fff, 0px -2px 0px #fff, 1px -2px 0px #fff, 2px -2px 0px #fff, 2px -1px 0px #fff, 2px 0px 0px #fff, 2px 1px 0px #fff, 2px 2px 0px #fff, 1px 2px 0px #fff, 0px 2px 0px #fff, -1px 2px 0px #fff, -2px 2px 0px #fff, -2px 1px 0px #fff, -2px 0px 0px #fff, -2px -1px 0px #fff;
+}
+.table-img img {
+  max-width: 70px;
+  max-height: 32px;
+}
+.table td {
+  vertical-align: middle;
+}
+.vdpComponent > input {
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 .thead-bTable th {
   background-color: #f8f8f9;
@@ -314,13 +297,6 @@ body {
 .sidebar-header .user-name {
   font-size: 120%;
   color: #eee;
-}
-.sidebar-header .user-role {
-  color: #ccc;
-  font-size: 75%;
-}
-.sidebar-header .user-status {
-  margin-top: 5px;
 }
 .sidebar-menu {
   margin: 20px 0;
@@ -1088,4 +1064,25 @@ body {
   color: #61affe;
   transition: all 0.2s ease-in;
   transform: rotate(180deg);
+}
+.info-img-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.info-img-container > * {
+  height: 64px;
+}
+.info-img {
+  padding: 0;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  max-width: 140px;
+  min-width: 64px;
+  height: 64px;
+  text-align: center;
+}
+.info-img > img {
+  max-height: 64px;
 }

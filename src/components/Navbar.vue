@@ -166,7 +166,7 @@ export default {
         },
         edit(index, item) {
             this.editMode = true
-            this.page = { displayName: item.displayName, id: item.id }
+            this.page = { displayName: item.displayName, id: item.id, isMenu: item.isMenu }
             this.modalName = ` 编辑 [${item.displayName}] 节点：`
             this.$refs.modal.show()
         },

@@ -25,12 +25,12 @@ export default {
     mounted() {
         // 保证在DOM渲染完毕后初始化better-scroll
         //setTimeout(() => {
-        //  this._initScroll()
+        //  this.init()
         //}, 20)
-        this.$nextTick(() => this._initScroll())
+        this.$nextTick(() => this.init())
     },
     methods: {
-        _initScroll() {
+        init() {
             var that = this
             if (!this.$refs.wrapper) {
                 return
@@ -52,7 +52,7 @@ export default {
         },
         reload() {
             this.destroy()
-            this.$nextTick(() => this._initScroll())
+            this.$nextTick(() => this.init())
         },
         refresh() {
             // 代理better-scroll的refresh方法

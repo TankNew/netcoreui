@@ -15,7 +15,12 @@
                             v-validate="'required'"
                         ></b-form-input>
                     </b-input-group>
-                    <b-input-group size="sm" prepend="企业 LOGO" class="mb-3" :state="!errors.has('企业名称')">
+                    <b-input-group
+                        size="sm"
+                        prepend="企业 LOGO"
+                        class="mb-3"
+                        :state="!errors.has('企业名称')"
+                    >
                         <div class="info-img">
                             <img :src="companyInfo.logo" />
                         </div>
@@ -57,6 +62,19 @@
                             </b-btn>
                         </b-input-group-append>
                     </b-input-group>
+                    <b-form-group label="简介" label-for="detail">
+                        <tinymce
+                            id="detail"
+                            ref="tinymceNews"
+                            @refreshScroll="refreshScroll"
+                            @reloadScroll="reloadScroll"
+                            :initial="companyInfo.content"
+                            :editorTop="0"
+                            :editorWidth="editModeWidth"
+                            :scollMinTop="238"
+                            :scorllTopLength="scorllTopLength"
+                        ></tinymce>
+                    </b-form-group>
                 </b-card>
                 <b-card title="联系方式" class="contact-info-card">
                     <p class="card-text">
@@ -87,10 +105,18 @@
                         ></b-form-input>
                     </b-input-group>
                     <b-input-group size="sm" prepend="电话" class="mb-3">
-                        <b-form-input v-model="companyInfo.tel" name="电话" :state="hasError(companyInfo.tel,'电话')"></b-form-input>
+                        <b-form-input
+                            v-model="companyInfo.tel"
+                            name="电话"
+                            :state="hasError(companyInfo.tel,'电话')"
+                        ></b-form-input>
                     </b-input-group>
                     <b-input-group size="sm" prepend="传真" class="mb-3">
-                        <b-form-input v-model="companyInfo.fax" name="传真" :state="hasError(companyInfo.fax,'传真')"></b-form-input>
+                        <b-form-input
+                            v-model="companyInfo.fax"
+                            name="传真"
+                            :state="hasError(companyInfo.fax,'传真')"
+                        ></b-form-input>
                     </b-input-group>
                     <b-input-group size="sm" prepend="邮编" class="mb-3">
                         <b-form-input
@@ -109,17 +135,23 @@
 </template>
 <script>
 import swal from 'sweetalert'
+import tinymce from '@/components/custom/tinymce'
 import VueBase64FileUpload from 'vue-base64-file-upload'
 export default {
     data() {
         return {
             companyInfo: {},
-            customImageMaxSize: 0.2
+            customImageMaxSize: 0.2,
+            editModeWidth: 800
         }
     },
-    props: ['contentTitle'],
+    props: {
+        contentTitle: String,
+        scorllTopLength: Number
+    },
     components: {
-        VueBase64FileUpload
+        VueBase64FileUpload,
+        tinymce
     },
     methods: {
         onFile(file) {},
@@ -140,41 +172,44 @@ export default {
             else return null
         },
         handleSubmit() {
+            this.companyInfo.content = this.$refs.tinymceNews.getVal()
             this.$validator.validateAll().then(async result => {
                 if (result) {
                     this.$http.put('/api/services/app/CompanyInfo/Update', this.companyInfo)
                 }
             })
+        },
+        //刷新滚动轴
+        refreshScroll() {
+            this.$emit('refreshScroll')
+        },
+        reloadScroll() {
+            this.$emit('reloadScroll')
+        },
+        load() {
+            this.$http.get('/api/services/app/CompanyInfo/GetOrCreate').then(res => {
+                var json = res.data.result
+                this.companyInfo = JSON.parse(JSON.stringify(json))
+            })
         }
     },
     created() {
-        var that = this
-        that.$http.get('/api/services/app/CompanyInfo/GetOrCreate').then(res => {
-            var json = res.data.result
-            that.companyInfo = JSON.parse(JSON.stringify(json))
-        })
+        this.load()
     },
     mounted() {
-        var that = this
         // 开发调试
-        that.$nextTick(() => {
-            that.$emit('reloadScroll')
+        this.$nextTick(() => {
+            this.$refs.tinymceNews.init()
+            this.$emit('reloadScroll')
         })
+    },
+    beforeDestroy: function() {
+        this.$refs.tinymceNews.destroy()
     }
 }
 </script>
 <style lang="less" scoped>
 .contact-info {
     max-width: 1000px;
-}
-.info-img {
-    padding: 0 0.25em;
-    background-color: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 0.25rem;
-    height: 64px;
-}
-.info-img > img {
-    max-height: 64px;
 }
 </style>
