@@ -55,36 +55,33 @@
                 <div class="form-group">
                     <button type="submit" class="btn btn-success px-5 w-100">登陆</button>
                 </div>
-                <div class="text-center">
-                    <dl>
-                        <dd
-                            class="d-inline mr-2"
-                            v-for="(language, index) in languages"
-                            :key="index"
-                        >
-                            <a
-                                @click="changeLanguage(language.name)"
-                                :class="[ 'btn',  'btn-outline-primary',  language.displayName == currentLanguage.displayName ? 'active' : '' ]"
-                            >
-                                <i :class="['fas', language.icon]" />
-                                {{ language.displayName }}
-                            </a>
-                        </dd>
-                    </dl>
-                    <p>
-                        <a
-                            class="btn btn-outline-secondary"
-                            @click="changeTenant"
-                        >
-                            <span>调试按钮</span>
-                            <span
-                                v-if="displayTenancyName"
-                            >MultiTenancySide： {{ displayTenancyName }}</span>
-                            <span v-else>MultiTenancySide：主机</span>
-                        </a>
-                    </p>
-                </div>
             </form>
+            <div class="text-center">
+                <dl>
+                    <dd
+                        class="d-inline mr-2"
+                        v-for="(language, index) in languages"
+                        :key="index"
+                    >
+                        <a
+                            @click="changeLanguage(language.name)"
+                            :class="[ 'btn',  'btn-outline-primary',  language.displayName == currentLanguage.displayName ? 'active' : '' ]"
+                        >
+                            <i :class="['fas', language.icon]" />
+                            {{ language.displayName }}
+                        </a>
+                    </dd>
+                </dl>
+                <p>
+                    <a class="btn btn-outline-secondary" @click="changeTenant">
+                        <span>调试按钮</span>
+                        <span
+                            v-if="displayTenancyName"
+                        >MultiTenancySide： {{ displayTenancyName }}</span>
+                        <span v-else>MultiTenancySide：主机</span>
+                    </a>
+                </p>
+            </div>
         </div>
     </div>
 </template>

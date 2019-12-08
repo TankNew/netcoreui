@@ -16,32 +16,40 @@
                         @click="outEditMode"
                     >退出{{editModeTitle}}模式</button>
                 </div>
-                <p class="lead">自定义模块</p>
+                <p class="lead">{{getPageEditTitle(module)}}</p>
                 <div class="w-50" style="min-width:640px;">
                     <b-form @submit.stop.prevent="onSubmit" autocomplete="off">
                         <div v-if="!isUpdate">
                             <b-button
+                                v-if="!isPage"
                                 variant="outline-info"
-                                :class="module.catalogType==1?'active':''"
-                                @click="module.catalogType=1"
+                                :class="module.type===2&&module.catalogType==1?'active':''"
+                                @click="module.catalogType=1;module.type=2"
                             >
                                 <i class="fas fa-quote-left mr-1"></i>文字类
                             </b-button>
                             <b-button
+                                v-if="!isPage"
                                 variant="outline-info"
-                                :class="module.catalogType==2?'active':''"
-                                @click="module.catalogType=2"
+                                :class="module.type===2&&module.catalogType==2?'active':''"
+                                @click="module.catalogType=2;module.type=2"
                             >
                                 <i class="fas fa-images mr-1"></i>图片类
                             </b-button>
                             <b-button
+                                v-if="!isPage"
                                 variant="outline-info"
-                                :class="module.catalogType==3?'active':''"
-                                @click="module.catalogType=3"
+                                :class="module.type===2&&module.catalogType==3?'active':''"
+                                @click="module.catalogType=3;module.type=2"
                             >
                                 <i class="fas fa-luggage-cart mr-1"></i>产品类
                             </b-button>
-                            <b-button variant="outline-info" disabled>
+                            <b-button
+                                v-if="isPage"
+                                variant="outline-info"
+                                :class="module.type==3?'active':''"
+                                @click="module.type=3"
+                            >
                                 <i class="fas fa-pen-nib mr-1"></i>
                                 自由编辑类
                             </b-button>
@@ -122,11 +130,11 @@
 
             <section>
                 <p class="lead mb-3">
-                    自定义模块
+                    列表模块
                     <button
                         type="button"
                         class="btn btn-primary btn-sm ml-2"
-                        @click="add"
+                        @click="add(false)"
                     >
                         <i class="fas fa-plus mr-2"></i>新增
                     </button>
@@ -137,7 +145,7 @@
                         <b-card
                             v-for="(item,index) in customSections"
                             :key="index"
-                            @click="edit(item)"
+                            @click="edit(item,false)"
                             align="center"
                         >
                             <h4
@@ -158,11 +166,63 @@
                             <div>
                                 <button
                                     class="btn btn-sm btn-link"
-                                    @click.stop="edit(item)"
+                                    @click.stop="edit(item,false)"
                                 >编辑</button>
                                 <button
                                     class="btn btn-sm btn-link"
-                                    @click.stop="del(item,index)"
+                                    @click.stop="del(item,index,false)"
+                                >移除</button>
+                            </div>
+                        </b-card>
+                    </b-card-group>
+                </div>
+            </section>
+
+            <hr />
+
+            <section>
+                <p class="lead mb-3">
+                    自由编辑模块
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-sm ml-2"
+                        @click="add(true)"
+                    >
+                        <i class="fas fa-plus mr-2"></i>新增
+                    </button>
+                </p>
+
+                <div class="custom-module-list">
+                    <b-card-group deck class="mb-3">
+                        <b-card
+                            v-for="(item,index) in pageSections"
+                            :key="index"
+                            @click="edit(item,true)"
+                            align="center"
+                        >
+                            <h4
+                                class="card-text font-weight-bold color-Purple mt-2"
+                            >
+                                <span>
+                                    {{item.name}}
+                                    <b-badge
+                                        class="font-weight-light font_10"
+                                        pill
+                                        v-html="getCatalogType(item)"
+                                        :variant="getPageListBorder(item)"
+                                    ></b-badge>
+                                </span>
+                            </h4>
+
+                            <h6 v-html="'创建时间：'+formatTime(item.creationTime)"></h6>
+                            <div>
+                                <button
+                                    class="btn btn-sm btn-link"
+                                    @click.stop="edit(item,true)"
+                                >编辑</button>
+                                <button
+                                    class="btn btn-sm btn-link"
+                                    @click.stop="del(item,index,true)"
                                 >移除</button>
                             </div>
                         </b-card>
@@ -177,7 +237,6 @@ import swal from 'sweetalert'
 import tools from '../utiltools/tools'
 import VueBase64FileUpload from 'vue-base64-file-upload'
 
-const basicPage = { name: '', catalogType: 1, cover: '', info: '' }
 export default {
     data() {
         return {
@@ -186,11 +245,13 @@ export default {
             editRow: {},
             editMode: false,
             isUpdate: false,
+            isPage: true,
             isEditRowChange: false,
             //预设模块
             sections: [],
             //自定义模块
-            customSections: []
+            customSections: [],
+            pageSections: []
         }
     },
     computed: {
@@ -223,8 +284,20 @@ export default {
                 icon: 'error'
             })
         },
+        getPageEditTitle(item) {
+            if (item.type === 2 && item.catalogGroup) {
+                switch (item.catalogGroup.catalogType) {
+                    case 1:
+                        return `文字类`
+                    case 2:
+                        return `图片类`
+                    case 3:
+                        return `产品类`
+                }
+            } else return '自由编辑类'
+        },
         getPageListBorder(item) {
-            if (item.catalogGroup) {
+            if (item.type === 2 && item.catalogGroup) {
                 switch (item.catalogGroup.catalogType) {
                     case 1:
                         return `primary`
@@ -233,11 +306,11 @@ export default {
                     case 3:
                         return `info`
                 }
-            } else return 'primary'
+            } else return 'warning'
         },
 
         getCatalogType(item) {
-            if (item.catalogGroup) {
+            if (item.type === 2 && item.catalogGroup) {
                 switch (item.catalogGroup.catalogType) {
                     case 1:
                         return `<i class="fas fa-quote-left mr-1"></i>文字类`
@@ -246,7 +319,7 @@ export default {
                     case 3:
                         return `<i class="fas fa-luggage-cart mr-1" ></i>产品类`
                 }
-            } else return null
+            } else return `自由编辑类`
         },
         formatTime(val) {
             return tools.date(val)
@@ -265,7 +338,8 @@ export default {
                 await this.$http.post('/api/services/app/WebModule/Create', this.module).then(res => {
                     if (res.data.success) {
                         let json = res.data.result
-                        this.customSections.push(json)
+                        if (this.isPage) this.pageSections.push(json)
+                        else this.customSections.push(json)
                     }
                 })
             } else {
@@ -281,7 +355,13 @@ export default {
             this.outEditMode()
         },
 
-        add() {
+        add(isPage) {
+            let basicPage = { name: '', type: 3, catalogType: null, cover: '', info: '' }
+            if (!isPage) {
+                basicPage.type = 2
+                basicPage.catalogType = 1
+            }
+            this.isPage = isPage
             this.isUpdate = false
             this.module = JSON.parse(JSON.stringify(basicPage))
             this.editMode = !this.editMode
@@ -290,7 +370,8 @@ export default {
                 this.onpopstate()
             })
         },
-        edit(val) {
+        edit(val, isPage) {
+            this.isPage = isPage
             this.isUpdate = true
             this.editRow = val
             this.module = JSON.parse(JSON.stringify(val))
@@ -300,7 +381,7 @@ export default {
                 this.onpopstate()
             })
         },
-        del(item, index) {
+        del(item, index, isPage) {
             swal({
                 title: '确认吗?',
                 text: '被删除数据可能无法恢复，请您再次确认!',
@@ -309,7 +390,10 @@ export default {
                 dangerMode: true
             }).then(async confirm => {
                 if (confirm) {
-                    this.$http.delete('/api/services/app/WebModule/Delete', { params: { id: item.id } }).then(res => {
+                    var params = { params: { type: 2, id: item.id } }
+                    if (isPage) params.params.type = 3
+
+                    this.$http.delete('/api/services/app/WebModule/Delete').then(res => {
                         if (res.data.success) {
                             this.customSections.splice(index, 1)
                             this.$emit('getMenu')
@@ -319,13 +403,13 @@ export default {
             })
         },
         load() {
-            this.$http.get('/api/services/app/WebModule/GetAll', { params: { isLock: true } }).then(res => {
+            this.$http.get('/api/services/app/WebModule/GetAll', { params: { type: 1 } }).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.sections = json
                 }
             })
-            this.$http.get('/api/services/app/WebModule/GetAll', { params: { isLock: false } }).then(res => {
+            this.$http.get('/api/services/app/WebModule/GetAll', { params: { type: 2 } }).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.customSections = json
@@ -333,7 +417,17 @@ export default {
                         x.cover = x.catalogGroup.cover
                         x.info = x.catalogGroup.info
                     })
-                    console.log(this.customSections)
+                }
+            })
+
+            this.$http.get('/api/services/app/WebModule/GetAll', { params: { type: 3 } }).then(res => {
+                if (res.data.success) {
+                    let json = res.data.result
+                    this.pageSections = json
+                    this.pageSections.forEach(x => {
+                        x.cover = x.page.cover
+                        x.info = x.page.info
+                    })
                 }
             })
         },

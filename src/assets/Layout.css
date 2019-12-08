@@ -933,13 +933,13 @@ body {
   left: 20px;
   top: 50px;
 }
-.custom-module-list h4 > span {
+.custom-module-list .card-body {
   position: relative;
 }
-.custom-module-list h4 .badge {
+.custom-module-list .card-body .badge {
   position: absolute;
-  right: -64px;
-  top: 0;
+  right: 6px;
+  top: 6px;
 }
 .custom-module-list .card {
   min-width: 200px;

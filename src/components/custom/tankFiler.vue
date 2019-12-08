@@ -211,6 +211,7 @@
 </template>
 <script>
 import tools from 'tools'
+import AppConsts from '../../utiltools/appconst'
 import swal from 'sweetalert'
 import axios from 'axios'
 import contextMenu from 'vue-context-menu'
@@ -352,7 +353,7 @@ export default {
         //图片获取链接
         getImgUrl(val) {
             var that = this
-            return tools.HttpUrl + '/' + that.RootPath + val
+            return AppConsts.remoteServiceBaseUrl + '/' + that.RootPath + val
         },
         //获取文件名后缀
         getFileExpansion(file) {
@@ -415,9 +416,11 @@ export default {
                             that.breadcrumb.push({ text: that.currentFile.name, value: that.currentFile })
                             that.setCurrentFolderByBreadcrumb(that.currentFile)
                         } else {
-                            //that.$emit('MceSetFile', tools.HttpUrl + '/' + that.currentFile.url)
+                            //that.$emit('MceSetFile', AppConsts.remoteServiceBaseUrl + '/' + that.currentFile.url)
 
-                            that.fileCallBack(tools.HttpUrl + '/' + that.RootPath + that.currentFile.url)
+                            that.fileCallBack(
+                                AppConsts.remoteServiceBaseUrl + '/' + that.RootPath + that.currentFile.url
+                            )
                             that.close()
                         }
                     }

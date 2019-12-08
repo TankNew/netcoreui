@@ -33,6 +33,7 @@
             :id="tinymceId"
             ref="editorContainer"
             class="editor"
+            :style="minHeight"
             v-html="initial"
             @blur="refreshScroll"
             @keyup="refreshScroll"
@@ -53,6 +54,11 @@ export default {
     },
     components: {
         file
+    },
+    computed: {
+        minHeight() {
+            return `min-height: ${this.height}px`
+        }
     },
     watch: {
         scorllTopLength(val) {
@@ -92,6 +98,10 @@ export default {
         initial: {
             type: String,
             default: null
+        },
+        height: {
+            type: Number,
+            default: 300
         }
     },
     methods: {

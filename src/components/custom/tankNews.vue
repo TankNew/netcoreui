@@ -750,6 +750,7 @@ export default {
             this.editRow = item
             this.form = JSON.parse(JSON.stringify(item))
             this.editMode = true
+            console.log(this.form)
         },
         //新增
         _new() {

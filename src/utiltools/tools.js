@@ -1,6 +1,4 @@
 'use strict'
-const config = require('~/config-lock.json')
-const HttpUrl = config.HttpUrl
 const fileBaseUrl = '/api/services/app/FileService/'
 const fileUrl = fileBaseUrl + 'GetAllFiles'
 const fileCreatefolder = fileBaseUrl + 'CreateFolder'
@@ -332,7 +330,6 @@ const extend = function(...args) {
 // 暴露公共方法
 export default {
     extend: extend,
-    HttpUrl: HttpUrl,
     fileUrl: fileUrl,
     fileCreatefolder: fileCreatefolder,
     filedeletefolder: filedeletefolder,

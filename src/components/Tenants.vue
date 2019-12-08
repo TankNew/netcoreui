@@ -172,8 +172,23 @@
                                 :class="['btn','btn-sm',row.value?'btn-primary':'btn-light']"
                             >{{row.value?'正常':"停用"}}</button>
                         </template>
+                        <template v-slot:cell(domains)="row">
+                            <dl class="mb-0">
+                                <dd
+                                    class="my-1"
+                                    v-for="(item,index) in row.value"
+                                    :key="index"
+                                >{{index+1}}.{{item.name}}</dd>
+                            </dl>
+                        </template>
                         <template v-slot:cell(actions)="row">
                             <!-- We use @click.stop here to prevent a 'row-clicked' event from also happening -->
+                            <b-button
+                                size="sm"
+                                @click.stop="domainBind(row.item, row.index, $event.target)"
+                                class="mr-1"
+                                variant="success"
+                            >域名管理</b-button>
                             <b-button
                                 size="sm"
                                 @click.stop="_edit(row.item, row.index, $event.target)"
@@ -187,6 +202,57 @@
                             >删除</b-button>
                         </template>
                     </b-table>
+                    <b-modal
+                        id="modalDomainBind"
+                        :title="editRow.name"
+                        ok-only
+                        ok-title="确定"
+                        @hidden="domainModelHidden"
+                    >
+                        <section>
+                            <dl class="domain-list">
+                                <dd
+                                    v-for="(domain,index) in editRow.domains"
+                                    :key="index"
+                                >
+                                    <i
+                                        class="fas fa-times-circle"
+                                        @click="domainRemoveSubmit(domain,index)"
+                                    ></i>
+                                    {{index+1}}.{{domain.name}}
+                                    <b-form-checkbox
+                                        class="d-inline"
+                                        switch
+                                        v-model="domain.isActive"
+                                        @input="domainActiveSubmit(domain,index)"
+                                    ></b-form-checkbox>
+                                </dd>
+                            </dl>
+                            <b-form
+                                @submit.stop.prevent="domainBindSubmit"
+                                autocomplete="off"
+                                data-vv-scope="form-domainBind"
+                            >
+                                <b-input-group prepend="域名" class="mt-3">
+                                    <b-form-input
+                                        id="p-domain"
+                                        type="text"
+                                        name="域名"
+                                        v-model="newDomain"
+                                        :state="!errors.has('form-domainBind.域名') "
+                                        v-validate="'required'"
+                                        placeholder="www.domain.com"
+                                    ></b-form-input>
+                                    <b-input-group-append>
+                                        <b-button
+                                            type="submit"
+                                            variant="outline-success"
+                                        >绑定</b-button>
+                                    </b-input-group-append>
+                                </b-input-group>
+                            </b-form>
+                        </section>
+                    </b-modal>
                 </section>
 
                 <b-pagination
@@ -219,6 +285,7 @@ export default {
             isUpdate: false, // 是否更新
             editRowIndex: null,
             editRow: {},
+            newDomain: null,
             /* table设置 start*/
             isBusy: false,
             currentPage: 1,
@@ -234,7 +301,11 @@ export default {
             getAllUrl: '/api/services/app/Tenant/GetAll',
             deleteUrl: `/api/services/app/Tenant/Delete`,
             createUrl: `/api/services/app/Tenant/Create`,
-            updateUrl: `/api/services/app/Tenant/Update`
+            updateUrl: `/api/services/app/Tenant/Update`,
+
+            addDomainUrl: `/api/services/app/Tenant/AddDomainToTenant`,
+            activeDomainUrl: '/api/services/app/Tenant/ActiveDomainInTenant',
+            removeDomainUrl: `/api/services/app/Tenant/RemoveDomainFromTenant`
         }
     },
     props: ['contentTitle'],
@@ -265,6 +336,7 @@ export default {
 
                 { key: 'name', label: '企业名称', sortable: true, sortDirection: 'desc' },
                 { key: 'tenancyName', label: '标识', class: 'text-center' },
+                { key: 'domains', label: '域名', class: 'text-center' },
                 { key: 'actions', label: '操作', class: 'text-center w25' }
             ]
 
@@ -298,7 +370,7 @@ export default {
             let params = {
                 params: {
                     Keyword: ctx.filter,
-                    IsActive: true,
+                    // IsActive: true,
                     SkipCount: (ctx.currentPage - 1) * ctx.perPage,
                     MaxResultCount: ctx.perPage
                 }
@@ -360,6 +432,54 @@ export default {
                     title: '请填写必要的选项!',
                     icon: 'warning'
                 })
+        },
+        domainBind(item, index, button) {
+            this.editRow = JSON.parse(JSON.stringify(item))
+            this.$root.$emit('bv::show::modal', 'modalDomainBind')
+        },
+        domainModelHidden() {
+            this.newDomain = null
+            this.$root.$emit('bv::refresh::table', 'my-table')
+        },
+        async domainBindSubmit(e) {
+            if (await this.validate('form-domainBind')) {
+                this.$http
+                    .post(this.addDomainUrl, { tenantId: this.editRow.id, domainName: this.newDomain })
+                    .then(res => {
+                        if (res.data.success) {
+                            let json = res.data.result
+                            this.newDomain = null
+                            this.editRow.domains.push(json)
+                            this.$validator.reset()
+                        }
+                    })
+            } else
+                swal({
+                    title: '请填写必要的选项!',
+                    icon: 'warning'
+                })
+        },
+        domainActiveSubmit(item, index) {
+            this.$http.post(this.activeDomainUrl, { domainId: item.id, isActive: item.isActive })
+        },
+        domainRemoveSubmit(item, index) {
+            swal({
+                title: '确认吗?',
+                text: '被删除数据可能无法恢复，请您再次确认!',
+                icon: 'warning',
+                buttons: ['取消', '确认'],
+                dangerMode: true
+            }).then(async confirm => {
+                if (confirm) {
+                    this.$http
+                        .delete(this.removeDomainUrl, { params: { domainId: item.id, domainName: item.name } })
+                        .then(res => {
+                            if (res.data.success) {
+                                this.editRow.domains.splice(index, 1)
+                            }
+                        })
+                }
+            })
         },
         //编辑
         _edit(item, index, button) {
@@ -426,3 +546,22 @@ export default {
     }
 }
 </script>
+<style lang="less" scoped>
+.domain-list {
+    dd {
+        padding: 6px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        margin-bottom: 4px;
+        i {
+            cursor: pointer;
+            &:hover {
+                color: #007bff;
+            }
+        }
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+    }
+}
+</style>

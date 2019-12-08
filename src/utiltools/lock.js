@@ -31,9 +31,12 @@ const userLogin = async ({ userNameOrEmailAddress, password, rememberClient, Rur
                 data: { languageName: abp.utils.getCookieValue(abp.localization.cookieName) }
             })
             setToken(token)
-        } else console.error(json)
+            location.replace(Rurl)
+        } else {
+            confirm.localization(url)
+            console.error(json)
+        }
     })
-    location.replace(Rurl)
 }
 const refreshToken = toPah => {
     let url = tools.tokenUrl + '/RefreshToken'

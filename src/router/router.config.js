@@ -89,6 +89,12 @@ export const router = new Router({
                     component: () => import('@/components/News')
                 },
                 {
+                    path: 'page/:id',
+                    name: 'page',
+                    meta: { title: 'Page', permission: 'Pages.Content' },
+                    component: () => import('@/components/Page')
+                },
+                {
                     path: 'announce',
                     name: 'announce',
                     meta: { title: 'Announce', permission: 'Pages.Content' },
