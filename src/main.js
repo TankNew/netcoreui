@@ -23,7 +23,7 @@ import { setToken, getToken, getUerFromLocalStorage } from './utiltools/auth'
 import './plugins/AxiosPlugin'
 import './plugins/vee-validate'
 
-import './assets/layout.css'
+import './assets/Layout.css'
 import 'famfamfam-flags/dist/sprite/famfamfam-flags.css'
 
 import fileFolderLi from './components/custom/fileFolderLi.vue'

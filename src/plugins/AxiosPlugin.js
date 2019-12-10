@@ -31,8 +31,10 @@ Axios.interceptors.request.use(
     config => {
         store.commit('setToken', getToken())
         store.commit('setUser', getUerFromLocalStorage())
-        config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(abp.localization.cookieName)
-        config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
+        config.headers.common[window.abp.localization.cookieName] = window.abp.utils.getCookieValue(
+            abp.localization.cookieName
+        )
+        config.headers.common[window.abp.multiTenancy.tenantIdCookieName] = window.abp.multiTenancy.getTenantIdCookie()
         //添加token
         if (store.getters.hastoken) {
             config.headers.common['Authorization'] = 'Bearer ' + store.getters.token.AccessToken

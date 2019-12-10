@@ -191,7 +191,8 @@ export default {
             isCollapsed: false,
             breadcrumb: [],
             scrollData: [],
-            clientHeight: document.body.clientHeight
+            clientHeight: document.body.clientHeight,
+            tenant: undefined
         }
     },
     watch: {
@@ -223,7 +224,7 @@ export default {
             return AppConsts.appVersion
         },
         tenantTitle() {
-            if (abp.session.tenant) return `${abp.session.tenant.name} / ${abp.session.tenant.tenancyName}`
+            if (this.tenant) return `${this.tenant.name} / ${this.tenant.tenancyName}`
             else return `当前处于主机模式`
         },
         menuitemClasses() {
@@ -373,6 +374,7 @@ export default {
                     window.abp.session.application = json.application
                     window.abp.session.tenant = json.tenant
                     window.abp.session.user = json.user
+                    this.tenant = json.tenant
                 }
             })
         },

@@ -205,11 +205,10 @@
                     <b-modal
                         id="modalDomainBind"
                         :title="editRow.name"
-                        ok-only
-                        ok-title="确定"
+                        hide-footer
                         @hidden="domainModelHidden"
                     >
-                        <section>
+                        <section class="pb-5">
                             <dl class="domain-list">
                                 <dd
                                     v-for="(domain,index) in editRow.domains"
@@ -246,7 +245,7 @@
                                     <b-input-group-append>
                                         <b-button
                                             type="submit"
-                                            variant="outline-success"
+                                            variant="success"
                                         >绑定</b-button>
                                     </b-input-group-append>
                                 </b-input-group>

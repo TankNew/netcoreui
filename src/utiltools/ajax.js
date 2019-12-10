@@ -14,8 +14,6 @@ ajax.interceptors.request.use(
         // if (window.abp.auth.getToken()) {
         //     config.headers.common['Authorization'] = 'Bearer ' + window.abp.auth.getToken()
         // }
-        // config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(abp.localization.cookieName)
-        // config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
 
         /**使用localStorage的方式 */
         // 要即时获取，不能提前获取，否则不能更新数据
@@ -25,9 +23,10 @@ ajax.interceptors.request.use(
             config.headers.common['Authorization'] = 'Bearer ' + store.getters.token.AccessToken
             config.headers.common['RefreshToken'] = store.getters.token.RefreshToken
         }
-        config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(abp.localization.cookieName)
-        config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
-
+        config.headers.common[window.abp.localization.cookieName] = window.abp.utils.getCookieValue(
+            abp.localization.cookieName
+        )
+        config.headers.common[window.abp.multiTenancy.tenantIdCookieName] = window.abp.multiTenancy.getTenantIdCookie()
         return config
     },
     function(error) {

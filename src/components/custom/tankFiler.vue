@@ -211,13 +211,13 @@
 </template>
 <script>
 import tools from 'tools'
-import AppConsts from '../../utiltools/appconst'
+import AppConsts from '@/utiltools/appconst'
 import swal from 'sweetalert'
 import axios from 'axios'
 import contextMenu from 'vue-context-menu'
 import scroll from './scroll'
 import Loading from './loading'
-import '../../assets/tankFiler.css'
+import '@/assets/tankFiler.css'
 export default {
     data() {
         return {

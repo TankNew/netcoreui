@@ -24,9 +24,9 @@
             <h3>核心技术：</h3>
             <p class="tec">
                 <img src="@/assets/img/webpack.png" />
-                <img src="@/assets/img/vue.png" />
-                <img src="@/assets/img/netcore.png" />
-                <img src="@/assets/img/sqlserver.png" />
+                <img src="@/assets/img/Vue.png" />
+                <img src="@/assets/img/NetCore.png" />
+                <img src="@/assets/img/SqlServer.png" />
                 <img src="@/assets/img/weixin.png" />
                 <img src="@/assets/img/docker.png" />
             </p>

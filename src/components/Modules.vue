@@ -393,7 +393,7 @@ export default {
                     var params = { params: { type: 2, id: item.id } }
                     if (isPage) params.params.type = 3
 
-                    this.$http.delete('/api/services/app/WebModule/Delete').then(res => {
+                    this.$http.delete('/api/services/app/WebModule/Delete', params).then(res => {
                         if (res.data.success) {
                             this.customSections.splice(index, 1)
                             this.$emit('getMenu')

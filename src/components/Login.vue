@@ -2,7 +2,7 @@
     <div class="login-bg">
         <div class="login-panel">
             <Loading :isLoading="isLoading"></Loading>
-            <img class="login-logo" src="@/assets/img/logo.png" v-if="!hasUser" />
+            <img class="login-logo" src="@/assets/img/Logo.png" v-if="!hasUser" />
             <hr v-if="!hasUser" />
             <form
                 class="form-horizontal"
@@ -72,7 +72,7 @@
                         </a>
                     </dd>
                 </dl>
-                <p>
+                <p v-if="loadTest">
                     <a class="btn btn-outline-secondary" @click="changeTenant">
                         <span>调试按钮</span>
                         <span
@@ -110,6 +110,9 @@ export default {
         Loading: Loading
     },
     computed: {
+        loadTest() {
+            return process.env.NODE_ENV !== 'production'
+        },
         languages() {
             return abp.localization.languages.filter(val => {
                 return !val.isDisabled
@@ -156,7 +159,7 @@ export default {
                 this.displayTenancyName = ''
                 this.changedTenancyName = ''
                 abp.multiTenancy.setTenantIdCookie(undefined)
-                // location.reload()
+                location.reload()
             }
         },
         logout() {
@@ -189,13 +192,15 @@ export default {
         }
     },
     created() {
-        if (abp.session.tenantId)
-            Ajax.get('/api/services/app/Session/GetCurrentLoginInformations').then(res => {
-                let session = res.data.result
+        // if (abp.session.tenantId)
+        Ajax.get('/api/services/app/Session/GetCurrentLoginInformations').then(res => {
+            let session = res.data.result
+            if (session.tenant !== null) {
                 this.changedTenancyName = session.tenant.tenancyName
                 this.displayTenancyName = session.tenant.name
-                if (!session.user) this.logout()
-            })
+            }
+            if (!session.user) this.logout()
+        })
         if (this.$store.getters.isAuthenticated) {
             this.hasUser = true
             let currentUser = this.$store.getters.currentUser

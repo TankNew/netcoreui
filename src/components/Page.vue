@@ -54,6 +54,14 @@ export default {
         tinymce
     },
     props: { contentTitle: String, scorllTopLength: Number },
+    watch: {
+        $route(val) {
+            this.$nextTick(() => {
+                this.id = parseInt(val.params.id)
+                this.load()
+            })
+        }
+    },
     methods: {
         //改变编辑器宽度
         putEditModeWidth(val) {
