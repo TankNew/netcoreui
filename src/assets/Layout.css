@@ -229,7 +229,6 @@ body {
   overflow: hidden;
 }
 .leftBar > :not(.left-bar-shrink) {
-  width: 220px;
   transition: visibility 0s, opacity 0.5s linear;
   visibility: visible;
   opacity: 1;
@@ -257,6 +256,10 @@ body {
   border-bottom: 1px solid #fff;
   -webkit-transform: scale(0.5);
   transform: scale(0.5);
+}
+.leftBar h5 .copy {
+  position: absolute;
+  top: -2px;
 }
 .left-bar-shrink {
   position: absolute;
@@ -311,6 +314,7 @@ body {
   list-style: none;
   margin-bottom: 10px;
   padding-left: 0;
+  padding-right: 10px;
 }
 .sidebar-menu li {
   list-style: none;
@@ -442,15 +446,22 @@ body {
   padding-bottom: 20px;
   position: relative;
 }
+.scroll-sidebar-container {
+  height: calc(100% - 167px);
+  overflow: hidden;
+}
+.scroll-sidebar-container .scroll {
+  height: calc(100% + 20px);
+}
 .scroll-container {
   height: calc(100% - 60px);
+}
+.scroll-container .container-fluid {
+  width: calc(100% + 17px);
 }
 .scroll {
   height: 100%;
   overflow: hidden;
-}
-.scroll-container .container-fluid {
-  width: calc(100% + 17px);
 }
 .news-group-bar {
   display: flex;
@@ -534,6 +545,26 @@ body {
   min-height: 450px;
   /*鼠标滑过工具显示*/
 }
+.tankTree .ctx-menu {
+  min-width: 120px;
+  letter-spacing: 0;
+}
+.tankTree .ctx-menu li {
+  padding: 8px 20px;
+  text-align: left;
+  cursor: pointer;
+}
+.tankTree .ctx-menu li > i {
+  margin-right: 6px;
+  display: inline-block;
+}
+.tankTree .ctx-menu li:hover {
+  color: #fff;
+  background-color: #0094ff;
+}
+.tankTree .ctx-menu > .disabled {
+  color: #999;
+}
 .tankTree ul {
   list-style: none;
   margin: 0;
@@ -572,7 +603,7 @@ body {
   color: #17a2b8;
 }
 .tankTree a:hover {
-  background-color: #ccc;
+  background-color: #e9ecef;
   text-decoration: none;
 }
 .tankTree .o-line-up {
@@ -626,16 +657,14 @@ body {
   padding: 6px 10px;
   margin: 2px;
 }
-.border-list ul {
-  padding: 0;
-  list-style: none;
+.border-list dl {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
   align-content: center;
 }
-.border-list ul li {
+.border-list dl dd {
   cursor: pointer;
   font-size: 0.875rem;
   line-height: 1.5;
@@ -645,10 +674,49 @@ body {
   margin: 10px;
   color: #666;
 }
+.border-list ul {
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+}
+.border-list ul.sub-list li {
+  font-size: 0.675rem;
+  height: 40px;
+}
+.border-list ul.sub-list li > div {
+  border-radius: 4px;
+  border-style: dashed;
+}
+.border-list ul.sub-list li > div.active {
+  color: white;
+  background-color: #17a2b8;
+}
+.border-list ul li {
+  cursor: pointer;
+  position: relative;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  width: 120px;
+  min-height: 60px;
+  padding: 0;
+  margin: 10px;
+  color: #666;
+}
+.border-list ul li .o-line-down {
+  position: absolute;
+  left: 50%;
+  width: 2px;
+  height: 26px;
+  border-left: 1px solid #ccc;
+}
 .border-list ul li > div {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 60px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }

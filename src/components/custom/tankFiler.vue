@@ -127,7 +127,7 @@
                             :isLoading="isLoading"
                             style="border-radius:0;"
                         ></Loading>
-                        <section ref="scroll1" class="scroll-container">
+                        <section class="scroll-container">
                             <scroll
                                 ref="content"
                                 class="scroll"

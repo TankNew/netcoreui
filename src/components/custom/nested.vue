@@ -13,96 +13,30 @@
         <li v-for="(element,index) in children" :key="element.id">
             <div v-if="parentId!==0" class="o-line-up"></div>
             <a
-                @mouseover="imgtools=index"
-                @mouseout="imgtools=-1"
                 :style="hasbind&&!element.isActive?'background-color:#efefef':''"
+                @contextmenu.prevent="ctxMenuOpen($event,element,index,currentLayer)"
             >
-                <div
-                    v-if="hasToolbar"
-                    v-show="imgtools==index"
-                    class="img-cover-toolbar"
-                >
-                    <button
-                        v-if="parentId!==0"
-                        type="button"
-                        title="删除"
-                        v-b-tooltip.hover
-                        class="btn btn-danger btn-xs"
-                        @click="del(index,element)"
-                    >
-                        <i class="fas fa-minus" aria-hidden="true"></i>
-                    </button>
-                    <button
-                        type="button"
-                        title="编辑"
-                        v-b-tooltip.hover
-                        class="btn btn-info btn-xs"
-                        @click="edit(index,element)"
-                    >
-                        <i class="fas fa-pencil-alt" aria-hidden="true"></i>
-                    </button>
-                    <button
-                        v-if="hasbind&&parentId!==0"
-                        type="button"
-                        title="切换"
-                        v-b-tooltip.hover
-                        class="btn btn-secondary btn-xs"
-                        @click="unbind(index,element)"
-                    >
-                        <i class="fas fa-exchange-alt" aria-hidden="true"></i>
-                    </button>
-                    <button
-                        v-if="hasbind&&!element.isMenu"
-                        type="button"
-                        title="绑定"
-                        v-b-tooltip.hover
-                        class="btn btn-primary btn-xs"
-                        @click="bind(index,element)"
-                    >
-                        <i class="fas fa-link" aria-hidden="true"></i>
-                    </button>
-
-                    <button
-                        v-if="!hasbind||(hasbind&&element.isMenu)"
-                        type="button"
-                        title="扩展"
-                        class="btn btn-success btn-xs"
-                        @click="add(index,element)"
-                        v-b-tooltip.hover
-                    >
-                        <i class="fas fa-plus" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <span>{{element.displayName}}</span>
+                <span>{{`${element.displayName}`}}</span>
                 <span v-if="hasbind">
-                    <small v-if="!element.isMenu">
-                        模块:{{element.webModule?element.webModule.name:'null'}}
-                        <i
-                            class="fas fa-cube"
-                            v-if="element.webModule "
-                        ></i>
+                    <small v-if="element.navbarType===0">菜单</small>
+                    <small v-else-if="element.navbarType===4">链接</small>
+                    <small v-else>
+                        模块
+                        <i class="fas fa-cube"></i>
                     </small>
-                    <small v-else>菜单</small>
                 </span>
             </a>
-            <div
-                class="o-line-down"
-                v-if="element.isMenu&&element.children.length>0"
-            ></div>
+            <div class="o-line-down" v-if="element.children.length>0"></div>
             <nested-draggable
-                v-if="(hasbind&&element.isMenu)||!hasbind"
+                v-if="element.children.length>0"
                 :dragging="dragging"
                 :dragUrl="dragUrl"
                 :children="element.children"
                 :parentId="element.id"
+                :currentLayer="getCurrentLayer"
                 :hasbind="hasbind"
-                :hasToolbar="hasToolbar"
                 @onDrag="onDrag"
-                @add="add"
-                @del="del"
-                @edit="edit"
-                @bind="bind"
-                @unbind="unbind"
+                @ctxMenuOpen="ctxMenuOpen"
             />
         </li>
     </draggable>
@@ -113,42 +47,46 @@ import draggable from 'vuedraggable'
 export default {
     name: 'nested-draggable',
     data() {
-        return {
-            imgtools: -1
-        }
+        return {}
     },
     props: {
         children: {
             required: true,
             type: Array
         },
-        parentId: Number,
-        dragging: Boolean,
-        dragUrl: String,
-        hasbind: Boolean,
-        hasToolbar: {
+        dragging: {
             type: Boolean,
-            default: true
+            required: true
+        },
+        dragUrl: {
+            type: String,
+            required: true
+        },
+        parentId: {
+            type: Number,
+            default: 0
+        },
+        currentLayer: {
+            type: Number,
+            default: 0
+        },
+        hasbind: {
+            type: Boolean,
+            default: false
         }
     },
     components: {
         draggable
     },
+    computed: {
+        getCurrentLayer() {
+            return this.currentLayer + 1
+        }
+    },
     methods: {
-        add(index, item) {
-            this.$emit('add', index, item)
-        },
-        edit(index, item) {
-            this.$emit('edit', index, item)
-        },
-        del(index, item) {
-            this.$emit('del', index, item)
-        },
-        bind(index, item) {
-            this.$emit('bind', index, item)
-        },
-        unbind(index, item) {
-            this.$emit('unbind', index, item)
+        //初始目录 - 定义右键菜单
+        ctxMenuOpen(e, item, index, currentLayer) {
+            this.$emit('ctxMenuOpen', e, item, index, currentLayer)
         },
         onDrag(e) {
             this.$emit('onDrag', e)
@@ -186,5 +124,5 @@ export default {
 }
 </script>
 <style lang='less' scoped>
-
+/*右键菜单定义*/
 </style>

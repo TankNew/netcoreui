@@ -10,15 +10,27 @@
             </b-alert>
         </div>
         <section class="tankTree">
+            <context-menu id="context-menu" ref="ctxMenu" @ctx-open="onCtxOpen">
+                <li @contextmenu.prevent @click="edit">
+                    <i class="fas color-primary fa-pencil-alt mr-1"></i>
+                    编辑
+                </li>
+                <li @contextmenu.prevent @click="add">
+                    <i class="fas color-success fa-plus mr-1"></i>
+                    扩展
+                </li>
+                <li @contextmenu.prevent @click="del" v-if="currentLayer>0">
+                    <i class="fas color-danger fa-minus mr-1"></i>
+                    删除
+                </li>
+            </context-menu>
             <nested-draggable
                 :dragging="dragging"
                 :dragUrl="dragUrl"
-                :children="Pages"
+                :children="organizationList"
                 :parentId="0"
                 @onDrag="onDrag"
-                @add="add"
-                @del="del"
-                @edit="edit"
+                @ctxMenuOpen="ctxMenuOpen"
             />
         </section>
         <!--弹出修改层-->
@@ -37,9 +49,9 @@
                     <b-form-input
                         ref="modalInput"
                         name="节点显示名"
-                        :state="hasError(page.displayName,'节点显示名')"
+                        :state="hasError(module.displayName,'节点显示名')"
                         v-validate="'required'"
-                        v-model="page.displayName"
+                        v-model="module.displayName"
                     ></b-form-input>
                 </b-input-group>
             </form>
@@ -49,24 +61,37 @@
 <script>
 import swal from 'sweetalert'
 import nestedDraggable from './custom/nested'
+import contextMenu from 'vue-context-menu'
+
 export default {
     data() {
         return {
-            Pages: [],
-            page: {
+            organizationList: [],
+            module: {
                 displayName: ''
             },
             editMode: false,
             modalName: '',
             dragUrl: '/api/services/app/Organization/Move',
-            dragging: false
+            dragging: false,
+            currentOrganization: {},
+            currentLayer: 0
         }
     },
     props: ['contentTitle'],
     components: {
-        nestedDraggable
+        nestedDraggable,
+        contextMenu
     },
     methods: {
+        // 当右键菜单打开时
+        onCtxOpen(locals) {},
+        // 打开右键
+        ctxMenuOpen(e, item, index, currentLayer) {
+            this.$refs.ctxMenu.open(e, item)
+            this.currentLayer = currentLayer
+            this.currentOrganization = item
+        },
         onDrag(e) {
             this.dragging = e
         },
@@ -74,19 +99,19 @@ export default {
             if (val) return val.length ? !this.errors.has(name) : null
             else return null
         },
-        add(index, item) {
+        add() {
             this.editMode = false
-            this.page = { displayName: '', parentId: item.id }
-            this.modalName = ` 新增 [${item.displayName}] 子节点：`
+            this.module = { displayName: '', parentId: this.currentOrganization.id }
+            this.modalName = ` 新增 [${this.currentOrganization.displayName}] 子节点：`
             this.$refs.modal.show()
         },
-        edit(index, item) {
+        edit() {
             this.editMode = true
-            this.page = { displayName: item.displayName, id: item.id }
-            this.modalName = ` 编辑 [${item.displayName}] 节点：`
+            this.module = JSON.parse(JSON.stringify(this.currentOrganization))
+            this.modalName = ` 编辑 [${this.currentOrganization.displayName}] 节点：`
             this.$refs.modal.show()
         },
-        del(index, item) {
+        del() {
             swal({
                 title: '确认吗?',
                 text: '被删除数据可能无法恢复，请您再次确认!',
@@ -96,7 +121,9 @@ export default {
             }).then(async willDelete => {
                 if (willDelete) {
                     await this.$http
-                        .delete('/api/services/app/Organization/Delete', { params: { organizationId: item.id } })
+                        .delete('/api/services/app/Organization/Delete', {
+                            params: { organizationId: this.currentOrganization.id }
+                        })
                         .then(res => {
                             if (res.data.success) this.load()
                         })
@@ -109,7 +136,7 @@ export default {
         // 关闭清空编辑
         clearName() {
             this.editMode = false
-            this.page = {
+            this.module = {
                 displayName: ''
             }
             this.modalName = ''
@@ -120,11 +147,11 @@ export default {
             this.$validator.validateAll().then(async result => {
                 if (result) {
                     if (!this.editMode) {
-                        await this.$http.post('/api/services/app/Organization/Create', this.page).then(res => {
+                        await this.$http.post('/api/services/app/Organization/Create', this.module).then(res => {
                             if (res.data.success) this.load()
                         })
                     } else {
-                        await this.$http.put('/api/services/app/Organization/Update', this.page).then(res => {
+                        await this.$http.put('/api/services/app/Organization/Update', this.module).then(res => {
                             if (res.data.success) this.load()
                         })
                     }
@@ -136,7 +163,7 @@ export default {
             this.$http.get('/api/services/app/Organization/GetAll', { params: { organizationId: null } }).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
-                    this.Pages = json
+                    this.organizationList = json
                 }
             })
         }
@@ -149,11 +176,4 @@ export default {
         this.$nextTick(() => this.$emit('reloadScroll'))
     }
 }
-</script>
-<style lang="less" scope>
-/*组织结构图设定*/
-.subbar {
-    border-top: 1px solid #ccc;
-    padding: 10px 20px;
-}
-</style>
+</script> 

@@ -1,13 +1,7 @@
 <template>
     <section class="main">
-        <!--滚动到顶端-->
-        <div class="fixed-bottom topButton">
-            <a href="javascript:void(0)" @click="topClick">
-                <i class="far fa-arrow-alt-circle-up"></i>
-            </a>
-        </div>
         <!--左侧菜单设置-->
-        <div :class="menuitemClasses">
+        <div :class="['leftBar', this.isCollapsed ? 'shrink' : '']">
             <span class="left-bar-shrink" @click="leftBarChange">
                 <i class="fas fa-bars"></i>
             </span>
@@ -32,16 +26,25 @@
                     >{{ UserModel.UserRole }}</span>
                 </div>
             </div>
-            <hr class="border-light" />
-            <div class="sidebar-menu">
-                <sidebar-menu
-                    :menu="menu"
-                    :path="path"
-                    :isRoot="true"
-                    :menuIndex="menuIndex"
-                    @menuClick="menuClick"
-                ></sidebar-menu>
-            </div>
+            <hr class="border-light mx-3" />
+            <section class="scroll-sidebar-container">
+                <scroll
+                    ref="scrollSidebar"
+                    class="scroll"
+                    @scrollTop="leftScrollTop"
+                >
+                    <div class="sidebar-menu">
+                        <sidebar-menu
+                            :menu="menu"
+                            :path="path"
+                            :isRoot="true"
+                            :menuIndex="menuIndex"
+                            @menuClick="menuClick"
+                        ></sidebar-menu>
+                        <div class="clear"></div>
+                    </div>
+                </scroll>
+            </section>
         </div>
         <!--主体内容设置-->
         <div class="content">
@@ -94,13 +97,7 @@
                 <!-- 地址栏 -->
                 <b-breadcrumb :items="breadcrumb" />
                 <section ref="scroll1" class="scroll-container">
-                    <scroll
-                        ref="content"
-                        class="scroll"
-                        :data="scrollData"
-                        :autoScroll="false"
-                        @scrollTop="scrollTop"
-                    >
+                    <scroll ref="content" class="scroll" @scrollTop="scrollTop">
                         <router-view
                             :scorllTopLength="scorllTopLength"
                             @refreshScroll="refreshScroll"
@@ -165,6 +162,12 @@
                 </b-form>
             </section>
         </b-modal>
+        <!--滚动到顶端-->
+        <div class="fixed-bottom topButton">
+            <a href="javascript:void(0)" @click="topClick">
+                <i class="far fa-arrow-alt-circle-up"></i>
+            </a>
+        </div>
     </section>
 </template>
 <script>
@@ -190,7 +193,6 @@ export default {
             contentTitle: '',
             isCollapsed: false,
             breadcrumb: [],
-            scrollData: [],
             clientHeight: document.body.clientHeight,
             tenant: undefined
         }
@@ -225,10 +227,7 @@ export default {
         },
         tenantTitle() {
             if (this.tenant) return `${this.tenant.name} / ${this.tenant.tenancyName}`
-            else return `当前处于主机模式`
-        },
-        menuitemClasses() {
-            return ['leftBar', this.isCollapsed ? 'shrink' : '']
+            else if (this.tenant === null) return `当前处于主机模式`
         },
         currentLanguage() {
             return abp.localization.currentLanguage
@@ -301,7 +300,23 @@ export default {
             )
             location.reload()
         },
+
         // 更改密码
+        editUserProfile() {
+            this.$root.$emit('bv::show::modal', 'modalChangePassword')
+        },
+        modalInfoHide() {
+            this.currentPassword = null
+            this.newPassword = null
+        },
+
+        modalInfoShow(e) {
+            this.$refs.focusThis.focus()
+        },
+        modalOk(e) {
+            e.preventDefault()
+            this.changePassword()
+        },
         async changePassword() {
             if (await this.validate('form-changePassword')) {
                 await this.$store.dispatch({
@@ -320,23 +335,6 @@ export default {
                 })
             }
         },
-        modalInfoHide() {
-            this.currentPassword = null
-            this.newPassword = null
-        },
-
-        modalInfoShow(e) {
-            this.$refs.focusThis.focus()
-        },
-        modalOk(e) {
-            e.preventDefault()
-            this.changePassword()
-        },
-
-        // 用户资料
-        editUserProfile() {
-            this.$root.$emit('bv::show::modal', 'modalChangePassword')
-        },
         //安全退出
         logout() {
             unsetToken()
@@ -348,13 +346,20 @@ export default {
         },
         refreshScroll() {
             this.$refs.content.refresh()
+            this.$refs.scrollSidebar.refresh()
         },
         reloadScroll() {
-            if (this.loadState) this.$refs.content.reload()
+            if (this.loadState) {
+                this.$refs.content.reload()
+                this.$refs.scrollSidebar.refresh()
+            }
         },
         // 调整工具栏位置
         scrollTop(val) {
             this.scorllTopLength = val
+        },
+        leftScrollTop(val) {
+            //  val是左侧当前滚动距离顶部的值
         },
         async getMenu() {
             let that = this
@@ -419,7 +424,6 @@ export default {
 .breadcrumb .active {
     font-size: 14px;
 }
-
 .topButton {
     left: auto;
     bottom: 50px;
@@ -430,12 +434,5 @@ export default {
     border-radius: 50%;
     padding: 4px;
     opacity: 0.7;
-}
-.app-name {
-    position: relative;
-    .copy {
-        position: absolute;
-        top: -2px;
-    }
 }
 </style>

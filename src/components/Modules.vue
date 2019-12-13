@@ -23,32 +23,31 @@
                             <b-button
                                 v-if="!isPage"
                                 variant="outline-info"
-                                :class="module.type===2&&module.catalogType==1?'active':''"
-                                @click="module.catalogType=1;module.type=2"
+                                :class="module.catalogType==1?'active':''"
+                                @click="module.catalogType=1"
                             >
                                 <i class="fas fa-quote-left mr-1"></i>文字类
                             </b-button>
                             <b-button
                                 v-if="!isPage"
                                 variant="outline-info"
-                                :class="module.type===2&&module.catalogType==2?'active':''"
-                                @click="module.catalogType=2;module.type=2"
+                                :class="module.catalogType==2?'active':''"
+                                @click="module.catalogType=2"
                             >
                                 <i class="fas fa-images mr-1"></i>图片类
                             </b-button>
                             <b-button
                                 v-if="!isPage"
                                 variant="outline-info"
-                                :class="module.type===2&&module.catalogType==3?'active':''"
-                                @click="module.catalogType=3;module.type=2"
+                                :class="module.catalogType==3?'active':''"
+                                @click="module.catalogType=3"
                             >
                                 <i class="fas fa-luggage-cart mr-1"></i>产品类
                             </b-button>
                             <b-button
                                 v-if="isPage"
                                 variant="outline-info"
-                                :class="module.type==3?'active':''"
-                                @click="module.type=3"
+                                class="active"
                             >
                                 <i class="fas fa-pen-nib mr-1"></i>
                                 自由编辑类
@@ -64,7 +63,7 @@
                             <b-form-input
                                 id="exampleInput1"
                                 type="text"
-                                v-model="module.name"
+                                v-model="module.displayName"
                                 placeholder="输入一个标识名称"
                                 required
                             ></b-form-input>
@@ -115,20 +114,20 @@
             <b-alert show dismissible class="small">
                 <b>Info:</b>预设模块无法删除或者更改，自定义模块会随着版本更新增加种类.
             </b-alert>
-            <section>
+            <section class="px-3">
                 <p class="lead mb-3">预设模块</p>
                 <div class="mb-3">
                     <button
-                        class="btn btn-outline-info mr-3 py-4 px-5"
+                        class="btn btn-outline-info mr-3 py-4 px-5 mb-3"
                         v-for="(item,index) in sections"
                         :key="index"
-                    >{{item.name}}</button>
+                    >{{item.displayName}}</button>
                 </div>
             </section>
 
             <hr />
 
-            <section>
+            <section class="px-3">
                 <p class="lead mb-3">
                     列表模块
                     <button
@@ -152,7 +151,7 @@
                                 class="card-text font-weight-bold color-Purple mt-2"
                             >
                                 <span>
-                                    {{item.name}}
+                                    {{item.displayName}}
                                     <b-badge
                                         class="font-weight-light font_10"
                                         pill
@@ -177,10 +176,8 @@
                     </b-card-group>
                 </div>
             </section>
-
             <hr />
-
-            <section>
+            <section class="px-3">
                 <p class="lead mb-3">
                     自由编辑模块
                     <button
@@ -204,13 +201,12 @@
                                 class="card-text font-weight-bold color-Purple mt-2"
                             >
                                 <span>
-                                    {{item.name}}
+                                    {{item.displayName}}
                                     <b-badge
                                         class="font-weight-light font_10"
                                         pill
-                                        v-html="getCatalogType(item)"
-                                        :variant="getPageListBorder(item)"
-                                    ></b-badge>
+                                        variant="warning"
+                                    >自由编辑类</b-badge>
                                 </span>
                             </h4>
 
@@ -285,8 +281,8 @@ export default {
             })
         },
         getPageEditTitle(item) {
-            if (item.type === 2 && item.catalogGroup) {
-                switch (item.catalogGroup.catalogType) {
+            if (item.catalogType) {
+                switch (item.catalogType) {
                     case 1:
                         return `文字类`
                     case 2:
@@ -297,29 +293,25 @@ export default {
             } else return '自由编辑类'
         },
         getPageListBorder(item) {
-            if (item.type === 2 && item.catalogGroup) {
-                switch (item.catalogGroup.catalogType) {
-                    case 1:
-                        return `primary`
-                    case 2:
-                        return `success`
-                    case 3:
-                        return `info`
-                }
-            } else return 'warning'
+            switch (item.catalogType) {
+                case 1:
+                    return `primary`
+                case 2:
+                    return `success`
+                case 3:
+                    return `info`
+            }
         },
 
         getCatalogType(item) {
-            if (item.type === 2 && item.catalogGroup) {
-                switch (item.catalogGroup.catalogType) {
-                    case 1:
-                        return `<i class="fas fa-quote-left mr-1"></i>文字类`
-                    case 2:
-                        return `<i class="fas fa-images mr-1" ></i>图片类`
-                    case 3:
-                        return `<i class="fas fa-luggage-cart mr-1" ></i>产品类`
-                }
-            } else return `自由编辑类`
+            switch (item.catalogType) {
+                case 1:
+                    return `<i class="fas fa-quote-left mr-1"></i>文字类`
+                case 2:
+                    return `<i class="fas fa-images mr-1" ></i>图片类`
+                case 3:
+                    return `<i class="fas fa-luggage-cart mr-1" ></i>产品类`
+            }
         },
         formatTime(val) {
             return tools.date(val)
@@ -335,30 +327,46 @@ export default {
         async onSubmit(evt) {
             evt.preventDefault()
             if (!this.isUpdate) {
-                await this.$http.post('/api/services/app/WebModule/Create', this.module).then(res => {
-                    if (res.data.success) {
-                        let json = res.data.result
-                        if (this.isPage) this.pageSections.push(json)
-                        else this.customSections.push(json)
-                    }
-                })
+                if (this.isPage)
+                    await this.$http.post('/api/services/app/Page/Create', this.module).then(res => {
+                        if (res.data.success) {
+                            let json = res.data.result
+                            this.pageSections.push(json)
+                        }
+                    })
+                else
+                    await this.$http.post('/api/services/app/CatalogGroup/Create', this.module).then(res => {
+                        if (res.data.success) {
+                            let json = res.data.result
+                            this.customSections.push(json)
+                        }
+                    })
             } else {
-                await this.$http.put('/api/services/app/WebModule/Update', this.module).then(res => {
-                    if (res.data.success) {
-                        this.editRow.name = this.module.name
-                        this.editRow.cover = this.module.cover
-                        this.editRow.info = this.module.info
-                    }
-                })
+                if (this.isPage)
+                    await this.$http.put('/api/services/app/Page/Update', this.module).then(res => {
+                        if (res.data.success) {
+                            this.editRow.displayName = this.module.displayName
+                            this.editRow.cover = this.module.cover
+                            this.editRow.info = this.module.info
+                        }
+                    })
+                else
+                    await this.$http.put('/api/services/app/CatalogGroup/Update', this.module).then(res => {
+                        if (res.data.success) {
+                            this.editRow.displayName = this.module.displayName
+                            this.editRow.cover = this.module.cover
+                            this.editRow.info = this.module.info
+                        }
+                    })
             }
             this.$emit('getMenu')
             this.outEditMode()
         },
 
         add(isPage) {
-            let basicPage = { name: '', type: 3, catalogType: null, cover: '', info: '' }
+            let basicPage = { displayName: '', catalogType: null, cover: '', info: '' }
+
             if (!isPage) {
-                basicPage.type = 2
                 basicPage.catalogType = 1
             }
             this.isPage = isPage
@@ -390,44 +398,42 @@ export default {
                 dangerMode: true
             }).then(async confirm => {
                 if (confirm) {
-                    var params = { params: { type: 2, id: item.id } }
-                    if (isPage) params.params.type = 3
-
-                    this.$http.delete('/api/services/app/WebModule/Delete', params).then(res => {
-                        if (res.data.success) {
-                            this.customSections.splice(index, 1)
-                            this.$emit('getMenu')
-                        }
-                    })
+                    var params = { params: { id: item.id } }
+                    if (this.isPage)
+                        this.$http.delete('/api/services/app/Page/Delete', params).then(res => {
+                            if (res.data.success) {
+                                this.pageSections.splice(index, 1)
+                                this.$emit('getMenu')
+                            }
+                        })
+                    else
+                        this.$http.delete('/api/services/app/CatalogGroup/Delete', params).then(res => {
+                            if (res.data.success) {
+                                this.customSections.splice(index, 1)
+                                this.$emit('getMenu')
+                            }
+                        })
                 }
             })
         },
         load() {
-            this.$http.get('/api/services/app/WebModule/GetAll', { params: { type: 1 } }).then(res => {
+            this.$http.get('/api/services/app/WebModule/GetAll').then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.sections = json
                 }
             })
-            this.$http.get('/api/services/app/WebModule/GetAll', { params: { type: 2 } }).then(res => {
+            this.$http.get('/api/services/app/CatalogGroup/GetAll').then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.customSections = json
-                    this.customSections.forEach(x => {
-                        x.cover = x.catalogGroup.cover
-                        x.info = x.catalogGroup.info
-                    })
                 }
             })
 
-            this.$http.get('/api/services/app/WebModule/GetAll', { params: { type: 3 } }).then(res => {
+            this.$http.get('/api/services/app/Page/GetAll').then(res => {
                 if (res.data.success) {
                     let json = res.data.result
-                    this.pageSections = json
-                    this.pageSections.forEach(x => {
-                        x.cover = x.page.cover
-                        x.info = x.page.info
-                    })
+                    this.pageSections = json.items
                 }
             })
         },
@@ -443,7 +449,7 @@ export default {
             window.removeEventListener('beforeunload', this.beforeunloadFn, false)
         },
         beforeunloadFn(e) {
-            e.returnValue = ``
+            e.returnValue = ''
         },
         closeViews() {
             if (this.editMode) {

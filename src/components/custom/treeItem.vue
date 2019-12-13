@@ -44,9 +44,7 @@ export default {
             }
         },
         catalogChoose(val) {
-            if (!this.isFolder) {
-                this.$emit('catalogChoose', val)
-            }
+            this.$emit('catalogChoose', val)
         },
         catalogChooseEmit(val) {
             this.$emit('catalogChoose', val)

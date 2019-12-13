@@ -22,12 +22,11 @@ export default {
             default: 20
         }
     },
-    mounted() {
-        // 保证在DOM渲染完毕后初始化better-scroll
-        //setTimeout(() => {
-        //  this.init()
-        //}, 20)
-        this.$nextTick(() => this.init())
+    watch: {
+        // 监听数据的变化，延时refreshDelay时间后调用refresh方法重新计算，保证滚动效果正常
+        data() {
+            this.refresh()
+        }
     },
     methods: {
         init() {
@@ -46,6 +45,9 @@ export default {
 
             this.$nextTick(() => {
                 that.$refs.wrapper.addEventListener('scroll', function(ev) {
+                    // console.log(ev.type) // outputs 'scrollreachtop'
+                    // console.log(ev.detail.scrollTop) // outputs scroll distance from top
+                    // console.log(ev.detail.scrollbarV.percent) // outputs vertical scrolled %
                     that.$emit('scrollTop', ev.detail.scrollTop)
                 })
             })
@@ -63,6 +65,7 @@ export default {
         },
         ScrollToTop() {
             setTimeout(() => {
+                //  ( destX, destY [, duration] )
                 this.scroll.scrollTo(false, 'top', 500)
             }, this.refreshDelay)
         },
@@ -75,11 +78,12 @@ export default {
             this.scroll.destroy()
         }
     },
-    watch: {
-        // 监听数据的变化，延时refreshDelay时间后调用refresh方法重新计算，保证滚动效果正常
-        data() {
-            this.refresh()
-        }
+    mounted() {
+        // 保证在DOM渲染完毕后初始化better-scroll
+        //setTimeout(() => {
+        //  this.init()
+        //}, 20)
+        this.$nextTick(() => this.init())
     }
 }
 </script>
