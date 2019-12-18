@@ -117,7 +117,6 @@
                         @refreshScroll="refreshScroll"
                         @reloadScroll="reloadScroll"
                         :initial="form.info"
-                        :editorTop="0"
                         :editorWidth="editModeWidth"
                         :scollMinTop="238"
                         :scorllTopLength="scorllTopLength"
@@ -547,13 +546,7 @@ export default {
     created() {
         var that = this
     },
-    mounted: function() {
-        var that = this
-        // 开发调试
-        that.$nextTick(() => {
-            that.$emit('reloadScroll')
-        })
-    },
+   
     beforeDestroy: function() {
         if (this.editMode) this.$refs.tinymceNews.destroy()
     }

@@ -1,180 +1,172 @@
 <template>
-    <section class="main">
-        <!--左侧菜单设置-->
-        <div :class="['leftBar', this.isCollapsed ? 'shrink' : '']">
-            <span class="left-bar-shrink" @click="leftBarChange">
-                <i class="fas fa-bars"></i>
-            </span>
-            <h5 class="app-name">
-                {{ appName }}
-                <span class="small copy">&copy;</span>
-            </h5>
-            <div class="sidebar-header">
-                <div class="user-pic">
-                    <img
-                        class="img-responsive img-rounded w-100"
-                        :src="UserModel.UserHead"
-                        alt
-                    />
-                </div>
-                <div class="user-info">
-                    <span class="user-name p-1">
-                        <strong>{{ UserModel.UserName }}</strong>
-                    </span>
-                    <span
-                        class="btn btn-outline-success p-0"
-                    >{{ UserModel.UserRole }}</span>
-                </div>
-            </div>
-            <hr class="border-light mx-3" />
-            <section class="scroll-sidebar-container">
-                <scroll
-                    ref="scrollSidebar"
-                    class="scroll"
-                    @scrollTop="leftScrollTop"
-                >
-                    <div class="sidebar-menu">
-                        <sidebar-menu
-                            :menu="menu"
-                            :path="path"
-                            :isRoot="true"
-                            :menuIndex="menuIndex"
-                            @menuClick="menuClick"
-                        ></sidebar-menu>
-                        <div class="clear"></div>
-                    </div>
-                </scroll>
-            </section>
+  <section class="main">
+    <!--左侧菜单设置-->
+    <div :class="['leftBar', isCollapsed ? 'shrink' : '']">
+      <span class="left-bar-shrink" @click="leftBarChange">
+        <i class="fas fa-bars"></i>
+      </span>
+      <h5 class="app-name">
+        {{ appName }}
+        <span class="small copy">&copy;</span>
+      </h5>
+      <div class="sidebar-header">
+        <div class="user-pic">
+          <img
+            class="img-responsive img-rounded w-100"
+            :src="UserModel.UserHead"
+            alt
+          />
         </div>
-        <!--主体内容设置-->
-        <div class="content">
-            <b-navbar
-                toggleable="md"
-                type="dark"
-                variant="info"
-                style="background-color:#6699CC !important;"
-            >
-                <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
-                <b-navbar-brand tag="h1">{{tenantTitle}}</b-navbar-brand>
-                <b-collapse is-nav id="nav_collapse">
-                    <!-- Right aligned nav items -->
-                    <b-navbar-nav class="ml-auto">
-                        <b-nav-item-dropdown right offset="25">
-                            <template slot="button-content">
-                                <i class="fab fa-creative-commons mr_10"></i>
-                                {{this.L('Language')}}
-                            </template>
-                            <b-dropdown-item
-                                v-for="(language, index) in languages"
-                                :key="index"
-                                @click="changeLanguage(language.name)"
-                            >
-                                <i :class="[language.icon, 'fas']"></i>
-                                {{ language.displayName }}
-                            </b-dropdown-item>
-                        </b-nav-item-dropdown>
-                        <b-nav-item-dropdown right offset="125">
-                            <!-- Using button-content slot -->
-                            <template slot="button-content">
-                                <i class="fas fa-users-cog mr_10"></i>
-                                {{this.L('Users')}}
-                            </template>
-                            <b-dropdown-item
-                                href="javascript:void(0)"
-                                @click="editUserProfile"
-                            >{{this.L('ChangePassword')}}</b-dropdown-item>
-                            <b-dropdown-item
-                                href="javascript:void(0)"
-                                @click="logout"
-                            >{{ this.L('Logout') }}</b-dropdown-item>
-                        </b-nav-item-dropdown>
-                    </b-navbar-nav>
-                </b-collapse>
-            </b-navbar>
-
-            <!--内页设置-->
-            <section class="content-body">
-                <!-- 地址栏 -->
-                <b-breadcrumb :items="breadcrumb" />
-                <section ref="scroll1" class="scroll-container">
-                    <scroll ref="content" class="scroll" @scrollTop="scrollTop">
-                        <router-view
-                            :scorllTopLength="scorllTopLength"
-                            @refreshScroll="refreshScroll"
-                            @reloadScroll="reloadScroll"
-                            @getMenu="getMenu"
-                            :appName="appName"
-                            :appVersion="appVersion"
-                            :contentTitle="contentTitle"
-                        ></router-view>
-                    </scroll>
-                </section>
-            </section>
+        <div class="user-info">
+          <span class="user-name p-1">
+            <strong>{{ UserModel.UserName }}</strong>
+          </span>
+          <span class="btn btn-outline-success p-0">{{ UserModel.UserRole }}</span>
         </div>
-        <!--底部-->
+      </div>
+      <hr class="border-light mx-3" />
+      <section class="scroll-sidebar-container">
+        <smooth-scroll ref="scrollSidebar" @scrollTop="leftScrollTop">
+          <div class="sidebar-menu">
+            <sidebar-menu
+              :menu="menu"
+              :path="path"
+              :isRoot="true"
+              :menuIndex="menuIndex"
+              @menuClick="menuClick"
+            ></sidebar-menu>
+            <div class="clear"></div>
+          </div>
+        </smooth-scroll>
+      </section>
+    </div>
+    <!--主体内容设置-->
+    <div :class="['content',isCollapsed ? 'shrink' : '']">
+      <b-navbar
+        toggleable="md"
+        type="dark"
+        variant="info"
+        style="background-color:#6699CC !important;"
+      >
+        <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
+        <b-navbar-brand tag="h1">{{tenantTitle}}</b-navbar-brand>
+        <b-collapse is-nav id="nav_collapse">
+          <!-- Right aligned nav items -->
+          <b-navbar-nav class="ml-auto">
+            <b-nav-item-dropdown right offset="25">
+              <template slot="button-content">
+                <i class="fab fa-creative-commons mr_10"></i>
+                {{this.L('Language')}}
+              </template>
+              <b-dropdown-item
+                v-for="(language, index) in languages"
+                :key="index"
+                @click="changeLanguage(language.name)"
+              >
+                <i :class="[language.icon, 'fas']"></i>
+                {{ language.displayName }}
+              </b-dropdown-item>
+            </b-nav-item-dropdown>
+            <b-nav-item-dropdown right offset="125">
+              <!-- Using button-content slot -->
+              <template slot="button-content">
+                <i class="fas fa-users-cog mr_10"></i>
+                {{this.L('Users')}}
+              </template>
+              <b-dropdown-item
+                href="javascript:void(0)"
+                @click="editUserProfile"
+              >{{this.L('ChangePassword')}}</b-dropdown-item>
+              <b-dropdown-item
+                href="javascript:void(0)"
+                @click="logout"
+              >{{ this.L('Logout') }}</b-dropdown-item>
+            </b-nav-item-dropdown>
+          </b-navbar-nav>
+        </b-collapse>
+      </b-navbar>
 
-        <b-modal
-            id="modalChangePassword"
-            :title="modalTitle"
-            :ok-title="'确认'"
-            :cancel-title="'取消'"
-            @ok="modalOk"
-            @shown="modalInfoShow"
-            @hidden="modalInfoHide"
+      <!--内页设置-->
+      <section class="content-body">
+        <!-- 地址栏 -->
+        <b-breadcrumb :items="breadcrumb" />
+        <smooth-scroll ref="content" @scrollTop="scrollTop">
+          <router-view
+            :scorllTopLength="scorllTopLength"
+            @refreshScroll="refreshScroll"
+            @reloadScroll="reloadScroll"
+            @getMenu="getMenu"
+            :appName="appName"
+            :appVersion="appVersion"
+            :contentTitle="contentTitle"
+          ></router-view>
+        </smooth-scroll>
+      </section>
+    </div>
+    <!--底部-->
+
+    <b-modal
+      id="modalChangePassword"
+      :title="modalTitle"
+      :ok-title="'确认'"
+      :cancel-title="'取消'"
+      @ok="modalOk"
+      @shown="modalInfoShow"
+      @hidden="modalInfoHide"
+    >
+      <section>
+        <b-form
+          @submit.stop.prevent="changePassword"
+          autocomplete="off"
+          data-vv-scope="form-changePassword"
         >
-            <section>
-                <b-form
-                    @submit.stop.prevent="changePassword"
-                    autocomplete="off"
-                    data-vv-scope="form-changePassword"
-                >
-                    <b-form-group
-                        label="原密码:"
-                        label-for="p-currentPassword"
-                        description="原密码."
-                    >
-                        <b-form-input
-                            ref="focusThis"
-                            id="p-currentPassword"
-                            type="password"
-                            v-model="currentPassword"
-                            name="原密码"
-                            :state="!errors.has('form-changePassword.原密码') "
-                            v-validate="'required'"
-                            placeholder="原密码"
-                        ></b-form-input>
-                    </b-form-group>
-                    <b-form-group
-                        label="新密码"
-                        label-for="p-newPassword"
-                        description="新密码."
-                    >
-                        <b-form-input
-                            id="p-newPassword"
-                            type="password"
-                            v-model="newPassword"
-                            name="新密码"
-                            :state="!errors.has('form-changePassword.新密码') "
-                            v-validate="'required'"
-                            placeholder="新密码"
-                        ></b-form-input>
-                    </b-form-group>
-                </b-form>
-            </section>
-        </b-modal>
-        <!--滚动到顶端-->
-        <div class="fixed-bottom topButton">
-            <a href="javascript:void(0)" @click="topClick">
-                <i class="far fa-arrow-alt-circle-up"></i>
-            </a>
-        </div>
-    </section>
+          <b-form-group
+            label="原密码:"
+            label-for="p-currentPassword"
+            description="原密码."
+          >
+            <b-form-input
+              ref="focusThis"
+              id="p-currentPassword"
+              type="password"
+              v-model="currentPassword"
+              name="原密码"
+              :state="!errors.has('form-changePassword.原密码') "
+              v-validate="'required'"
+              placeholder="原密码"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group
+            label="新密码"
+            label-for="p-newPassword"
+            description="新密码."
+          >
+            <b-form-input
+              id="p-newPassword"
+              type="password"
+              v-model="newPassword"
+              name="新密码"
+              :state="!errors.has('form-changePassword.新密码') "
+              v-validate="'required'"
+              placeholder="新密码"
+            ></b-form-input>
+          </b-form-group>
+        </b-form>
+      </section>
+    </b-modal>
+    <!--滚动到顶端-->
+    <div class="fixed-bottom topButton">
+      <a href="javascript:void(0)" @click="topClick">
+        <i class="far fa-arrow-alt-circle-up"></i>
+      </a>
+    </div>
+  </section>
 </template>
 <script>
 import tools from 'tools'
 import Ajax from '../utiltools/ajax'
 import AppConsts from '../utiltools/appconst'
-import scroll from './custom/scroll'
+import smoothScroll from './custom/smoothScroll'
 import jwtDecode from 'jwt-decode'
 import { unsetToken } from '../utiltools/auth'
 import sidebarMenu from './custom/sidebarMenu'
@@ -204,6 +196,7 @@ export default {
             that.path = val.fullPath
             that.breadcrumbFromat()
             that.pathToMenu(that.menu)
+            that.loadState = true
             that.reloadScroll()
         },
         // 监视窗口大小变化
@@ -212,8 +205,8 @@ export default {
         }
     },
     components: {
-        scroll: scroll,
-        sidebarMenu: sidebarMenu
+        sidebarMenu: sidebarMenu,
+        smoothScroll: smoothScroll
     },
     computed: {
         modalTitle() {
@@ -349,10 +342,11 @@ export default {
             this.$refs.scrollSidebar.refresh()
         },
         reloadScroll() {
-            if (this.loadState) {
-                this.$refs.content.reload()
-                this.$refs.scrollSidebar.refresh()
-            }
+            // if (this.loadState) {
+            this.$refs.content.reload()
+            this.$refs.scrollSidebar.reload()
+            this.loadState = false
+            // }
         },
         // 调整工具栏位置
         scrollTop(val) {
@@ -411,10 +405,6 @@ export default {
                 that.clientHeight = document.body.clientHeight
             })()
         }
-        that.$nextTick(() => {
-            that.loadState = true
-            that.reloadScroll()
-        })
     }
 }
 </script>

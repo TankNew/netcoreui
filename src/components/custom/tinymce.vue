@@ -1,44 +1,47 @@
 <style scoped>
 .editor-container {
     position: relative;
+    padding-right: 20px;
 }
 .editor {
     min-height: 300px;
+    max-height: 32767px;
     background-color: #fff;
     position: relative;
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 1rem;
     outline: none;
+    overflow-x: auto;
 }
 #editorToolbar {
     position: absolute;
     top: -70px;
     left: 0;
-    z-index: 2;
+    z-index: 10;
 }
 </style>
 <template>
-    <section
-        :style="{ width: editorWidth+'px',marginTop: editorTop+'px'}"
-        class="editor-container"
-    >
-        <div ref="editorToolbar" id="editorToolbar"></div>
-        <file
-            :fileShow="fileShow"
-            :fileCallBack="fileCallBack"
-            @fileClose="fileClose"
-        ></file>
-        <div
-            :id="tinymceId"
-            ref="editorContainer"
-            class="editor"
-            :style="minHeight"
-            v-html="initial"
-            @blur="refreshScroll"
-            @keyup="refreshScroll"
-        ></div>
-    </section>
+  <section
+    :style="{ width: editorWidth+'px',marginTop: editorTop+'px'}"
+    class="editor-container"
+  >
+    <div ref="editorToolbar" id="editorToolbar"></div>
+    <file
+      :fileShow="fileShow"
+      :fileCallBack="fileCallBack"
+      @fileClose="fileClose"
+    ></file>
+    <div
+      :id="tinymceId"
+      ref="editorContainer"
+      class="editor"
+      :style="minHeight"
+      v-html="initial"
+      @blur="refreshScroll"
+      @keyup="refreshScroll"
+    ></div>
+  </section>
 </template>
 <script>
 import file from '@/components/custom/tankFiler'
@@ -62,15 +65,17 @@ export default {
     },
     watch: {
         scorllTopLength(val) {
-            var maxtop = val - this.scollMinTop
+            let maxtop = val - this.scollMinTop
             if (maxtop < 0) maxtop = 0
             if (maxtop >= 0) {
-                maxtop = maxtop - this.editorTop
-                if (this.roll) clearTimeout(this.roll)
-                this.roll = setTimeout(() => {
-                    this.$refs.editorToolbar.style.top = Math.round(maxtop) - 70 + 'px'
-                    this.roll = null
-                }, 20)
+                maxtop -= this.editorTop + 70
+                this.$refs.editorToolbar.style.top = Math.round(maxtop) + 'px'
+
+                // if (this.roll) clearTimeout(this.roll)
+                // this.roll = setTimeout(() => {
+                //     this.$refs.editorToolbar.style.top = Math.round(maxtop) + 'px'
+                //     this.roll = null
+                // }, 20)
             }
         }
     },
@@ -93,7 +98,7 @@ export default {
         },
         editorTop: {
             type: Number,
-            default: 70
+            default: 0
         },
         initial: {
             type: String,

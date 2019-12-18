@@ -303,11 +303,15 @@
 }
 
 .content {
+    width: calc(100% - 240px);
     height: 100%;
     flex-shrink: 1;
-    width: 100%;
+    flex-grow: 1;
     position: relative;
     z-index: 100;
+    &.shrink {
+        width: calc(100% - 60px);
+    }
 }
 
 .content-body {
@@ -317,23 +321,21 @@
     background-color: #fff;
     box-shadow: 0 1px 5px #ccc;
     border-radius: 6px;
-    padding-bottom: 20px;
+    padding-bottom: 10px;
     position: relative;
 }
 
 .scroll-sidebar-container {
-    height: calc(100% - 167px);
+    height: calc(100% - 100px);
     overflow: hidden;
-    .scroll {
-        height: calc(100% + 20px);
-    }
 }
 
 .scroll-container {
+    width: 100%;
     height: calc(100% - 60px);
-    .container-fluid {
-        width: calc(100% + 17px);
-    }
+    // .container-fluid {
+    //     width: calc(100% + 17px);
+    // }
 }
 .scroll {
     height: 100%;
@@ -373,8 +375,9 @@
 }
 .news-edit-editmode {
     margin-bottom: 20px;
-    padding: 10px;
+    padding: 10px 20px;
     background-color: #e9ecef;
+    border-radius: 4px;
 }
 .news-number {
     cursor: pointer;
@@ -677,7 +680,7 @@
     a {
         cursor: pointer;
         padding: 14px 8px;
-        width: 300px;
+        width: 260px;
         letter-spacing: 2px;
         height: 75px;
         display: block;
@@ -945,7 +948,7 @@
 }
 .news-cover {
     cursor: pointer;
-    max-height: 240px;
+    height: 240px;
     line-height: 1px;
     margin: 0 auto;
 

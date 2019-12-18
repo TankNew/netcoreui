@@ -1,37 +1,36 @@
 <template>
-    <section class="container-fluid">
-        <p class="lead">
-            <i class="far fa-copy text-primary mr-1"></i>
-            {{contentTitle}}
-        </p>
-        <div class="news-edit-editmode">
-            <label>编辑模式:</label>
-            <button
-                v-for="(ew,index) in editorWidths"
-                :key="index"
-                type="button"
-                :class="['btn',editModeWidth==ew?'btn-secondary':'btn-light']"
-                @click="putEditModeWidth(ew)"
-            >{{ew}}</button>
-        </div>
-        <form @submit.stop.prevent="handleSubmit" autocomplete="off">
-            <!--正文-->
-            <tinymce
-                ref="tinymceNews"
-                @refreshScroll="refreshScroll"
-                @reloadScroll="reloadScroll"
-                :initial="page.content"
-                :editorTop="0"
-                :editorWidth="editModeWidth"
-                :scollMinTop="86"
-                :scorllTopLength="scorllTopLength"
-                :height="600"
-            ></tinymce>
-            <p class="m-3">
-                <button class="btn btn-primary py-2 px-5" type="submit">提交</button>
-            </p>
-        </form>
-    </section>
+  <section class="container-fluid">
+    <p class="lead">
+      <i class="far fa-copy text-primary mr-1"></i>
+      {{contentTitle}}
+    </p>
+    <div class="news-edit-editmode">
+      <label>编辑模式:</label>
+      <button
+        v-for="(ew,index) in editorWidths"
+        :key="index"
+        type="button"
+        :class="['btn',editModeWidth==ew?'btn-secondary':'btn-light']"
+        @click="putEditModeWidth(ew)"
+      >{{ew}}</button>
+    </div>
+    <form @submit.stop.prevent="handleSubmit" autocomplete="off">
+      <!--正文-->
+      <tinymce
+        ref="tinymceNews"
+        @refreshScroll="refreshScroll"
+        @reloadScroll="reloadScroll"
+        :initial="page.content"
+        :editorWidth="editModeWidth"
+        :scollMinTop="54"
+        :scorllTopLength="scorllTopLength"
+        :height="600"
+      ></tinymce>
+      <p class="m-3">
+        <button class="btn btn-primary py-2 px-5" type="submit">提交</button>
+      </p>
+    </form>
+  </section>
 </template>
 <script>
 import swal from 'sweetalert'
@@ -85,7 +84,7 @@ export default {
             this.page.content = this.$refs.tinymceNews.getVal()
             this.$validator.validateAll().then(async result => {
                 if (result) {
-                    this.$http.put(this.updateUrl, this.page)
+                    this.$http.put(this.updateUrl, this.page).then(() => swal('操作成功!', '', 'success'))
                 }
             })
         },
@@ -104,7 +103,6 @@ export default {
         // 开发调试
         this.$nextTick(() => {
             this.$refs.tinymceNews.init()
-            this.$emit('reloadScroll')
         })
     },
     beforeDestroy: function() {

@@ -1,62 +1,62 @@
 <template>
-    <section class="container-fluid">
-        <p class="lead">
-            <i class="far fa-copy text-primary mr-1"></i>
-            {{contentTitle}}
-        </p>
-        <div class="mr-3">
-            <b-alert show dismissible>
-                <b>Info:</b> 将鼠标移动到节点上，即可编辑，删除，以及增加子节点。根节点不可删除，兄弟节点不可重名。
-            </b-alert>
-        </div>
-        <section class="tankTree">
-            <context-menu id="context-menu" ref="ctxMenu" @ctx-open="onCtxOpen">
-                <li @contextmenu.prevent @click="edit">
-                    <i class="fas color-primary fa-pencil-alt mr-1"></i>
-                    编辑
-                </li>
-                <li @contextmenu.prevent @click="add">
-                    <i class="fas color-success fa-plus mr-1"></i>
-                    扩展
-                </li>
-                <li @contextmenu.prevent @click="del" v-if="currentLayer>0">
-                    <i class="fas color-danger fa-minus mr-1"></i>
-                    删除
-                </li>
-            </context-menu>
-            <nested-draggable
-                :dragging="dragging"
-                :dragUrl="dragUrl"
-                :children="organizationList"
-                :parentId="0"
-                @onDrag="onDrag"
-                @ctxMenuOpen="ctxMenuOpen"
-            />
-        </section>
-        <!--弹出修改层-->
-        <b-modal
-            id="modalPrevent"
-            ref="modal"
-            :title="modalName"
-            :ok-title="'确认'"
-            :cancel-title="'取消'"
-            @ok="handleOk"
-            @shown="modalOpen"
-            @hidden="clearName"
-        >
-            <form autocomplete="off" @submit.stop.prevent="handleOk">
-                <b-input-group size="sm" prepend="节点显示名" class="mb-3">
-                    <b-form-input
-                        ref="modalInput"
-                        name="节点显示名"
-                        :state="hasError(module.displayName,'节点显示名')"
-                        v-validate="'required'"
-                        v-model="module.displayName"
-                    ></b-form-input>
-                </b-input-group>
-            </form>
-        </b-modal>
+  <section class="container-fluid">
+    <p class="lead">
+      <i class="far fa-copy text-primary mr-1"></i>
+      {{contentTitle}}
+    </p>
+    <div class="mr-3">
+      <b-alert show dismissible>
+        <b>Info:</b> 将鼠标移动到节点上，即可编辑，删除，以及增加子节点。根节点不可删除，兄弟节点不可重名。
+      </b-alert>
+    </div>
+    <section class="tankTree">
+      <context-menu id="context-menu" ref="ctxMenu" @ctx-open="onCtxOpen">
+        <li @contextmenu.prevent @click="edit">
+          <i class="fas color-primary fa-pencil-alt mr-1"></i>
+          编辑
+        </li>
+        <li @contextmenu.prevent @click="add">
+          <i class="fas color-success fa-plus mr-1"></i>
+          扩展
+        </li>
+        <li @contextmenu.prevent @click="del" v-if="currentLayer>0">
+          <i class="fas color-danger fa-minus mr-1"></i>
+          删除
+        </li>
+      </context-menu>
+      <nested-draggable
+        :dragging="dragging"
+        :dragUrl="dragUrl"
+        :children="organizationList"
+        :parentId="0"
+        @onDrag="onDrag"
+        @ctxMenuOpen="ctxMenuOpen"
+      />
     </section>
+    <!--弹出修改层-->
+    <b-modal
+      id="modalPrevent"
+      ref="modal"
+      :title="modalName"
+      :ok-title="'确认'"
+      :cancel-title="'取消'"
+      @ok="handleOk"
+      @shown="modalOpen"
+      @hidden="clearName"
+    >
+      <form autocomplete="off" @submit.stop.prevent="handleOk">
+        <b-input-group size="sm" prepend="节点显示名" class="mb-3">
+          <b-form-input
+            ref="modalInput"
+            name="节点显示名"
+            :state="hasError(module.displayName,'节点显示名')"
+            v-validate="'required'"
+            v-model="module.displayName"
+          ></b-form-input>
+        </b-input-group>
+      </form>
+    </b-modal>
+  </section>
 </template>
 <script>
 import swal from 'sweetalert'
@@ -170,10 +170,6 @@ export default {
     },
     created: function() {
         this.load()
-    },
-    mounted() {
-        // 开发调试
-        this.$nextTick(() => this.$emit('reloadScroll'))
     }
 }
 </script> 

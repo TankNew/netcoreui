@@ -1,254 +1,216 @@
 <template>
-    <section class="container-fluid">
-        <p class="lead">
-            <i class="far fa-images text-primary mr-1"></i>
-            {{contentTitle}}
-        </p>
-        <div v-if="!editMode">
-            <div class="mr-3">
-                <b-alert show dismissible>
-                    <b>Info:</b> 每个模块节点默认继承root节点的海报，您当然也可以自定义每个模块节点海报，只要您将鼠标移动到这个节点选择功能按钮。
-                </b-alert>
-            </div>
-            <section class="tankBannerTree">
-                <nested-banner
-                    :dragging="true"
-                    :children="pages"
-                    :parentId="0"
-                    @add="add"
-                    @del="del"
-                    @edit="edit"
-                />
-            </section>
+  <section class="container-fluid">
+    <p class="lead">
+      <i class="far fa-images text-primary mr-1"></i>
+      {{contentTitle}}
+    </p>
+    <div v-if="!editMode">
+      <div class="mr-3">
+        <b-alert show dismissible>
+          <b>Info:</b> 每个模块节点默认继承root节点的海报，您当然也可以自定义每个模块节点海报，只要您将鼠标移动到这个节点选择功能按钮。
+        </b-alert>
+      </div>
+      <section class="tankBannerTree">
+        <nested-banner
+          :dragging="true"
+          :children="pages"
+          :parentId="0"
+          @add="add"
+          @del="del"
+          @edit="edit"
+        />
+      </section>
+    </div>
+    <section v-else>
+      <file
+        :fileShow="fileShow"
+        :fileCallBack="fileCallBack"
+        @fileClose="fileClose"
+      ></file>
+      <div class="alert alert-success" role="alert">
+        <i class="far fa-bell mx-1"></i>
+        您当前正处于{{editModeTitle}}模式
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm mx-1 float-right"
+          @click="outEditMode"
+        >退出{{editModeTitle}}模式</button>
+      </div>
+      <div class="row">
+        <div class="col-8">
+          <b-carousel
+            id="myCarousel"
+            ref="myCarousel"
+            style="text-shadow: 1px 1px 2px #333;"
+            controls
+            indicators
+            background="#ababab"
+            :interval="0"
+            :img-width="currentPageSize.Width"
+            :img-height="currentPageSize.Height"
+            v-model="slide"
+            @sliding-start="onSlideStart"
+            @sliding-end="onSlideEnd"
+          >
+            <b-carousel-slide
+              v-if="currentBanner.imgUrl"
+              v-for="(item, index) in currentPage.bannerImgs"
+              :key="index"
+              :img-src="getImgUrl(item.imgUrl)"
+            >
+              <div :class="currentFontPosition">
+                <h2 class>{{item.title}}</h2>
+                <p class>{{item.subTitle}}</p>
+              </div>
+            </b-carousel-slide>
+            <b-carousel-slide v-else img-blank img-alt="Blank image">
+              <div :class="currentFontPosition">
+                <h2>添加海报</h2>
+                <p>请从右侧工具面板添加新的海报。</p>
+              </div>
+            </b-carousel-slide>
+          </b-carousel>
         </div>
-        <section v-else>
-            <file
-                :fileShow="fileShow"
-                :fileCallBack="fileCallBack"
-                @fileClose="fileClose"
-            ></file>
-            <div class="alert alert-success" role="alert">
-                <i class="far fa-bell mx-1"></i>
-                您当前正处于{{editModeTitle}}模式
-                <button
-                    type="button"
-                    class="btn btn-secondary btn-sm mx-1 float-right"
-                    @click="outEditMode"
-                >退出{{editModeTitle}}模式</button>
-            </div>
-            <div class="row">
-                <div class="col-8">
-                    <b-carousel
-                        id="myCarousel"
-                        ref="myCarousel"
-                        style="text-shadow: 1px 1px 2px #333;"
-                        controls
-                        indicators
-                        background="#ababab"
-                        :interval="0"
-                        :img-width="currentPageSize.Width"
-                        :img-height="currentPageSize.Height"
-                        v-model="slide"
-                        @sliding-start="onSlideStart"
-                        @sliding-end="onSlideEnd"
-                    >
-                        <b-carousel-slide
-                            v-if="currentBanner.imgUrl"
-                            v-for="(item, index) in currentPage.bannerImgs"
-                            :key="index"
-                            :img-src="getImgUrl(item.imgUrl)"
-                        >
-                            <div :class="currentFontPosition">
-                                <h2 class>{{item.title}}</h2>
-                                <p class>{{item.subTitle}}</p>
-                            </div>
-                        </b-carousel-slide>
-                        <b-carousel-slide
-                            v-else
-                            img-blank
-                            img-alt="Blank image"
-                        >
-                            <div :class="currentFontPosition">
-                                <h2>添加海报</h2>
-                                <p>请从右侧工具面板添加新的海报。</p>
-                            </div>
-                        </b-carousel-slide>
-                    </b-carousel>
-                </div>
-                <div class="col-4 banner-tools py-3">
-                    <p class="lead py-2 border-bottom">
-                        <i class="fas fa-wrench mr-1 text-info"></i>
-                        <small>《{{currentPage.displayName}}》</small>
-                    </p>
-                    <b-form @submit.prevent="onSubmit" autocomplete="off">
-                        <b-form-group>
-                            <b-input-group>
-                                <b-input-group-prepend>
-                                    <b-button
-                                        size="sm"
-                                        variant="outline-info"
-                                    >建议宽度</b-button>
-                                </b-input-group-prepend>
-                                <b-form-input
-                                    id="nestedStreet"
-                                    v-model="currentPageSize.Width"
-                                    size="sm"
-                                    disabled
-                                ></b-form-input>
-                                <b-input-group-append>
-                                    <b-btn size="sm" variant="outline-info">PX</b-btn>
-                                </b-input-group-append>
-                            </b-input-group>
-                        </b-form-group>
-                        <b-form-group>
-                            <b-input-group>
-                                <b-input-group-prepend>
-                                    <b-button
-                                        size="sm"
-                                        variant="outline-info"
-                                    >建议高度</b-button>
-                                </b-input-group-prepend>
+        <div class="col-4 banner-tools py-3">
+          <p class="lead py-2 border-bottom">
+            <i class="fas fa-wrench mr-1 text-info"></i>
+            <small>《{{currentPage.displayName}}》</small>
+          </p>
+          <b-form @submit.prevent="onSubmit" autocomplete="off">
+            <b-form-group>
+              <b-input-group>
+                <b-input-group-prepend>
+                  <b-button size="sm" variant="outline-info">建议宽度</b-button>
+                </b-input-group-prepend>
+                <b-form-input
+                  id="nestedStreet"
+                  v-model="currentPageSize.Width"
+                  size="sm"
+                  disabled
+                ></b-form-input>
+                <b-input-group-append>
+                  <b-btn size="sm" variant="outline-info">PX</b-btn>
+                </b-input-group-append>
+              </b-input-group>
+            </b-form-group>
+            <b-form-group>
+              <b-input-group>
+                <b-input-group-prepend>
+                  <b-button size="sm" variant="outline-info">建议高度</b-button>
+                </b-input-group-prepend>
 
-                                <b-form-input
-                                    id="nestedCity"
-                                    v-model="currentPageSize.Height"
-                                    size="sm"
-                                    disabled
-                                ></b-form-input>
-                                <b-input-group-append>
-                                    <b-btn size="sm" variant="outline-info">PX</b-btn>
-                                </b-input-group-append>
-                            </b-input-group>
-                        </b-form-group>
-                        <hr class="border-light" />
-                        <b-form-group>
-                            <b-input-group>
-                                <b-input-group-prepend>
-                                    <b-button
-                                        size="sm"
-                                        variant="outline-info"
-                                    >图片</b-button>
-                                </b-input-group-prepend>
-                                <b-form-input
-                                    placeholder="imgUrl"
-                                    size="sm"
-                                    name="图片"
-                                    v-model="currentBanner.imgUrl"
-                                    :state="!errors.has('图片') "
-                                    v-validate="'required'"
-                                ></b-form-input>
-                                <b-input-group-append>
-                                    <b-btn
-                                        size="sm"
-                                        variant="primary"
-                                        @click="attachOpen"
-                                    >选择</b-btn>
-                                </b-input-group-append>
-                            </b-input-group>
-                        </b-form-group>
-                        <b-form-group>
-                            <b-input-group>
-                                <b-input-group-prepend>
-                                    <b-button
-                                        size="sm"
-                                        variant="outline-info"
-                                    >标题</b-button>
-                                </b-input-group-prepend>
-                                <b-form-input
-                                    id="nestedState"
-                                    v-model="currentBanner.title"
-                                    size="sm"
-                                    placeholder="可选"
-                                ></b-form-input>
-                            </b-input-group>
-                        </b-form-group>
-                        <b-form-group>
-                            <b-input-group>
-                                <b-input-group-prepend>
-                                    <b-button
-                                        size="sm"
-                                        variant="outline-info"
-                                    >副标题</b-button>
-                                </b-input-group-prepend>
-                                <b-form-textarea
-                                    v-model="currentBanner.subTitle"
-                                    :rows="3"
-                                    size="sm"
-                                    :max-rows="6"
-                                    placeholder="可选"
-                                ></b-form-textarea>
-                            </b-input-group>
-                        </b-form-group>
-                        <hr class="border-light" />
-                        <b-form-group>
-                            <b-input-group>
-                                <b-input-group-prepend>
-                                    <b-button
-                                        size="sm"
-                                        variant="outline-info"
-                                    >水平</b-button>
-                                </b-input-group-prepend>
-                                <b-form-radio-group
-                                    size="sm"
-                                    :options="['left', 'center', 'right']"
-                                    v-model="currentBanner.titleAlign"
-                                    class="ml-3"
-                                />
-                            </b-input-group>
-                        </b-form-group>
-                        <b-form-group>
-                            <b-input-group>
-                                <b-input-group-prepend>
-                                    <b-button
-                                        size="sm"
-                                        variant="outline-info"
-                                    >垂直</b-button>
-                                </b-input-group-prepend>
-                                <b-form-radio-group
-                                    size="sm"
-                                    :options="['top', 'middle', 'bottom']"
-                                    v-model="currentBanner.titleVertical"
-                                    class="ml-3"
-                                />
-                            </b-input-group>
-                        </b-form-group>
-                        <hr class="border-light" />
-                        <b-button-toolbar
-                            aria-label="Toolbar with button groups and dropdown menu"
-                            class="my-3"
-                            style="justify-content:center;"
-                        >
-                            <b-button-group class="mx-1 mb-1" size="sm">
-                                <b-btn
-                                    variant="success"
-                                    @click="newImgToPage"
-                                >新增</b-btn>
-                                <b-btn
-                                    variant="warning"
-                                    @click="deleteImgFromPage"
-                                >删除</b-btn>
-                            </b-button-group>
-                            <b-input-group size="sm" class="w-25 mx-1 mb-1">
-                                <b-form-select v-model="slide">
-                                    <option
-                                        v-for="(item,index) in currentPage.bannerImgs"
-                                        :key="index"
-                                        :value="index"
-                                    >第{{index+1}}张</option>
-                                </b-form-select>
-                            </b-input-group>
-                            <b-button-group class="mx-1 mb-1" size="sm">
-                                <b-btn
-                                    variant="primary"
-                                    @click="saveImgToPage"
-                                >保存</b-btn>
-                            </b-button-group>
-                        </b-button-toolbar>
-                    </b-form>
-                </div>
-            </div>
-        </section>
+                <b-form-input
+                  id="nestedCity"
+                  v-model="currentPageSize.Height"
+                  size="sm"
+                  disabled
+                ></b-form-input>
+                <b-input-group-append>
+                  <b-btn size="sm" variant="outline-info">PX</b-btn>
+                </b-input-group-append>
+              </b-input-group>
+            </b-form-group>
+            <hr class="border-light" />
+            <b-form-group>
+              <b-input-group>
+                <b-input-group-prepend>
+                  <b-button size="sm" variant="outline-info">图片</b-button>
+                </b-input-group-prepend>
+                <b-form-input
+                  placeholder="imgUrl"
+                  size="sm"
+                  name="图片"
+                  v-model="currentBanner.imgUrl"
+                  :state="!errors.has('图片') "
+                  v-validate="'required'"
+                ></b-form-input>
+                <b-input-group-append>
+                  <b-btn size="sm" variant="primary" @click="attachOpen">选择</b-btn>
+                </b-input-group-append>
+              </b-input-group>
+            </b-form-group>
+            <b-form-group>
+              <b-input-group>
+                <b-input-group-prepend>
+                  <b-button size="sm" variant="outline-info">标题</b-button>
+                </b-input-group-prepend>
+                <b-form-input
+                  id="nestedState"
+                  v-model="currentBanner.title"
+                  size="sm"
+                  placeholder="可选"
+                ></b-form-input>
+              </b-input-group>
+            </b-form-group>
+            <b-form-group>
+              <b-input-group>
+                <b-input-group-prepend>
+                  <b-button size="sm" variant="outline-info">副标题</b-button>
+                </b-input-group-prepend>
+                <b-form-textarea
+                  v-model="currentBanner.subTitle"
+                  :rows="3"
+                  size="sm"
+                  :max-rows="6"
+                  placeholder="可选"
+                ></b-form-textarea>
+              </b-input-group>
+            </b-form-group>
+            <hr class="border-light" />
+            <b-form-group>
+              <b-input-group>
+                <b-input-group-prepend>
+                  <b-button size="sm" variant="outline-info">水平</b-button>
+                </b-input-group-prepend>
+                <b-form-radio-group
+                  size="sm"
+                  :options="['left', 'center', 'right']"
+                  v-model="currentBanner.titleAlign"
+                  class="ml-3"
+                />
+              </b-input-group>
+            </b-form-group>
+            <b-form-group>
+              <b-input-group>
+                <b-input-group-prepend>
+                  <b-button size="sm" variant="outline-info">垂直</b-button>
+                </b-input-group-prepend>
+                <b-form-radio-group
+                  size="sm"
+                  :options="['top', 'middle', 'bottom']"
+                  v-model="currentBanner.titleVertical"
+                  class="ml-3"
+                />
+              </b-input-group>
+            </b-form-group>
+            <hr class="border-light" />
+            <b-button-toolbar
+              aria-label="Toolbar with button groups and dropdown menu"
+              class="my-3"
+              style="justify-content:center;"
+            >
+              <b-button-group class="mx-1 mb-1" size="sm">
+                <b-btn variant="success" @click="newImgToPage">新增</b-btn>
+                <b-btn variant="warning" @click="deleteImgFromPage">删除</b-btn>
+              </b-button-group>
+              <b-input-group size="sm" class="w-25 mx-1 mb-1">
+                <b-form-select v-model="slide">
+                  <option
+                    v-for="(item,index) in currentPage.bannerImgs"
+                    :key="index"
+                    :value="index"
+                  >第{{index+1}}张</option>
+                </b-form-select>
+              </b-input-group>
+              <b-button-group class="mx-1 mb-1" size="sm">
+                <b-btn variant="primary" @click="saveImgToPage">保存</b-btn>
+              </b-button-group>
+            </b-button-toolbar>
+          </b-form>
+        </div>
+      </div>
     </section>
+  </section>
 </template>
 <script>
 import file from '@/components/custom/tankFiler'
@@ -386,6 +348,7 @@ export default {
                     if (res.data.success) {
                         let json = res.data.result
                         this.currentPage = json
+                        swal('操作成功!', '', 'success')
                     }
                 })
             } else {
@@ -396,7 +359,6 @@ export default {
                 })
             }
         },
-
         getImgUrl(val) {
             if (val) return AppConsts.remoteServiceBaseUrl + val
             else return null
@@ -501,12 +463,6 @@ export default {
     created() {
         var that = this
         this.loadNavbar()
-    },
-    mounted() {
-        // 开发调试
-        this.$nextTick(() => {
-            this.$emit('reloadScroll')
-        })
     },
     destroyed() {
         this.afterpopstate()

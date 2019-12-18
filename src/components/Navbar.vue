@@ -1,216 +1,213 @@
 <template>
-    <section class="container-fluid">
-        <p class="lead">
-            <i class="far fa-copy text-primary mr-1"></i>
-            {{contentTitle}}
-        </p>
-        <div class="mr-3">
-            <b-alert show dismissible>
-                <b>Info:</b> 将鼠标移动到节点上，即可编辑，删除，以及增加子节点。根节点不可删除，兄弟节点不可重名。
-            </b-alert>
-        </div>
-        <section class="tankTree" @contextmenu.prevent>
-            <context-menu id="context-menu" ref="ctxMenu" @ctx-open="onCtxOpen">
-                <li @contextmenu.prevent @click="edit">
-                    <i class="fas color-primary fa-pencil-alt mr-1"></i>
-                    编辑
-                </li>
-                <li @contextmenu.prevent @click="bind">
-                    <i class="fas color-Purple fa-link mr-1"></i>
-                    绑定
-                </li>
-                <li @contextmenu.prevent @click="add" v-if="currentLayer<3">
-                    <i class="fas color-success fa-plus mr-1"></i>
-                    扩展
-                </li>
-                <li
-                    @contextmenu.prevent
-                    @click="expandNavbar"
-                    v-if="currentLayer<3 && currentNavbar.navbarType===2"
-                    style="width:140px;"
-                >
-                    <i class="fas color-success fa-exchange-alt mr-1"></i>
-                    自动扩展
-                </li>
-                <li @contextmenu.prevent @click="del" v-if="currentLayer>0">
-                    <i class="fas color-danger fa-minus mr-1"></i>
-                    删除
-                </li>
-            </context-menu>
-            <nested-draggable
-                :dragging="dragging"
-                :dragUrl="dragUrl"
-                :children="navbarList"
-                :parentId="0"
-                :hasbind="true"
-                @onDrag="onDrag"
-                @ctxMenuOpen="ctxMenuOpen"
-            />
-        </section>
-        <!--弹出修改层-->
-        <b-modal
-            id="modalPrevent"
-            ref="modal"
-            :title="modalName"
-            :ok-title="'确认'"
-            :cancel-title="'取消'"
-            @ok="handleOk"
-            @shown="modalOpen"
-            @hidden="modalClose"
+  <section class="container-fluid">
+    <p class="lead">
+      <i class="far fa-copy text-primary mr-1"></i>
+      {{contentTitle}}
+    </p>
+    <div class="mr-3">
+      <b-alert show dismissible>
+        <b>Info:</b> 将鼠标移动到节点上，即可编辑，删除，以及增加子节点。根节点不可删除，兄弟节点不可重名。
+      </b-alert>
+    </div>
+    <section class="tankTree" @contextmenu.prevent>
+      <context-menu id="context-menu" ref="ctxMenu" @ctx-open="onCtxOpen">
+        <li @contextmenu.prevent @click="edit">
+          <i class="fas color-primary fa-pencil-alt mr-1"></i>
+          编辑
+        </li>
+        <li @contextmenu.prevent @click="bind" v-if="currentLayer>0">
+          <i class="fas color-Purple fa-link mr-1"></i>
+          绑定
+        </li>
+        <li @contextmenu.prevent @click="add" v-if="currentLayer<3">
+          <i class="fas color-success fa-plus mr-1"></i>
+          扩展
+        </li>
+        <li
+          @contextmenu.prevent
+          @click="expandNavbar"
+          v-if="currentLayer<3 && currentNavbar.navbarType===2"
+          style="width:140px;"
         >
-            <form autocomplete="off" @submit.stop.prevent="handleOk">
-                <b-input-group size="sm" prepend="节点显示名" class="mb-3">
-                    <b-form-input
-                        ref="modalInput"
-                        name="节点显示名"
-                        :state="!errors.has('节点显示名')"
-                        v-validate="'required'"
-                        v-model="module.displayName"
-                    ></b-form-input>
-                </b-input-group>
-            </form>
-        </b-modal>
-        <!-- 弹出绑定层 -->
-        <b-modal
-            ref="bindModal"
-            size="lg"
-            scrollable
-            :ok-title="'确认'"
-            @hidden="modalClose"
-        >
-            <template v-slot:modal-header="{ close }">
-                <!-- Emulate built in modal header close button action -->
-                <h5>
-                    <i class="fas fa-columns text-info mr-1"></i>
-                    导航绑定
-                </h5>
-                <div>
-                    <b-form-checkbox
-                        switch
-                        @change="switchActive(module)"
-                        v-model="module.isActive"
-                        size="lg"
-                    >启用</b-form-checkbox>
-                </div>
-            </template>
-            <section>
-                <div class="border-list">
-                    <section>
-                        <p class="lead">[{{module.displayName}}]的属性</p>
-                        <b-alert show dismissible>
-                            <b>Info:</b> 单击模块可展开（如果有子项），双击即可绑定到导航哦
-                        </b-alert>
-                        <p class="center">
-                            <b-button-group>
-                                <b-button
-                                    class="px-5"
-                                    @click="bindMenu"
-                                    :variant="module.navbarType === 0?'warning':''"
-                                >菜单</b-button>
-                                <b-button
-                                    class="px-5"
-                                    :variant="module.navbarType !== 0&&module.navbarType !== 4?'info':''"
-                                >模块</b-button>
-                                <b-button
-                                    class="px-5"
-                                    @click="module.navbarType=4"
-                                    :variant="module.navbarType === 4?'success':''"
-                                >链接</b-button>
-                            </b-button-group>
-                        </p>
-                        <b-input-group prepend="链接" class="mt-3">
-                            <b-form-input
-                                v-model="module.url"
-                                :disabled="module.navbarType !== 4"
-                                :placeholder="module.navbarType === 4?'http://www.ednet.cn':'选择模块将自动生成链接地址'"
-                            ></b-form-input>
-                            <b-input-group-append>
-                                <b-button @click="bindUrl" variant="info">绑定</b-button>
-                            </b-input-group-append>
-                        </b-input-group>
-                        <hr />
-                        <ul>
-                            <li
-                                v-for="(item,index) in webStaticModules"
-                                :key="index"
-                                @click="ChooseModule(item,item.id,1)"
-                                @dblclick="bindModule(item,item.id,1)"
-                            >
-                                <div
-                                    :class="module.navbarType===1&&item.url==module.url?'active':''"
-                                >
-                                    <span>
-                                        <i class="fas fa-cube"></i>
-                                        {{item.displayName}}
-                                    </span>
-                                </div>
-                            </li>
-                        </ul>
-                        <hr />
-                        <ul>
-                            <li
-                                v-for="(item,index) in webPageModules"
-                                :key="index"
-                                @click="ChooseModule(item,item.id,3)"
-                                @dblclick="bindModule(item,item.id,3)"
-                            >
-                                <div
-                                    :class="currentNavbar.navbarType===3&&item.id==currentNavbar.pageId?'active':''"
-                                >
-                                    <span>
-                                        <i class="fas fa-cube"></i>
-                                        {{item.displayName}}
-                                    </span>
-                                </div>
-                            </li>
-                        </ul>
-                        <hr />
-                        <ul class="ul-has-sub">
-                            <li
-                                v-for="(item,index) in webCustomModules"
-                                :key="index"
-                            >
-                                <div
-                                    :class="currentNavbar.navbarType===2&&item.id==currentNavbar.catalogGroupId?'active':''"
-                                    @click="ChooseModule(item,item.id,2)"
-                                    @dblclick="bindModule(item,item.id,2)"
-                                >
-                                    <span>
-                                        <i class="fas fa-cube"></i>
-                                        {{item.displayName}}
-                                    </span>
-                                </div>
-                                <span
-                                    v-if="(item.id==currentModule.id ||
-                                     (module.navbarType===2&&module.catalogGroup&&module.catalogGroup.code.indexOf(item.code)>-1))
-                                     &&item.children.length>0"
-                                    class="o-line-down"
-                                ></span>
-                                <ul
-                                    class="sub-list mt-3"
-                                    v-if="(item.id==currentModule.id ||
-                                     (module.navbarType===2&&module.catalogGroup&&module.catalogGroup.code.indexOf(item.code)>-1))
-                                     &&item.children.length>0"
-                                >
-                                    <li v-for="(s,i) in item.children" :key="i">
-                                        <div
-                                            :class="currentNavbar.navbarType===2&&s.id==currentNavbar.catalogGroupId?'active':''"
-                                            @dblclick="bindModule(s,s.id,2)"
-                                        >
-                                            <span>{{s.displayName}}</span>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </section>
-                </div>
-            </section>
-            <template v-slot:modal-footer="{ ok, cancel, hide }">
-                <b-button variant="primary" @click="ok()">确认</b-button>
-            </template>
-        </b-modal>
+          <i class="fas color-success fa-exchange-alt mr-1"></i>
+          自动扩展
+        </li>
+        <li @contextmenu.prevent @click="del" v-if="currentLayer>0">
+          <i class="fas color-danger fa-minus mr-1"></i>
+          删除
+        </li>
+      </context-menu>
+      <nested-draggable
+        :dragging="dragging"
+        :dragUrl="dragUrl"
+        :children="navbarList"
+        :parentId="0"
+        :hasbind="true"
+        @onDrag="onDrag"
+        @ctxMenuOpen="ctxMenuOpen"
+      />
     </section>
+    <!--弹出修改层-->
+    <b-modal
+      id="modalPrevent"
+      ref="modal"
+      :title="modalName"
+      :ok-title="'确认'"
+      :cancel-title="'取消'"
+      @ok="handleOk"
+      @shown="modalOpen"
+      @hidden="modalClose"
+    >
+      <form autocomplete="off" @submit.stop.prevent="handleOk">
+        <b-input-group size="sm" prepend="节点显示名" class="mb-3">
+          <b-form-input
+            ref="modalInput"
+            name="节点显示名"
+            :state="!errors.has('节点显示名')"
+            v-validate="'required'"
+            v-model="module.displayName"
+          ></b-form-input>
+        </b-input-group>
+      </form>
+    </b-modal>
+    <!-- 弹出绑定层 -->
+    <b-modal
+      ref="bindModal"
+      size="lg"
+      scrollable
+      :ok-title="'确认'"
+      @hidden="modalClose"
+    >
+      <template v-slot:modal-header="{ close }">
+        <!-- Emulate built in modal header close button action -->
+        <h5>
+          <i class="fas fa-columns text-info mr-1"></i>
+          导航绑定
+        </h5>
+        <div>
+          <b-form-checkbox
+            switch
+            @change="switchActive(module)"
+            v-model="module.isActive"
+            size="lg"
+          >启用</b-form-checkbox>
+        </div>
+      </template>
+      <section>
+        <div class="border-list">
+          <section>
+            <p class="lead">[{{module.displayName}}]的属性</p>
+            <b-alert show dismissible>
+              <b>Info:</b> 单击模块可展开（如果有子项），双击即可绑定到导航哦
+            </b-alert>
+            <p class="center">
+              <b-button-group>
+                <b-button
+                  class="px-5"
+                  @click="bindMenu"
+                  :variant="module.navbarType === 0?'warning':''"
+                >菜单</b-button>
+                <b-button
+                  class="px-5"
+                  :variant="module.navbarType !== 0&&module.navbarType !== 4?'info':''"
+                >模块</b-button>
+                <b-button
+                  class="px-5"
+                  @click="module.navbarType=4"
+                  :variant="module.navbarType === 4?'success':''"
+                >链接</b-button>
+              </b-button-group>
+            </p>
+            <b-input-group prepend="链接" class="mt-3">
+              <b-form-input
+                v-model="module.url"
+                :disabled="module.navbarType !== 4"
+                :placeholder="module.navbarType === 4?'http://www.ednet.cn':'选择模块将自动生成链接地址'"
+              ></b-form-input>
+              <b-input-group-append>
+                <b-button @click="bindUrl" variant="info">绑定</b-button>
+              </b-input-group-append>
+            </b-input-group>
+            <hr />
+            <ul>
+              <li
+                v-for="(item,index) in webStaticModules"
+                :key="index"
+                @click="ChooseModule(item,item.id,1)"
+                @dblclick="bindModule(item,item.id,1)"
+              >
+                <div
+                  :class="module.navbarType===1&&item.url==module.url?'active':''"
+                >
+                  <span>
+                    <i class="fas fa-cube"></i>
+                    {{item.displayName}}
+                  </span>
+                </div>
+              </li>
+            </ul>
+            <hr />
+            <ul>
+              <li
+                v-for="(item,index) in webPageModules"
+                :key="index"
+                @click="ChooseModule(item,item.id,3)"
+                @dblclick="bindModule(item,item.id,3)"
+              >
+                <div
+                  :class="currentNavbar.navbarType===3&&item.id==currentNavbar.pageId?'active':''"
+                >
+                  <span>
+                    <i class="fas fa-cube"></i>
+                    {{item.displayName}}
+                  </span>
+                </div>
+              </li>
+            </ul>
+            <hr />
+            <ul class="ul-has-sub">
+              <li v-for="(item,index) in webCustomModules" :key="index">
+                <div
+                  :class="currentNavbar.navbarType===2&&item.id==currentNavbar.catalogGroupId?'active':''"
+                  @click="ChooseModule(item,item.id,2)"
+                  @dblclick="bindModule(item,item.id,2)"
+                >
+                  <span>
+                    <i class="fas fa-cube"></i>
+                    {{item.displayName}}
+                  </span>
+                </div>
+                <span
+                  v-if="(item.id==currentModule.id ||
+                                     (module.navbarType===2&&module.catalogGroup&&module.catalogGroup.code.indexOf(item.code)>-1))
+                                     &&item.children.length>0"
+                  class="o-line-down"
+                ></span>
+                <ul
+                  class="sub-list mt-3"
+                  v-if="(item.id==currentModule.id ||
+                                     (module.navbarType===2&&module.catalogGroup&&module.catalogGroup.code.indexOf(item.code)>-1))
+                                     &&item.children.length>0"
+                >
+                  <li v-for="(s,i) in item.children" :key="i">
+                    <div
+                      :class="currentNavbar.navbarType===2&&s.id==currentNavbar.catalogGroupId?'active':''"
+                      @dblclick="bindModule(s,s.id,2)"
+                    >
+                      <span>{{s.displayName}}</span>
+                    </div>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+        </div>
+      </section>
+      <template v-slot:modal-footer="{ ok, cancel, hide }">
+        <b-button variant="primary" @click="ok()">确认</b-button>
+      </template>
+    </b-modal>
+  </section>
 </template>
 <script>
 import swal from 'sweetalert'
@@ -284,7 +281,7 @@ export default {
                                             parentId: this.currentNavbar.id,
                                             webModuleId: null,
                                             catalogGroupId: x.id,
-                                            url: '/Home/News/' + x.id
+                                            url: '/Main/News/' + x.id
                                         })
                                         .then(res => {
                                             if (res.data.success) this.load()
@@ -362,19 +359,19 @@ export default {
                     this.module.catalogGroupId = item.id
                     switch (item.catalogType) {
                         case 1:
-                            this.module.url = '/Home/News/' + item.id
+                            this.module.url = '/Main/News/' + item.id
                             break
                         case 2:
-                            this.module.url = '/Home/PhotoNews/' + item.id
+                            this.module.url = '/Main/PhotoNews/' + item.id
                             break
                         case 3:
-                            this.module.url = '/Home/Product/' + item.id
+                            this.module.url = '/Main/Product/' + item.id
                             break
                     }
                     break
                 case 3:
                     this.module.pageId = item.id
-                    this.module.url = '/Home/Page/' + item.id
+                    this.module.url = '/Main/Page/' + item.id
                     break
             }
             this.update()
@@ -443,10 +440,6 @@ export default {
     },
     created: function() {
         this.loadAll()
-    },
-    mounted() {
-        // 开发调试
-        this.$nextTick(() => this.$emit('reloadScroll'))
     }
 }
 </script> 

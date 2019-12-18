@@ -1,216 +1,216 @@
 <template>
-    <section class="container-fluid">
-        <p class="lead">
-            <i class="far fa-images text-primary mr-1"></i>
-            {{contentTitle}}
-        </p>
-        <b-alert show dismissible>
-            <b>Info:</b> 主页栏目会根据网站模板进行自动匹配，网站模板切换将在未来上线。
-        </b-alert>
-        <b-modal
-            ref="blockModal"
-            size="lg"
-            scrollable
-            :ok-title="'确认'"
-            :cancel-title="'取消'"
-            :title="blockModalName"
-            @ok="blockModalOk"
-            @hidden="blockModalHide"
+  <section class="container-fluid">
+    <p class="lead">
+      <i class="far fa-images text-primary mr-1"></i>
+      {{contentTitle}}
+    </p>
+    <b-alert show dismissible>
+      <b>Info:</b> 主页栏目会根据网站模板进行自动匹配，网站模板切换将在未来上线。
+    </b-alert>
+    <b-modal
+      ref="blockModal"
+      size="lg"
+      scrollable
+      :ok-title="'确认'"
+      :cancel-title="'取消'"
+      :title="blockModalName"
+      @ok="blockModalOk"
+      @hidden="blockModalHide"
+    >
+      <template v-slot:modal-header="{ close }">
+        <!-- Emulate built in modal header close button action -->
+        <h5>
+          <i class="fas fa-columns text-info mr-1"></i>
+          广告类栏目编辑
+        </h5>
+        <div>
+          <b-form-checkbox
+            switch
+            @change="currentBlock.isActive=!currentBlock.isActive"
+            v-model="currentBlock.isActive"
+          >启用</b-form-checkbox>
+        </div>
+      </template>
+      <section>
+        <file
+          :fileShow="attachShow"
+          :fileCallBack="attachCallBack"
+          @fileClose="attachClose"
+        ></file>
+        <div class="mb-3 center">
+          <div class="news-cover" @click="attachOpen">
+            <img :src="getPicture()" />
+          </div>
+        </div>
+        <b-form
+          @submit.stop.prevent="blockSubmit"
+          autocomplete="off"
+          data-vv-scope="form-picture"
         >
-            <template v-slot:modal-header="{ close }">
-                <!-- Emulate built in modal header close button action -->
-                <h5>
-                    <i class="fas fa-columns text-info mr-1"></i>
-                    广告类栏目编辑
-                </h5>
-                <div>
-                    <b-form-checkbox
-                        switch
-                        @change="currentBlock.isActive=!currentBlock.isActive"
-                        v-model="currentBlock.isActive"
-                    >启用</b-form-checkbox>
-                </div>
-            </template>
-            <section>
-                <file
-                    :fileShow="attachShow"
-                    :fileCallBack="attachCallBack"
-                    @fileClose="attachClose"
-                ></file>
-                <div class="mb-3 center">
-                    <div class="news-cover" @click="attachOpen">
-                        <img :src="getPicture()" />
-                    </div>
-                </div>
-                <b-form
-                    @submit.stop.prevent="blockSubmit"
-                    autocomplete="off"
-                    data-vv-scope="form-picture"
-                >
-                    <b-form-group
-                        label="图片地址:"
-                        label-for="p-img"
-                        description="选取图片库自动生成链接，或者手动填写外链."
-                    >
-                        <b-form-input
-                            id="p-img"
-                            type="text"
-                            v-model="currentBlock.img"
-                            name="图片地址"
-                            :state="!errors.has('form-picture.图片地址') "
-                            v-validate="'required'"
-                            placeholder="图片地址"
-                        ></b-form-input>
-                    </b-form-group>
-                    <b-form-group
-                        label="广告链接:"
-                        label-for="p-url"
-                        description="如果广告无链接，留空即可."
-                    >
-                        <b-form-input
-                            id="p-url"
-                            type="text"
-                            v-model="currentBlock.url"
-                            name="广告链接"
-                            placeholder="广告链接"
-                        ></b-form-input>
-                    </b-form-group>
-                    <b-form-group
-                        label="描述:"
-                        label-for="p-content"
-                        description="简单的文字描述，不允许换行以及链接."
-                    >
-                        <b-form-textarea
-                            id="p-content"
-                            v-model="currentBlock.text"
-                            placeholder="文字描述"
-                        ></b-form-textarea>
-                    </b-form-group>
-                </b-form>
-            </section>
-        </b-modal>
-        <b-modal
-            ref="groupModal"
-            size="lg"
-            scrollable
-            ok-only
-            :ok-title="'确认'"
-            title="选择栏目"
-            @hidden="groupModalHide"
-        >
-            <b-alert show dismissible>
-                <b>Info:</b> 请双击选择关联的栏目，或者双击《清除选择》以取消关联任何
-            </b-alert>
-            <section class="tree-item">
-                <ul>
-                    <tree-item
-                        v-for="(item,index) in treeData"
-                        :key="index"
-                        :item="item"
-                        :currentPageGroup="currentPageGroup"
-                        @catalogChoose="catalogChoose"
-                    ></tree-item>
-                    <li>
-                        <div @dblclick="catalogChoose(null)">
-                            <i class="fas fa-times-circle"></i>
-                            清除选择
-                        </div>
-                    </li>
-                </ul>
-            </section>
-        </b-modal>
-        <section class="home-page-setting">
-            <ul>
-                <li>
-                    <dl>
-                        <dt class="bg-warning">广告类栏目</dt>
-                        <dd
-                            :class="item.noActive?'notActive':'img'"
-                            v-for="(item,index) in blocks"
-                            :key="index"
-                            @click="openBlockModal(item,index,item.noActive)"
-                        >
-                            <i
-                                v-if="!item.noActive"
-                                class="fas fa-times fa-delete"
-                                @click.stop="blockDelete(item,index)"
-                            ></i>
-                            <span v-if="!item.noActive">
-                                <img :src="item.img" />
-                            </span>
-                            <span v-else>{{index+1}}</span>
-                        </dd>
-                    </dl>
-                </li>
-                <li>
-                    <dl>
-                        <dt class="bg-primary">文字类栏目</dt>
-                        <dd
-                            :class="item.noActive?'notActive':''"
-                            v-for="(item,index) in words"
-                            :key="index"
-                            @click="openGroupModal(item,index,item.noActive,1)"
-                        >
-                            <i
-                                v-if="!item.noActive"
-                                class="fas fa-times fa-delete"
-                                @click.stop="groupDelete(item)"
-                            ></i>
-                            <span v-if="!item.noActive">
-                                <i class="fas fa-check"></i>
-                                {{item.catalogGroup?item.catalogGroup.displayName:null}}
-                            </span>
-                            <span v-else>{{index+1}}</span>
-                        </dd>
-                    </dl>
-                </li>
-                <li>
-                    <dl>
-                        <dt class="bg-info">图片类栏目</dt>
-                        <dd
-                            :class="item.noActive?'notActive':''"
-                            v-for="(item,index) in pictures"
-                            :key="index"
-                            @click="openGroupModal(item,index,item.noActive,2)"
-                        >
-                            <i
-                                v-if="!item.noActive"
-                                class="fas fa-times fa-delete"
-                                @click.stop="groupDelete(item)"
-                            ></i>
-                            <span v-if="!item.noActive">
-                                <i class="fas fa-check"></i>
-                                {{item.catalogGroup?item.catalogGroup.displayName:null}}
-                            </span>
-                            <span v-else>{{index+1}}</span>
-                        </dd>
-                    </dl>
-                </li>
-                <li>
-                    <dl>
-                        <dt class="bg-success">产品类栏目</dt>
-                        <dd
-                            :class="item.noActive?'notActive':''"
-                            v-for="(item,index) in products"
-                            :key="index"
-                            @click="openGroupModal(item,index,item.noActive,3)"
-                        >
-                            <i
-                                v-if="!item.noActive"
-                                class="fas fa-times fa-delete"
-                                @click.stop="groupDelete(item)"
-                            ></i>
-                            <span v-if="!item.noActive">
-                                <i class="fas fa-check"></i>
-                                {{item.catalogGroup?item.catalogGroup.displayName:null}}
-                            </span>
-                            <span v-else>{{index+1}}</span>
-                        </dd>
-                    </dl>
-                </li>
-            </ul>
-        </section>
+          <b-form-group
+            label="图片地址:"
+            label-for="p-img"
+            description="选取图片库自动生成链接，或者手动填写外链."
+          >
+            <b-form-input
+              id="p-img"
+              type="text"
+              v-model="currentBlock.img"
+              name="图片地址"
+              :state="!errors.has('form-picture.图片地址') "
+              v-validate="'required'"
+              placeholder="图片地址"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group
+            label="广告链接:"
+            label-for="p-url"
+            description="如果广告无链接，留空即可."
+          >
+            <b-form-input
+              id="p-url"
+              type="text"
+              v-model="currentBlock.url"
+              name="广告链接"
+              placeholder="广告链接"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group
+            label="描述:"
+            label-for="p-content"
+            description="简单的文字描述，不允许换行以及链接."
+          >
+            <b-form-textarea
+              id="p-content"
+              v-model="currentBlock.text"
+              placeholder="文字描述"
+            ></b-form-textarea>
+          </b-form-group>
+        </b-form>
+      </section>
+    </b-modal>
+    <b-modal
+      ref="groupModal"
+      size="lg"
+      scrollable
+      ok-only
+      :ok-title="'确认'"
+      title="选择栏目"
+      @hidden="groupModalHide"
+    >
+      <b-alert show dismissible>
+        <b>Info:</b> 请双击选择关联的栏目，或者双击《清除选择》以取消关联任何
+      </b-alert>
+      <section class="tree-item">
+        <ul>
+          <tree-item
+            v-for="(item,index) in treeData"
+            :key="index"
+            :item="item"
+            :currentPageGroup="currentPageGroup"
+            @catalogChoose="catalogChoose"
+          ></tree-item>
+          <li>
+            <div @dblclick="catalogChoose(null)">
+              <i class="fas fa-times-circle"></i>
+              清除选择
+            </div>
+          </li>
+        </ul>
+      </section>
+    </b-modal>
+    <section class="home-page-setting">
+      <ul>
+        <li>
+          <dl>
+            <dt class="bg-warning">广告类栏目</dt>
+            <dd
+              :class="item.noActive?'notActive':'img'"
+              v-for="(item,index) in blocks"
+              :key="index"
+              @click="openBlockModal(item,index,item.noActive)"
+            >
+              <i
+                v-if="!item.noActive"
+                class="fas fa-times fa-delete"
+                @click.stop="blockDelete(item,index)"
+              ></i>
+              <span v-if="!item.noActive">
+                <img :src="item.img" />
+              </span>
+              <span v-else>{{index+1}}</span>
+            </dd>
+          </dl>
+        </li>
+        <li>
+          <dl>
+            <dt class="bg-primary">文字类栏目</dt>
+            <dd
+              :class="item.noActive?'notActive':''"
+              v-for="(item,index) in words"
+              :key="index"
+              @click="openGroupModal(item,index,item.noActive,1)"
+            >
+              <i
+                v-if="!item.noActive"
+                class="fas fa-times fa-delete"
+                @click.stop="groupDelete(item)"
+              ></i>
+              <span v-if="!item.noActive">
+                <i class="fas fa-check"></i>
+                {{item.catalogGroup?item.catalogGroup.displayName:null}}
+              </span>
+              <span v-else>{{index+1}}</span>
+            </dd>
+          </dl>
+        </li>
+        <li>
+          <dl>
+            <dt class="bg-info">图片类栏目</dt>
+            <dd
+              :class="item.noActive?'notActive':''"
+              v-for="(item,index) in pictures"
+              :key="index"
+              @click="openGroupModal(item,index,item.noActive,2)"
+            >
+              <i
+                v-if="!item.noActive"
+                class="fas fa-times fa-delete"
+                @click.stop="groupDelete(item)"
+              ></i>
+              <span v-if="!item.noActive">
+                <i class="fas fa-check"></i>
+                {{item.catalogGroup?item.catalogGroup.displayName:null}}
+              </span>
+              <span v-else>{{index+1}}</span>
+            </dd>
+          </dl>
+        </li>
+        <li>
+          <dl>
+            <dt class="bg-success">产品类栏目</dt>
+            <dd
+              :class="item.noActive?'notActive':''"
+              v-for="(item,index) in products"
+              :key="index"
+              @click="openGroupModal(item,index,item.noActive,3)"
+            >
+              <i
+                v-if="!item.noActive"
+                class="fas fa-times fa-delete"
+                @click.stop="groupDelete(item)"
+              ></i>
+              <span v-if="!item.noActive">
+                <i class="fas fa-check"></i>
+                {{item.catalogGroup?item.catalogGroup.displayName:null}}
+              </span>
+              <span v-else>{{index+1}}</span>
+            </dd>
+          </dl>
+        </li>
+      </ul>
     </section>
+  </section>
 </template>
 <script>
 import swal from 'sweetalert'
@@ -408,12 +408,6 @@ export default {
     },
     created() {
         this.load()
-    },
-    mounted() {
-        // 开发调试
-        this.$nextTick(() => {
-            this.$emit('reloadScroll')
-        })
     }
 }
 </script>

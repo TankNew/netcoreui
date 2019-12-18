@@ -60,10 +60,7 @@
                     class="text_with_1px_border float-left ml-3 color-Purple font-weight-bold"
                 >{{element.displayName}}</span>
             </a>
-            <div
-                class="o-line-down"
-                v-if="element.isMenu&&element.children.length>0"
-            ></div>
+            <div class="o-line-down" v-if="element.children.length>0"></div>
             <nested-banner
                 :dragging="dragging"
                 :children="element.children"

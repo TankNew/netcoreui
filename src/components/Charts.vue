@@ -158,12 +158,7 @@ export default {
     }
   },
   mounted() {
-    var that = this
     this.fillData()
-    // 开发调试
-    that.$nextTick(() => {
-      that.$emit('reloadScroll')
-    })
   },
   methods: {
     fillData() {

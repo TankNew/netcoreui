@@ -1,18 +1,18 @@
 <template>
-    <section class="container-fluid">
-        <tinymce
-            ref="tinymce"
-            @refreshScroll="refreshScroll"
-            @reloadScroll="reloadScroll"
-            :editorTop="70"
-            :editorWidth="800"
-            :scorllTopLength="scorllTopLength"
-        ></tinymce>
-        <div class="mt-3">
-            <button type="button" class="btn btn-success" @click="getContent">获取</button>
-            <button type="button" class="btn btn-success" @click="setContent">设置</button>
-        </div>
-    </section>
+  <section class="container-fluid">
+    <tinymce
+      ref="tinymce"
+      @refreshScroll="refreshScroll"
+      @reloadScroll="reloadScroll"
+      :editorTop="70"
+      :editorWidth="800"
+      :scorllTopLength="scorllTopLength"
+    ></tinymce>
+    <div class="mt-3">
+      <button type="button" class="btn btn-success" @click="getContent">获取</button>
+      <button type="button" class="btn btn-success" @click="setContent">设置</button>
+    </div>
+  </section>
 </template>
 <script>
 import tinymce from '@/components/custom/tinymce'
@@ -41,6 +41,9 @@ export default {
     created() {},
     mounted() {
         this.$nextTick(() => this.$refs.tinymce.init())
+    },
+    beforeDestroy: function() {
+        this.$refs.tinymce.destroy()
     }
 }
 </script>
