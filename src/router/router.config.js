@@ -173,7 +173,7 @@ router.beforeEach(async (to, from, next) => {
             })
         }
 
-        if ((!!to.meta.permission && window.abp.auth.hasPermission(to.meta.permission)) || !!!to.meta.permission) {
+        if ((!!to.meta.permission && window.abp.auth.hasPermission(to.meta.permission)) || !to.meta.permission) {
             next()
         } else {
             swal({

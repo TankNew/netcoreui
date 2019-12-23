@@ -124,88 +124,124 @@
         <li>
           <dl>
             <dt class="bg-warning">广告类栏目</dt>
-            <dd
-              :class="item.noActive?'notActive':'img'"
-              v-for="(item,index) in blocks"
-              :key="index"
-              @click="openBlockModal(item,index,item.noActive)"
+            <draggable
+              :disabled="dragging"
+              v-model="blocks"
+              :animation="200"
+              :group="{ name: `blocks`}"
+              :ghost-class="'ghost'"
+              @change="handleChange"
             >
-              <i
-                v-if="!item.noActive"
-                class="fas fa-times fa-delete"
-                @click.stop="blockDelete(item,index)"
-              ></i>
-              <span v-if="!item.noActive">
-                <img :src="item.img" />
-              </span>
-              <span v-else>{{index+1}}</span>
-            </dd>
+              <dd
+                :class="item.noActive?'notActive':'img'"
+                v-for="(item,index) in blocks"
+                :key="index"
+                @click="openBlockModal(item,index,item.noActive)"
+              >
+                <i
+                  v-if="!item.noActive"
+                  class="fas fa-times fa-delete"
+                  @click.stop="blockDelete(item,index)"
+                ></i>
+                <span v-if="!item.noActive">
+                  <img :src="item.img" />
+                </span>
+                <span v-else>{{index+1}}</span>
+              </dd>
+            </draggable>
           </dl>
         </li>
         <li>
           <dl>
             <dt class="bg-primary">文字类栏目</dt>
-            <dd
-              :class="item.noActive?'notActive':''"
-              v-for="(item,index) in words"
-              :key="index"
-              @click="openGroupModal(item,index,item.noActive,1)"
+            <draggable
+              :disabled="dragging"
+              v-model="words"
+              :animation="200"
+              :group="{ name: `words`}"
+              :ghost-class="'ghost'"
+              @change="handleChange"
             >
-              <i
-                v-if="!item.noActive"
-                class="fas fa-times fa-delete"
-                @click.stop="groupDelete(item)"
-              ></i>
-              <span v-if="!item.noActive">
-                <i class="fas fa-check"></i>
-                {{item.catalogGroup?item.catalogGroup.displayName:null}}
-              </span>
-              <span v-else>{{index+1}}</span>
-            </dd>
+              <dd
+                :class="item.noActive?'notActive':''"
+                v-for="(item,index) in words"
+                :key="index"
+                @click="openGroupModal(item,index,item.noActive,1)"
+              >
+                <i
+                  v-if="!item.noActive"
+                  class="fas fa-times fa-delete"
+                  @click.stop="groupDelete(item)"
+                ></i>
+                <span v-if="!item.noActive">
+                  <i class="fas fa-check"></i>
+                  {{item.catalogGroup?item.catalogGroup.displayName:null}}
+                </span>
+                <span v-else>{{index+1}}</span>
+              </dd>
+            </draggable>
           </dl>
         </li>
         <li>
           <dl>
             <dt class="bg-info">图片类栏目</dt>
-            <dd
-              :class="item.noActive?'notActive':''"
-              v-for="(item,index) in pictures"
-              :key="index"
-              @click="openGroupModal(item,index,item.noActive,2)"
+            <draggable
+              :disabled="dragging"
+              v-model="pictures"
+              :animation="200"
+              :group="{ name: `pictures`}"
+              :ghost-class="'ghost'"
+              @change="handleChange"
             >
-              <i
-                v-if="!item.noActive"
-                class="fas fa-times fa-delete"
-                @click.stop="groupDelete(item)"
-              ></i>
-              <span v-if="!item.noActive">
-                <i class="fas fa-check"></i>
-                {{item.catalogGroup?item.catalogGroup.displayName:null}}
-              </span>
-              <span v-else>{{index+1}}</span>
-            </dd>
+              <dd
+                :class="item.noActive?'notActive':''"
+                v-for="(item,index) in pictures"
+                :key="index"
+                @click="openGroupModal(item,index,item.noActive,2)"
+              >
+                <i
+                  v-if="!item.noActive"
+                  class="fas fa-times fa-delete"
+                  @click.stop="groupDelete(item)"
+                ></i>
+                <span v-if="!item.noActive">
+                  <i class="fas fa-check"></i>
+                  {{item.catalogGroup?item.catalogGroup.displayName:null}}
+                </span>
+                <span v-else>{{index+1}}</span>
+              </dd>
+            </draggable>
           </dl>
         </li>
         <li>
           <dl>
             <dt class="bg-success">产品类栏目</dt>
-            <dd
-              :class="item.noActive?'notActive':''"
-              v-for="(item,index) in products"
-              :key="index"
-              @click="openGroupModal(item,index,item.noActive,3)"
+            <draggable
+              :disabled="dragging"
+              v-model="products"
+              :animation="200"
+              :group="{ name: `products`}"
+              :ghost-class="'ghost'"
+              @change="handleChange"
             >
-              <i
-                v-if="!item.noActive"
-                class="fas fa-times fa-delete"
-                @click.stop="groupDelete(item)"
-              ></i>
-              <span v-if="!item.noActive">
-                <i class="fas fa-check"></i>
-                {{item.catalogGroup?item.catalogGroup.displayName:null}}
-              </span>
-              <span v-else>{{index+1}}</span>
-            </dd>
+              <dd
+                :class="item.noActive?'notActive':''"
+                v-for="(item,index) in products"
+                :key="index"
+                @click="openGroupModal(item,index,item.noActive,3)"
+              >
+                <i
+                  v-if="!item.noActive"
+                  class="fas fa-times fa-delete"
+                  @click.stop="groupDelete(item)"
+                ></i>
+                <span v-if="!item.noActive">
+                  <i class="fas fa-check"></i>
+                  {{item.catalogGroup?item.catalogGroup.displayName:null}}
+                </span>
+                <span v-else>{{index+1}}</span>
+              </dd>
+            </draggable>
           </dl>
         </li>
       </ul>
@@ -217,6 +253,7 @@ import swal from 'sweetalert'
 import file from '@/components/custom/tankFiler'
 import AppConsts from '../utiltools/appconst'
 import treeItem from '@/components/custom/treeItem'
+import draggable from 'vuedraggable'
 export default {
     data() {
         return {
@@ -238,10 +275,12 @@ export default {
             attachCallBack: function(x) {},
 
             currentPageGroup: {},
-            currentPageGroupIsUpdate: false
+            currentPageGroupIsUpdate: false,
+
+            dragging: false
         }
     },
-    components: { file, treeItem },
+    components: { file, treeItem, draggable },
     props: ['contentTitle'],
     methods: {
         getPicture() {
@@ -288,7 +327,6 @@ export default {
         async blockDelete(item, index) {
             this.blocksCrude.splice(index, 1)
             await this.submit()
-            this.dataMapSign()
         },
         async blockSubmit() {
             if (await this.validate('form-picture')) {
@@ -296,7 +334,6 @@ export default {
                 else this.blocksCrude[this.currentBlockIndex] = this.currentBlock
                 // this.homePage.blocks = this.blocksCrude
                 await this.submit()
-                this.dataMapSign()
                 this.blockModalHide()
             } else
                 swal({
@@ -333,7 +370,14 @@ export default {
         async groupDelete(item) {
             this.groupsCrude.splice(item.crudeIndex, 1)
             await this.submit()
-            this.dataMapSign()
+        },
+        async handleChange(e) {
+            if (!e.moved.element.noActive) {
+                this.dragging = true
+                this.unMapSign()
+                await this.submit()
+                this.dragging = false
+            }
         },
         async catalogChoose(item) {
             if (this.currentPageGroupIsUpdate) {
@@ -347,7 +391,6 @@ export default {
                 this.groupsCrude.push(this.currentPageGroup)
             }
             await this.submit()
-            this.dataMapSign()
             this.groupModalHide()
         },
         groupModalHide() {
@@ -362,6 +405,7 @@ export default {
                 if (res.data.success) {
                     let json = res.data.result
                     this.homePage = json
+                    this.dataMapSign()
                 }
             })
         },
@@ -387,6 +431,15 @@ export default {
                 }
             }
             return list
+        },
+        unMapSign() {
+            this.blocksCrude = this.blocks.filter(x => !x.noActive)
+            this.groupsCrude = this.words
+                .filter(x => !x.noActive)
+                .concat(this.pictures.filter(x => !x.noActive))
+                .concat(this.products.filter(x => !x.noActive))
+            this.homePage.blocks = this.blocksCrude
+            this.homePage.groups = this.groupsCrude
         },
         load() {
             this.$http.get('/api/services/app/HomePage/GetOrCreate').then(res => {

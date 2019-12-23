@@ -308,7 +308,6 @@ export default {
                 })
                 .then(function(response) {
                     var json = response.data.result
-                    console.log(json)
                     json.uploadFilesList.forEach(j => {
                         that.currentFolder.subdir.forEach(c => {
                             if (c.name === j.name)
@@ -433,10 +432,7 @@ export default {
             //如果是文件
             if (!that.currentFile.isSubdir) url = tools.fileDelete + '?fileName=' + that.currentFile.url
 
-            that.$http.delete(url).then(function(response) {
-                var json = response.data.result
-                console.log(json)
-            })
+            that.$http.delete(url)
         },
         // 导航 - 设置当前内容
         setCurrentFolderByBreadcrumb(val) {
@@ -490,12 +486,7 @@ export default {
         folderDelete() {
             var that = this
             that.currentFolderParent.subdir.splice(that.currentFolderParent.subdir.indexOf(that.currentFolder), 1)
-            that.$http
-                .delete(tools.filedeletefolder + '?folderName=' + that.currentFolder.url)
-                .then(function(response) {
-                    var json = response.data.result
-                    console.log(json)
-                })
+            that.$http.delete(tools.filedeletefolder + '?folderName=' + that.currentFolder.url)
         },
         //增加子文件夹
         folderCreate() {

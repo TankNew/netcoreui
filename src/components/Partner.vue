@@ -457,10 +457,7 @@ export default {
         async onSubmit(evt) {
             evt.preventDefault()
             if (
-                (await this.validate('form-update')) &&
-                this.form.cover !== null &&
-                this.form.cover !== '' &&
-                this.form.cover !== undefined
+                await this.validate('form-update')
             ) {
                 this.form.info = this.$refs.tinymceNews.getVal()
                 this.editRow = JSON.parse(JSON.stringify(this.form))

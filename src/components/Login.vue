@@ -1,89 +1,85 @@
 <template>
-    <div class="login-bg">
-        <div class="login-panel">
-            <Loading :isLoading="isLoading"></Loading>
-            <img class="login-logo" src="@/assets/img/Logo.png" v-if="!hasUser" />
-            <hr v-if="!hasUser" />
-            <form
-                class="form-horizontal"
-                @submit.prevent="login"
-                autocomplete="off"
-            >
-                <div class="form-group center" v-if="hasUser">
-                    <img :src="UserModel.UserHead" />
-                    <h5>{{ UserModel.UserName }}</h5>
-                </div>
-                <div class="form-group" v-if="!hasUser">
-                    <label for="inputEmail3" class="control-label">用户名</label>
-                    <div>
-                        <input
-                            type="text"
-                            :class="['form-control', errors.has('用户名') ? 'is-invalid' : '']"
-                            id="inputEmail3"
-                            name="用户名"
-                            placeholder="用户名"
-                            v-model="UserModel.UserName"
-                            v-validate="'required|min:4'"
-                        />
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="inputPassword3" class="control-label">密 码</label>
-                    <div>
-                        <input
-                            type="password"
-                            :class="['form-control', errors.has('密码') ? 'is-invalid' : '']"
-                            id="inputPassword3"
-                            name="密码"
-                            placeholder="密码"
-                            v-model="UserModel.UserPass"
-                            v-validate="'required|min:6'"
-                        />
-                    </div>
-                </div>
-                <div class="form-group text-right">
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" v-model="rememberPassword" /> Remember me
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group text-center" v-if="hasUser">
-                    <a href="javascript:void(0)" @click="logout">切换其他账户</a>
-                </div>
-                <hr />
-                <div class="form-group">
-                    <button type="submit" class="btn btn-success px-5 w-100">登陆</button>
-                </div>
-            </form>
-            <div class="text-center">
-                <dl>
-                    <dd
-                        class="d-inline mr-2"
-                        v-for="(language, index) in languages"
-                        :key="index"
-                    >
-                        <a
-                            @click="changeLanguage(language.name)"
-                            :class="[ 'btn',  'btn-outline-primary',  language.displayName == currentLanguage.displayName ? 'active' : '' ]"
-                        >
-                            <i :class="['fas', language.icon]" />
-                            {{ language.displayName }}
-                        </a>
-                    </dd>
-                </dl>
-                <p v-if="loadTest">
-                    <a class="btn btn-outline-secondary" @click="changeTenant">
-                        <span>调试按钮</span>
-                        <span
-                            v-if="displayTenancyName"
-                        >MultiTenancySide： {{ displayTenancyName }}</span>
-                        <span v-else>MultiTenancySide：主机</span>
-                    </a>
-                </p>
-            </div>
+  <div class="login-bg">
+    <div class="login-panel">
+      <Loading :isLoading="isLoading"></Loading>
+      <img class="login-logo" src="@/assets/img/Logo.png" v-if="!hasUser" />
+      <hr v-if="!hasUser" />
+      <form class="form-horizontal" @submit.prevent="login" autocomplete="off">
+        <div class="form-group center" v-if="hasUser">
+          <img :src="UserModel.UserHead" />
+          <h5>{{ UserModel.UserName }}</h5>
         </div>
+        <div class="form-group" v-if="!hasUser">
+          <label for="inputEmail3" class="control-label">用户名</label>
+          <div>
+            <input
+              type="text"
+              :class="['form-control', errors.has('用户名') ? 'is-invalid' : '']"
+              id="inputEmail3"
+              name="用户名"
+              placeholder="用户名"
+              v-model="UserModel.UserName"
+              v-validate="'required|min:4'"
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputPassword3" class="control-label">密 码</label>
+          <div>
+            <input
+              type="password"
+              :class="['form-control', errors.has('密码') ? 'is-invalid' : '']"
+              id="inputPassword3"
+              name="密码"
+              placeholder="密码"
+              v-model="UserModel.UserPass"
+              v-validate="'required|min:6'"
+            />
+          </div>
+        </div>
+        <div class="form-group text-right">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" v-model="rememberPassword" /> Remember me
+            </label>
+          </div>
+        </div>
+        <div class="form-group text-center" v-if="hasUser">
+          <a href="javascript:void(0)" @click="logout">切换其他账户</a>
+        </div>
+        <hr />
+        <div class="form-group">
+          <button type="submit" class="btn btn-success px-5 w-100">登陆</button>
+        </div>
+      </form>
+      <div class="text-center">
+        <dl>
+          <dd
+            class="d-inline mr-2"
+            v-for="(language, index) in languages"
+            :key="index"
+          >
+            <a
+              @click="changeLanguage(language.name)"
+              :class="[ 'btn',  'btn-outline-primary',  language.displayName == currentLanguage.displayName ? 'active' : '' ]"
+            >
+              <i :class="['fas', language.icon]" />
+              {{ language.displayName }}
+            </a>
+          </dd>
+        </dl>
+        <p v-if="loadTest">
+          <a class="btn btn-outline-secondary" @click="changeTenant">
+            <span>调试按钮</span>
+            <span
+              v-if="displayTenancyName"
+            >MultiTenancySide： {{ displayTenancyName }}</span>
+            <span v-else>MultiTenancySide：主机</span>
+          </a>
+        </p>
+      </div>
     </div>
+  </div>
 </template>
 <script>
 import { userLogin } from '../utiltools/lock'
@@ -134,8 +130,8 @@ export default {
         },
         async changeTenant() {
             if (!this.changedTenancyName) {
-                this.displayTenancyName = 'Default'
-                this.changedTenancyName = 'Default'
+                this.displayTenancyName = 'ydnyx'
+                this.changedTenancyName = 'ydnyx'
                 let tenant = await this.$store.dispatch({
                     type: 'isTenantAvailable',
                     data: { tenancyName: this.changedTenancyName }
@@ -146,10 +142,10 @@ export default {
                         // location.reload()
                         break
                     case 2:
-                        this.$Modal.error({ title: this.L('Error'), content: this.L('TenantIsNotActive') })
+                        console.error({ title: this.L('Error'), content: this.L('TenantIsNotActive') })
                         break
                     case 3:
-                        this.$Modal.error({
+                        console.error({
                             title: this.L('Error'),
                             content: this.L('ThereIsNoTenantDefinedWithName{0}', undefined, this.changedTenancyName)
                         })

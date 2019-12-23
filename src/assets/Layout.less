@@ -416,30 +416,30 @@
         }
     }
 }
-.tankTree {
-    .ctx-menu {
-        min-width: 120px;
-        letter-spacing: 0;
+.ctx-menu {
+    min-width: 120px;
+    letter-spacing: 0;
 
-        li {
-            padding: 8px 20px;
-            text-align: left;
-            cursor: pointer;
+    li {
+        padding: 8px 20px;
+        text-align: left;
+        cursor: pointer;
 
-            > i {
-                margin-right: 6px;
-                display: inline-block;
-            }
-
-            &:hover {
-                color: #fff;
-                background-color: #0094ff;
-            }
+        > i {
+            margin-right: 6px;
+            display: inline-block;
         }
-        > .disabled {
-            color: #999;
+
+        &:hover {
+            color: #fff;
+            background-color: #0094ff;
         }
     }
+    > .disabled {
+        color: #999;
+    }
+}
+.tankTree {
     letter-spacing: 5px;
     overflow: hidden;
     width: 100%;
@@ -680,9 +680,9 @@
     a {
         cursor: pointer;
         padding: 14px 8px;
-        width: 260px;
+        width: 384px;
         letter-spacing: 2px;
-        height: 75px;
+        height: 90px;
         display: block;
         text-align: center;
         margin: 5px;
@@ -776,46 +776,72 @@
     width: 100%;
     height: 100%;
     padding: 0;
-}
-.banner-font {
-    position: absolute;
-    right: 10%;
-    bottom: 20px;
-    left: 10%;
-    z-index: 11;
-    padding-top: 20px;
-    padding-bottom: 20px;
-    // color: @purple;
+    .banner-font {
+        position: absolute;
+        z-index: 11;
+        h2,
+        p {
+            white-space: nowrap;
+        }
+        // color: @purple;
 
-    &.left {
-        left: 10%;
-        right: auto;
-        text-align: left;
-    }
-    &.center {
-        left: 10%;
-        right: 10%;
-        text-align: center;
-    }
-    &.right {
-        left: auto;
-        right: 10%;
-        text-align: right;
-    }
-    &.top {
-        top: 20px;
-        bottom: auto;
-        transform: none;
-    }
-    &.middle {
-        top: 50%;
-        bottom: auto;
-        transform: translateY(-50%+20px);
-    }
-    &.bottom {
-        top: auto;
-        bottom: 20px;
-        transform: none;
+        &.left.top {
+            left: 10%;
+            top: 10%;
+            text-align: left;
+            transform: translate(-10%, -10%);
+        }
+        &.left.middle {
+            left: 10%;
+            top: 50%;
+            text-align: left;
+            transform: translate(-10%, -50%);
+        }
+        &.left.bottom {
+            left: 10%;
+            bottom: 10%;
+            text-align: left;
+            transform: translate(-10%, 10%);
+        }
+        &.center.top {
+            left: 50%;
+            top: 10%;
+            text-align: center;
+            transform: translate(-50%, -10%);
+        }
+        &.center.middle {
+            left: 50%;
+            top: 50%;
+            text-align: center;
+            transform: translate(-50%, -50%);
+        }
+        &.center.bottom {
+            left: 50%;
+            bottom: 10%;
+            text-align: center;
+            transform: translate(-50%, 10%);
+        }
+        &.right.top {
+            right: 10%;
+            top: 10%;
+            text-align: right;
+            transform: translate(10%, -10%);
+        }
+        &.right.middle {
+            right: 10%;
+            top: 50%;
+            text-align: right;
+            transform: translate(10%, -50%);
+        }
+        &.right.bottom {
+            right: 10%;
+            bottom: 10%;
+            text-align: right;
+            transform: translate(10%, 10%);
+        }
+        p {
+            margin-bottom: 0;
+        }
     }
 }
 .home-page-setting {
@@ -829,7 +855,7 @@
         align-content: center;
         li {
             margin: 10px;
-            min-width: 240px;
+            min-width: 200px;
             max-width: calc(25% - 20px);
             background-color: #e9ecef;
             box-shadow: 0px 1px 1px #999;
@@ -1068,14 +1094,10 @@
     background-color: #fff;
     border: 1px solid #dee2e6;
     border-radius: 0.25rem;
-    max-width: 140px;
     min-width: 64px;
     height: 64px;
     text-align: center;
 }
 .info-img > img {
     max-height: 64px;
-}
-
-.catalog-group-info {
 }

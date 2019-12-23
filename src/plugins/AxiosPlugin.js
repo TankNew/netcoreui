@@ -64,7 +64,7 @@ Axios.interceptors.request.use(
                                 refreshSubscribers = []
                             } else console.error(json)
                         })
-                        .catch(error => {
+                        .catch(() => {
                             window.isRefresh = false
                         })
                 }

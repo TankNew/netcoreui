@@ -95,7 +95,7 @@
           <draggable
             tag="ul"
             :disabled="dragging"
-            :list="form.pictureWithInfos"
+            v-model="form.pictureWithInfos"
             :animation="200"
             :group="{ name: `pictureWithInfosDrag`}"
             :ghost-class="'ghost'"
@@ -416,7 +416,7 @@ export default {
             editorWidths: [640, 800, 900, 1000, 1200],
             editRow: {},
             form: {},
-            formShow: true,
+            formShow: false,
             //无用设置tinymce
             editorInit: {
                 selector: 'editor',

@@ -46,7 +46,6 @@
             indicators
             background="#ababab"
             :interval="0"
-            :img-width="currentPageSize.Width"
             :img-height="currentPageSize.Height"
             v-model="slide"
             @sliding-start="onSlideStart"
@@ -59,8 +58,8 @@
               :img-src="getImgUrl(item.imgUrl)"
             >
               <div :class="currentFontPosition">
-                <h2 class>{{item.title}}</h2>
-                <p class>{{item.subTitle}}</p>
+                <h2>{{item.title}}</h2>
+                <p>{{item.subTitle}}</p>
               </div>
             </b-carousel-slide>
             <b-carousel-slide v-else img-blank img-alt="Blank image">
@@ -239,15 +238,11 @@ export default {
         nestedBanner
     },
     computed: {
-        isHomePage() {
-            return this.currentPage.parentId == null
-        },
-
         editModeTitle() {
             return this.isUpdate ? '编辑' : '新增'
         },
         currentPageSize() {
-            if (this.currentPage.parentId == null)
+            if (this.currentPage.navbarType === 5)
                 return {
                     Width: abp.banner.HomePageWidth,
                     Height: abp.banner.HomePageHeight,
@@ -288,7 +283,7 @@ export default {
             this.fileShow = true
             this.fileCallBack = this.attachSet
         },
-        attachSet(fileUrl) {
+        async attachSet(fileUrl) {
             var decodeFileUrl = decodeURIComponent(fileUrl)
             var fileName = decodeFileUrl.substring(
                 decodeFileUrl.indexOf(AppConsts.remoteServiceBaseUrl) + AppConsts.remoteServiceBaseUrl.length,
@@ -296,29 +291,17 @@ export default {
             )
             this.currentBanner.imgUrl = fileName
         },
-        async newImgToPage() {
-            if (
-                (await this.validateImg()) ||
-                !this.currentPage.bannerImgs ||
-                this.currentPage.bannerImgs.length === 0
-            ) {
-                this.currentBanner = {}
-                this.currentBanner.imgUrl = ''
-                this.currentBanner.titleAlign = 'center'
-                this.currentBanner.titleVertical = 'bottom'
-                if (this.currentPage.bannerImgs.length > 0) {
-                    this.currentPage.bannerImgs.splice(this.slide + 1, 0, this.currentBanner)
-                    this.$nextTick(() => (this.slide += 1))
-                } else this.currentPage.bannerImgs.push(this.currentBanner)
-            } else {
-                swal({
-                    title: '请填写必要的选项!',
-                    text: '图片不能为空!',
-                    icon: 'warning'
-                })
-            }
+        newImgToPage() {
+            this.currentBanner = {}
+            this.currentBanner.imgUrl = ''
+            this.currentBanner.titleAlign = 'center'
+            this.currentBanner.titleVertical = 'bottom'
+            if (this.currentPage.bannerImgs.length > 0) {
+                this.currentPage.bannerImgs.splice(this.slide + 1, 0, this.currentBanner)
+                this.$nextTick(() => (this.slide += 1))
+            } else this.currentPage.bannerImgs.push(this.currentBanner)
         },
-        deleteImgFromPage() {
+        async deleteImgFromPage() {
             swal({
                 title: '确认吗?',
                 text: '被删除数据可能无法恢复，请您再次确认!',
@@ -330,7 +313,10 @@ export default {
                     let index = this.currentPage.bannerImgs.indexOf(this.currentBanner)
                     let oldLength = this.currentPage.bannerImgs.length
                     let oldslide = this.slide
-                    if (index > -1) this.currentPage.bannerImgs.splice(index, 1)
+                    if (index > -1) {
+                        this.currentPage.bannerImgs.splice(index, 1)
+                        await this.saveImgToPage()
+                    }
                     if (this.currentPage.bannerImgs.length === 0) {
                         this.newImgToPage()
                         this.$nextTick(() => (this.slide = 0))
@@ -415,7 +401,7 @@ export default {
             this.$http.get('/api/services/app/Navbar/GetAll', { params: { Id: null } }).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
-                    this.pages = json
+                    this.pages = json[0].children
                 }
             })
         },

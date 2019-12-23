@@ -1,16 +1,10 @@
-# build stage
-FROM node:lts-alpine as build-stage
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
-
-# production stage
-FROM nginx:stable-alpine as production-stage
+FROM nginx:alpine
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY dist /usr/share/nginx/html
 EXPOSE 80
 EXPOSE 443
 
 CMD ["nginx", "-g", "daemon off;"]
+#  npm run build
+#  docker build -t  docker.ednet.cn/ednetcms-panel .
+#  docker push docker.ednet.cn/ednetcms-panel:latest

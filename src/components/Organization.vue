@@ -8,22 +8,24 @@
       <b-alert show dismissible>
         <b>Info:</b> 将鼠标移动到节点上，即可编辑，删除，以及增加子节点。根节点不可删除，兄弟节点不可重名。
       </b-alert>
+      <div ref="ctxMenuContainer">
+        <context-menu id="context-menu" ref="ctxMenu" @ctx-open="onCtxOpen">
+          <li @contextmenu.prevent @click="edit">
+            <i class="fas color-primary fa-pencil-alt mr-1"></i>
+            编辑
+          </li>
+          <li @contextmenu.prevent @click="add">
+            <i class="fas color-success fa-plus mr-1"></i>
+            扩展
+          </li>
+          <li @contextmenu.prevent @click="del" v-if="currentLayer>0">
+            <i class="fas color-danger fa-minus mr-1"></i>
+            删除
+          </li>
+        </context-menu>
+      </div>
     </div>
     <section class="tankTree">
-      <context-menu id="context-menu" ref="ctxMenu" @ctx-open="onCtxOpen">
-        <li @contextmenu.prevent @click="edit">
-          <i class="fas color-primary fa-pencil-alt mr-1"></i>
-          编辑
-        </li>
-        <li @contextmenu.prevent @click="add">
-          <i class="fas color-success fa-plus mr-1"></i>
-          扩展
-        </li>
-        <li @contextmenu.prevent @click="del" v-if="currentLayer>0">
-          <i class="fas color-danger fa-minus mr-1"></i>
-          删除
-        </li>
-      </context-menu>
       <nested-draggable
         :dragging="dragging"
         :dragUrl="dragUrl"
@@ -170,6 +172,12 @@ export default {
     },
     created: function() {
         this.load()
+    },
+    mounted() {
+        this.$nextTick(() => {
+            let moveNodeRef = this.$refs.ctxMenuContainer
+            document.body.appendChild(moveNodeRef)
+        })
     }
 }
 </script> 

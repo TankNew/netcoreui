@@ -1,45 +1,54 @@
 <template>
-    <draggable
-        :class="[children.length>1?'border-left':'']"
-        tag="ul"
-        :disabled="dragging"
-        :list="children"
-        :animation="200"
-        :group="{ name: 'ul'+ parentId}"
-        :ghost-class="'ghost'"
-        :move="onMove"
-        @change="handleChange"
-    >
-        <li v-for="(element,index) in children" :key="element.id">
-            <div v-if="parentId!==0" class="o-line-up"></div>
-            <a
-                :style="hasbind&&!element.isActive?'background-color:#efefef':''"
-                @contextmenu.prevent="ctxMenuOpen($event,element,index,currentLayer)"
-            >
-                <span>{{`${element.displayName}`}}</span>
-                <span v-if="hasbind">
-                    <small v-if="element.navbarType===0">菜单</small>
-                    <small v-else-if="element.navbarType===4">链接</small>
-                    <small v-else>
-                        模块
-                        <i class="fas fa-cube"></i>
-                    </small>
-                </span>
-            </a>
-            <div class="o-line-down" v-if="element.children.length>0"></div>
-            <nested-draggable
-                v-if="element.children.length>0"
-                :dragging="dragging"
-                :dragUrl="dragUrl"
-                :children="element.children"
-                :parentId="element.id"
-                :currentLayer="getCurrentLayer"
-                :hasbind="hasbind"
-                @onDrag="onDrag"
-                @ctxMenuOpen="ctxMenuOpen"
-            />
-        </li>
-    </draggable>
+  <draggable
+    :class="[children.length>1?'border-left':'']"
+    tag="ul"
+    :disabled="dragging"
+    :list="children"
+    :animation="200"
+    :group="{ name:'ul'+ parentId}"
+    :ghost-class="'ghost'"
+    :move="onMove"
+    @change="handleChange"
+  >
+    <li v-for="(element,index) in children" :key="element.id">
+      <div v-if="parentId!==0" class="o-line-up"></div>
+      <a
+        :style="hasbind&&!element.isActive?'background-color:#efefef':''"
+        @contextmenu.prevent="!hasbind||(hasbind&&element.navbarType!==5)?ctxMenuOpen($event,element,index,currentLayer):''"
+      >
+        <span>{{`${element.displayName}`}}</span>
+        <span v-if="hasbind">
+          <small v-if="element.navbarType===0">菜单</small>
+          <small v-else-if="element.navbarType===1">
+            <i class="fas fa-cube"></i>
+            {{element.displayName}}
+          </small>
+          <small v-else-if="element.navbarType===2">
+            <i class="fas fa-circle-notch"></i>
+            {{element.displayName}}
+          </small>
+          <small v-else-if="element.navbarType===3">
+            <i class="fas fa-code"></i>
+            {{element.displayName}}
+          </small>
+          <small v-else-if="element.navbarType===4">链接</small>
+          <small v-else>系统</small>
+        </span>
+      </a>
+      <div class="o-line-down" v-if="element.children.length>0"></div>
+      <nested-draggable
+        v-if="element.children.length>0"
+        :dragging="dragging"
+        :dragUrl="dragUrl"
+        :children="element.children"
+        :parentId="element.id"
+        :currentLayer="getCurrentLayer"
+        :hasbind="hasbind"
+        @onDrag="onDrag"
+        @ctxMenuOpen="ctxMenuOpen"
+      />
+    </li>
+  </draggable>
 </template>
 <script>
 import draggable from 'vuedraggable'

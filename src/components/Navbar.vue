@@ -6,42 +6,43 @@
     </p>
     <div class="mr-3">
       <b-alert show dismissible>
-        <b>Info:</b> 将鼠标移动到节点上，即可编辑，删除，以及增加子节点。根节点不可删除，兄弟节点不可重名。
+        <b>Info:</b> 右键节点，即可编辑，删除，以及增加子节点。系统节点不可删除，兄弟节点不可重名。
       </b-alert>
+      <div ref="ctxMenuContainer">
+        <context-menu id="context-menu" ref="ctxMenu" @ctx-open="onCtxOpen">
+          <li @contextmenu.prevent @click="edit" v-if="currentLayer>0">
+            <i class="fas color-primary fa-pencil-alt mr-1"></i>
+            编辑
+          </li>
+          <li @contextmenu.prevent @click="bind" v-if="currentLayer>0">
+            <i class="fas color-Purple fa-link mr-1"></i>
+            绑定
+          </li>
+          <li @contextmenu.prevent @click="add" v-if="currentLayer<2">
+            <i class="fas color-success fa-plus mr-1"></i>
+            扩展
+          </li>
+          <li
+            @contextmenu.prevent
+            @click="expandNavbar"
+            v-if="currentLayer<2 && currentNavbar.navbarType===2"
+            style="width:140px;"
+          >
+            <i class="fas color-success fa-exchange-alt mr-1"></i>
+            自动扩展
+          </li>
+          <li @contextmenu.prevent @click="del" v-if="currentLayer>0">
+            <i class="fas color-danger fa-minus mr-1"></i>
+            删除
+          </li>
+        </context-menu>
+      </div>
     </div>
     <section class="tankTree" @contextmenu.prevent>
-      <context-menu id="context-menu" ref="ctxMenu" @ctx-open="onCtxOpen">
-        <li @contextmenu.prevent @click="edit">
-          <i class="fas color-primary fa-pencil-alt mr-1"></i>
-          编辑
-        </li>
-        <li @contextmenu.prevent @click="bind" v-if="currentLayer>0">
-          <i class="fas color-Purple fa-link mr-1"></i>
-          绑定
-        </li>
-        <li @contextmenu.prevent @click="add" v-if="currentLayer<3">
-          <i class="fas color-success fa-plus mr-1"></i>
-          扩展
-        </li>
-        <li
-          @contextmenu.prevent
-          @click="expandNavbar"
-          v-if="currentLayer<3 && currentNavbar.navbarType===2"
-          style="width:140px;"
-        >
-          <i class="fas color-success fa-exchange-alt mr-1"></i>
-          自动扩展
-        </li>
-        <li @contextmenu.prevent @click="del" v-if="currentLayer>0">
-          <i class="fas color-danger fa-minus mr-1"></i>
-          删除
-        </li>
-      </context-menu>
       <nested-draggable
         :dragging="dragging"
         :dragUrl="dragUrl"
         :children="navbarList"
-        :parentId="0"
         :hasbind="true"
         @onDrag="onDrag"
         @ctxMenuOpen="ctxMenuOpen"
@@ -207,6 +208,7 @@
         <b-button variant="primary" @click="ok()">确认</b-button>
       </template>
     </b-modal>
+ 
   </section>
 </template>
 <script>
@@ -236,7 +238,7 @@ export default {
         }
     },
     computed: {},
-    props: ['contentTitle'],
+    props: ['contentTitle', 'tenant'],
     components: {
         nestedDraggable,
         contextMenu
@@ -440,6 +442,12 @@ export default {
     },
     created: function() {
         this.loadAll()
+    },
+    mounted() {
+        this.$nextTick(() => {
+            let moveNodeRef = this.$refs.ctxMenuContainer
+            document.body.appendChild(moveNodeRef)
+        })
     }
 }
 </script> 

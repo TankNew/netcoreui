@@ -99,6 +99,7 @@
             :appName="appName"
             :appVersion="appVersion"
             :contentTitle="contentTitle"
+            :tenant="tenant"
           ></router-view>
         </smooth-scroll>
       </section>
