@@ -6,6 +6,11 @@
     </p>
     <!--自定义模块新增/修改-->
     <section v-if="editMode" class="mr-3">
+      <file
+        :fileShow="fileShow"
+        :fileCallBack="fileCallBack"
+        @fileClose="fileClose"
+      ></file>
       <section>
         <div class="alert alert-success" role="alert">
           <i class="far fa-bell mx-1"></i>
@@ -70,20 +75,7 @@
                 <img :src="module.cover" />
               </div>
               <b-input-group-append>
-                <b-btn size="sm" variant="primary">
-                  选择
-                  <vue-base64-file-upload
-                    class="v1"
-                    accept="image/png, image/jpeg"
-                    image-class="v1-image"
-                    input-class="v1-file"
-                    :max-size="customImageMaxSize"
-                    :disable-preview="true"
-                    @size-exceeded="onSizeExceeded"
-                    @file="onFile"
-                    @load="onLoadCover"
-                  />
-                </b-btn>
+                <b-btn size="sm" variant="primary" @click="coverOpen">选择</b-btn>
               </b-input-group-append>
             </b-input-group>
             <b-form-group
@@ -223,12 +215,13 @@
 <script>
 import swal from 'sweetalert'
 import tools from '../utiltools/tools'
-import VueBase64FileUpload from 'vue-base64-file-upload'
+import file from '@/components/custom/tankFiler'
 
 export default {
     data() {
         return {
-            customImageMaxSize: 0.5,
+            fileShow: false,
+            fileCallBack: function(x) {},
             module: {},
             editRow: {},
             editMode: false,
@@ -248,7 +241,7 @@ export default {
         }
     },
     components: {
-        VueBase64FileUpload
+        file
     },
     props: ['contentTitle'],
 
@@ -262,15 +255,15 @@ export default {
         }
     },
     methods: {
-        onFile(file) {},
-        onLoadCover(dataUri) {
-            this.module.cover = dataUri
+        coverOpen() {
+            this.fileShow = true
+            this.fileCallBack = this.coverSet
         },
-        onSizeExceeded(size) {
-            swal({
-                title: '请上传500K以内的图片',
-                icon: 'error'
-            })
+        coverSet(fileUrl) {
+            this.module.cover = fileUrl
+        },
+        fileClose() {
+            this.fileShow = false
         },
         getPageEditTitle(item) {
             if (item.catalogType) {

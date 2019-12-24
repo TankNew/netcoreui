@@ -1,103 +1,93 @@
 <template>
-    <section class="container-fluid">
-        <p class="lead">
-            <i class="fas fa-bullhorn text-primary mr-1"></i>
-            {{contentTitle}}
-            <span class="small">
-                <b-badge pill variant="info">{{catalogTypeName}}</b-badge>
-            </span>
-            <span class="small">
-                <b-button
-                    v-if="!editMode"
-                    size="sm"
-                    variant="outline-info"
-                    @click="formOpen"
-                >编辑</b-button>
-                <b-button
-                    v-else
-                    size="sm"
-                    variant="outline-secondary"
-                    @click="formHide"
-                >取消编辑</b-button>
-            </span>
+  <section class="container-fluid">
+    <p class="lead">
+      <i class="fas fa-bullhorn text-primary mr-1"></i>
+      {{contentTitle}}
+      <span class="small">
+        <b-badge pill variant="info">{{catalogTypeName}}</b-badge>
+      </span>
+      <span class="small">
+        <b-button
+          v-if="!editMode"
+          size="sm"
+          variant="outline-info"
+          @click="formOpen"
+        >编辑</b-button>
+        <b-button
+          v-else
+          size="sm"
+          variant="outline-secondary"
+          @click="formHide"
+        >取消编辑</b-button>
+      </span>
+    </p>
+    <section class="catalog-group-info mb-3" v-if="editMode">
+      <file
+        :fileShow="fileShow"
+        :fileCallBack="fileCallBack"
+        @fileClose="fileClose"
+      ></file>
+      <b-form
+        v-if="formShow"
+        @submit.stop.prevent="onSubmit"
+        @reset="onReset"
+        autocomplete="off"
+      >
+        <b-input-group size="sm" prepend="封面" class="mb-3 info-img-container">
+          <div class="info-img">
+            <img :src="form.cover" />
+          </div>
+          <b-input-group-append>
+            <b-btn size="sm" variant="primary" @click="coverOpen">选择</b-btn>
+          </b-input-group-append>
+        </b-input-group>
+        <p class="px-5">
+          <b-form-textarea
+            id="p-content"
+            v-model="form.info"
+            placeholder="模块简介"
+          ></b-form-textarea>
         </p>
-        <section class="catalog-group-info mb-3" v-if="editMode">
-            <b-form
-                v-if="formShow"
-                @submit.stop.prevent="onSubmit"
-                @reset="onReset"
-                autocomplete="off"
-            >
-                <b-input-group
-                    size="sm"
-                    prepend="封面"
-                    class="mb-3 info-img-container"
-                >
-                    <div class="info-img">
-                        <img :src="form.cover" />
-                    </div>
-                    <b-input-group-append>
-                        <b-btn size="sm" variant="primary">
-                            选择
-                            <vue-base64-file-upload
-                                class="v1"
-                                accept="image/png, image/jpeg"
-                                image-class="v1-image"
-                                input-class="v1-file"
-                                :max-size="customImageMaxSize"
-                                :disable-preview="true"
-                                @size-exceeded="onSizeExceeded"
-                                @file="onFile"
-                                @load="onLoadCover"
-                            />
-                        </b-btn>
-                    </b-input-group-append>
-                </b-input-group>
-                <p class="px-5">
-                    <b-form-textarea
-                        id="p-content"
-                        v-model="form.info"
-                        placeholder="模块简介"
-                    ></b-form-textarea>
-                </p>
-                <hr />
-                <p class="center">
-                    <b-button type="submit" variant="primary">确认</b-button>
-                    <b-button type="reset" variant="light">重置</b-button>
-                </p>
-            </b-form>
-        </section>
-        <tank-news
-            v-if="hackReset"
-            :dataGroup="dataGroup"
-            :dataType="currentGroupType"
-            :dataUrl="dataUrl"
-            :sortUrl="sortUrl"
-            :createUrl="createUrl"
-            :updateUrl="updateUrl"
-            :deleteUrl="deleteUrl"
-            :dataGroupListUrl="dataGroupListUrl"
-            :dataGroupSortUrl="dataGroupSortUrl"
-            :dataGroupCreateUrl="dataGroupCreateUrl"
-            :dataGroupUpdateUrl="dataGroupUpdateUrl"
-            :dataGroupDeleteUrl="dataGroupDeleteUrl"
-            @getMenu="getMenu"
-            @refreshScroll="refreshScroll"
-            @reloadScroll="reloadScroll"
-            :scollMinTop="680"
-            :scorllTopLength="scorllTopLength"
-        ></tank-news>
+        <hr />
+        <p class="center">
+          <b-button type="submit" variant="primary">确认</b-button>
+          <b-button type="reset" variant="light">重置</b-button>
+        </p>
+      </b-form>
     </section>
+    <tank-news
+      v-if="hackReset"
+      :dataGroup="dataGroup"
+      :dataType="currentGroupType"
+      :dataUrl="dataUrl"
+      :sortUrl="sortUrl"
+      :createUrl="createUrl"
+      :updateUrl="updateUrl"
+      :deleteUrl="deleteUrl"
+      :dataGroupListUrl="dataGroupListUrl"
+      :dataGroupSortUrl="dataGroupSortUrl"
+      :dataGroupCreateUrl="dataGroupCreateUrl"
+      :dataGroupUpdateUrl="dataGroupUpdateUrl"
+      :dataGroupDeleteUrl="dataGroupDeleteUrl"
+      @getMenu="getMenu"
+      @refreshScroll="refreshScroll"
+      @reloadScroll="reloadScroll"
+      :scollMinTop="680"
+      :scorllTopLength="scorllTopLength"
+    ></tank-news>
+  </section>
 </template>
 <script>
 import tankNews from '@/components/custom/tankNews'
-import VueBase64FileUpload from 'vue-base64-file-upload'
+import file from '@/components/custom/tankFiler'
 
 export default {
     name: 'news',
     data() {
         return {
-            customImageMaxSize: 0.5,
+            fileShow: false,
+            fileCallBack: function(x) {},
+
             editMode: false,
             form: {},
             formShow: true,
@@ -120,7 +110,7 @@ export default {
     },
     components: {
         tankNews,
-        VueBase64FileUpload
+        file
     },
     computed: {
         catalogTypeName() {
@@ -151,15 +141,15 @@ export default {
     },
     props: ['scorllTopLength', 'contentTitle'],
     methods: {
-        onFile(file) {},
-        onLoadCover(dataUri) {
-            this.form.cover = dataUri
+        coverOpen() {
+            this.fileShow = true
+            this.fileCallBack = this.coverSet
         },
-        onSizeExceeded(size) {
-            swal({
-                title: '请上传500K以内的图片',
-                icon: 'error'
-            })
+        coverSet(fileUrl) {
+            this.form.cover = fileUrl
+        },
+        fileClose() {
+            this.fileShow = false
         },
         refreshScroll() {
             this.$emit('refreshScroll')

@@ -148,6 +148,9 @@ body {
 .text_with_2px_border {
   text-shadow: -1px -1px 0px #fff, 0px -1px 0px #fff, 1px -1px 0px #fff, -1px 0px 0px #fff, 1px 0px 0px #fff, -1px 1px 0px #fff, 0px 1px 0px #fff, 1px 1px 0px #fff, /* second layer at 2px */ -2px -2px 0px #fff, -1px -2px 0px #fff, 0px -2px 0px #fff, 1px -2px 0px #fff, 2px -2px 0px #fff, 2px -1px 0px #fff, 2px 0px 0px #fff, 2px 1px 0px #fff, 2px 2px 0px #fff, 1px 2px 0px #fff, 0px 2px 0px #fff, -1px 2px 0px #fff, -2px 2px 0px #fff, -2px 1px 0px #fff, -2px 0px 0px #fff, -2px -1px 0px #fff;
 }
+table.b-table[aria-busy='true'] {
+  opacity: 0.9;
+}
 .table-img img {
   max-width: 70px;
   max-height: 32px;

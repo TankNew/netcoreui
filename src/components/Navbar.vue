@@ -138,7 +138,7 @@
                 @dblclick="bindModule(item,item.id,1)"
               >
                 <div
-                  :class="module.navbarType===1&&item.url==module.url?'active':''"
+                  :class="module.navbarType===1&&item.id==module.webModuleId?'active':''"
                 >
                   <span>
                     <i class="fas fa-cube"></i>
@@ -156,7 +156,7 @@
                 @dblclick="bindModule(item,item.id,3)"
               >
                 <div
-                  :class="currentNavbar.navbarType===3&&item.id==currentNavbar.pageId?'active':''"
+                  :class="module.navbarType===3&&item.id==module.pageId?'active':''"
                 >
                   <span>
                     <i class="fas fa-cube"></i>
@@ -169,7 +169,7 @@
             <ul class="ul-has-sub">
               <li v-for="(item,index) in webCustomModules" :key="index">
                 <div
-                  :class="currentNavbar.navbarType===2&&item.id==currentNavbar.catalogGroupId?'active':''"
+                  :class="module.navbarType===2&&item.id==module.catalogGroupId?'active':''"
                   @click="ChooseModule(item,item.id,2)"
                   @dblclick="bindModule(item,item.id,2)"
                 >
@@ -192,7 +192,7 @@
                 >
                   <li v-for="(s,i) in item.children" :key="i">
                     <div
-                      :class="currentNavbar.navbarType===2&&s.id==currentNavbar.catalogGroupId?'active':''"
+                      :class="module.navbarType===2&&s.id==module.catalogGroupId?'active':''"
                       @dblclick="bindModule(s,s.id,2)"
                     >
                       <span>{{s.displayName}}</span>
@@ -208,7 +208,6 @@
         <b-button variant="primary" @click="ok()">确认</b-button>
       </template>
     </b-modal>
- 
   </section>
 </template>
 <script>
@@ -274,6 +273,18 @@ export default {
                             })
                         else {
                             let childrenNames = this.currentNavbar.children.map(x => x.displayName)
+                            let preUrl
+                            switch (this.currentNavbar.catalogGroup.catalogType) {
+                                case 1:
+                                    preUrl = '/Main/News/'
+                                    break
+                                case 2:
+                                    preUrl = '/Main/PhotoNews/'
+                                    break
+                                case 3:
+                                    preUrl = '/Main/Product/'
+                                    break
+                            }
                             json.forEach(async x => {
                                 if (childrenNames.indexOf(x.displayName) < 0)
                                     await this.$http
@@ -283,7 +294,7 @@ export default {
                                             parentId: this.currentNavbar.id,
                                             webModuleId: null,
                                             catalogGroupId: x.id,
-                                            url: '/Main/News/' + x.id
+                                            url: preUrl + x.id
                                         })
                                         .then(res => {
                                             if (res.data.success) this.load()
@@ -355,6 +366,7 @@ export default {
 
             switch (this.module.navbarType) {
                 case 1:
+                    this.module.webModuleId = item.id
                     this.module.url = item.url
                     break
                 case 2:

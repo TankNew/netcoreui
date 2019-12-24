@@ -1,0 +1,18 @@
+version: '3.4'
+# docker-compose build
+# docker push docker.ednet.cn/ednetcms-panel
+services:
+    ednetcms-panel:
+        image: docker.ednet.cn/ednetcms-panel
+        container_name: ednetcms-panel
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - '5109:80'
+            - '5110:443'
+
+networks:
+    default:
+        external:
+            name: nginx-proxy

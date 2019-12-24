@@ -21,15 +21,15 @@
           <small v-if="element.navbarType===0">菜单</small>
           <small v-else-if="element.navbarType===1">
             <i class="fas fa-cube"></i>
-            {{element.displayName}}
+            {{element.webModule?element.webModule.displayName:'模块'}}
           </small>
           <small v-else-if="element.navbarType===2">
             <i class="fas fa-circle-notch"></i>
-            {{element.displayName}}
+            {{element.catalogGroup?element.catalogGroup.displayName:'模块'}}
           </small>
           <small v-else-if="element.navbarType===3">
             <i class="fas fa-code"></i>
-            {{element.displayName}}
+            {{element.page?element.page.displayName:'模块'}}
           </small>
           <small v-else-if="element.navbarType===4">链接</small>
           <small v-else>系统</small>

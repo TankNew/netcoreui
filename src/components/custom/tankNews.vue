@@ -318,6 +318,12 @@
             :sort-direction="sortDirection"
             @filtered="onFiltered"
           >
+            <template v-slot:table-busy>
+              <div class="text-center text-info my-2">
+                <b-spinner class="align-middle"></b-spinner>
+                <strong>Loading...</strong>
+              </div>
+            </template>
             <template v-slot:cell(mark)="row">{{row.value}}</template>
             <template v-slot:cell(isTop)="row">
               <button
