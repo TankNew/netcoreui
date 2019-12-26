@@ -4,7 +4,7 @@
       <i class="far fa-images text-primary mr-1"></i>
       {{contentTitle}}
     </p>
-    <div v-if="!editMode">
+    <div v-show="!editMode">
       <div class="mr-3">
         <b-alert show dismissible>
           <b>Info:</b> 每个模块节点默认继承root节点的海报，您当然也可以自定义每个模块节点海报，只要您将鼠标移动到这个节点选择功能按钮。
@@ -13,15 +13,15 @@
       <section class="tankBannerTree">
         <nested-banner
           :dragging="true"
-          :children="pages"
-          :parentId="0"
+          :children="pages.children"
+          :parentId="pages.id"
           @add="add"
           @del="del"
           @edit="edit"
         />
       </section>
     </div>
-    <section v-else>
+    <div v-if="editMode">
       <file
         :fileShow="fileShow"
         :fileCallBack="fileCallBack"
@@ -208,7 +208,7 @@
           </b-form>
         </div>
       </div>
-    </section>
+    </div>
   </section>
 </template>
 <script>
@@ -222,7 +222,10 @@ export default {
             editMode: false,
             isUpdate: false,
             isEditRowChange: false,
-            pages: [],
+            pages: {
+                id: 0,
+                children: []
+            },
             currentPage: {},
             currentBanner: {},
             slide: 0,
@@ -401,7 +404,7 @@ export default {
             this.$http.get('/api/services/app/Navbar/GetAll', { params: { Id: null } }).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
-                    this.pages = json[0].children
+                    this.pages = json[0]
                 }
             })
         },

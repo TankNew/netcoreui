@@ -17,7 +17,7 @@
       >
         <div class="img-cover-toolbar" v-show="imgtools==index">
           <p
-            v-if="(getCodeNumber(element)>=2&&element.bannerImgs.length>0)||getCodeNumber(element)!==2"
+            v-if="(getCodeNumber(element)>=3&&element.bannerImgs.length>0)||getCodeNumber(element)!==3"
           >
             <button
               type="button"
@@ -29,7 +29,7 @@
               <i class="fas fa-pencil-alt" aria-hidden="true"></i>
             </button>
           </p>
-          <p v-if="getCodeNumber(element)>=2&&element.bannerImgs.length>0">
+          <p v-if="getCodeNumber(element)>=3&&element.bannerImgs.length>0">
             <button
               type="button"
               title="删除"
@@ -40,7 +40,7 @@
               <i class="fas fa-minus" aria-hidden="true"></i>
             </button>
           </p>
-          <p v-if="getCodeNumber(element)>=2&&!element.bannerImgs.length>0">
+          <p v-if="getCodeNumber(element)>=3&&!element.bannerImgs.length>0">
             <button
               type="button"
               title="自定义"

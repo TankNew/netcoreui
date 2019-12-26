@@ -59,39 +59,13 @@
           ></b-form-input>
         </b-form-group>
 
-        <b-form-group
-          id="InputGroup3"
-          label="标签"
-          label-for="mark"
-          description="可选标签"
-        >
+        <b-form-group id="InputGroup3" label="标签" label-for="mark">
           <b-form-select id="mark" :options="marks" v-model="form.mark">
             <option slot="first" :value="null">无</option>
           </b-form-select>
         </b-form-group>
-        <div class="news-edit-editmode">
-          <label>编辑模式:</label>
-          <button
-            v-for="(ew,index) in editorWidths"
-            :key="index"
-            type="button"
-            :class="['btn',editModeWidth==ew?'btn-secondary':'btn-light']"
-            @click="putEditModeWidth(ew)"
-          >{{ew}}</button>
-        </div>
-        <b-form-group label="正文" label-for="detail">
-          <!--正文-->
-          <tinymce
-            ref="tinymceNews"
-            @refreshScroll="refreshScroll"
-            @reloadScroll="reloadScroll"
-            :editorTop="editorTop"
-            :editorWidth="editModeWidth"
-            :scollMinTop="scollMinTop"
-            :scorllTopLength="scorllTopLength"
-          ></tinymce>
-        </b-form-group>
         <div v-if="hasAttach" class="news-img-with-info">
+          <label>图片组</label>
           <draggable
             tag="ul"
             :disabled="dragging"
@@ -108,82 +82,108 @@
               <img :src="f.picUrl" />
               <i class="fas fa-times" @click.stop="attachDelete(i)"></i>
             </li>
-            <li class="add" @click="addPicture">
-              <i class="fas fa-plus mr-1"></i>添加图片
+            <li @click="addPicture">
+              <span>
+                <i class="fas fa-plus mr-1"></i>添加图片
+              </span>
             </li>
           </draggable>
         </div>
-        <b-modal
-          v-if="hasAttach"
-          ref="attachModal"
-          size="lg"
-          scrollable
-          :ok-title="'确认'"
-          :cancel-title="'取消'"
-          :title="attachModalName"
-          @ok="attachModalOk"
-          @hidden="attachModalHide"
-        >
-          <file
-            :fileShow="attachShow"
-            :fileCallBack="attachCallBack"
-            @fileClose="attachClose"
-          ></file>
-          <div class="mb-3 center">
-            <div class="news-cover" @click="attachOpen">
-              <img :src="getPicture()" />
-            </div>
-          </div>
-          <b-form
-            @submit.stop.prevent="attachModalSubmit"
-            autocomplete="off"
-            data-vv-scope="form-picture"
-          >
-            <b-form-group
-              label="图片地址:"
-              label-for="p-url"
-              description="选取图片库自动生成链接，或者手动填写外链."
-            >
-              <b-form-input
-                id="p-url"
-                type="text"
-                v-model="currentPicture.picUrl"
-                name="图片地址"
-                :state="!errors.has('form-picture.图片地址') "
-                v-validate="'required'"
-                placeholder="图片地址"
-              ></b-form-input>
-            </b-form-group>
-            <b-form-group
-              label="标题:"
-              label-for="p-title"
-              description="请填写5-30个字的标题."
-            >
-              <b-form-input
-                id="p-title"
-                type="text"
-                v-model="currentPicture.picTitle"
-                name="图片标题"
-                placeholder="图片标题"
-              ></b-form-input>
-            </b-form-group>
-            <b-form-group
-              label="描述:"
-              label-for="p-content"
-              description="简单的文字描述，不允许换行以及链接."
-            >
-              <b-form-textarea
-                id="p-content"
-                v-model="currentPicture.picContent"
-                placeholder="文字描述"
-              ></b-form-textarea>
-            </b-form-group>
-          </b-form>
-        </b-modal>
+        <label>正文</label>
+        <div class="news-edit-editmode">
+          <label>编辑模式:</label>
+          <button
+            v-for="(ew,index) in editorWidths"
+            :key="index"
+            type="button"
+            :class="['btn',editModeWidth==ew?'btn-secondary':'btn-light']"
+            @click="putEditModeWidth(ew)"
+          >{{ew}}</button>
+        </div>
+        <b-form-group>
+          <!--正文-->
+          <tinymce
+            ref="tinymceNews"
+            @refreshScroll="refreshScroll"
+            @reloadScroll="reloadScroll"
+            :editorTop="editorTop"
+            :editorWidth="editModeWidth"
+            :scollMinTop="scollMinTop"
+            :scorllTopLength="scorllTopLength"
+          ></tinymce>
+        </b-form-group>
+
         <hr />
         <b-button type="submit" variant="primary">确认</b-button>
         <b-button type="reset" variant="light">重置</b-button>
       </b-form>
+      <b-modal
+        v-if="hasAttach"
+        ref="attachModal"
+        size="lg"
+        scrollable
+        :ok-title="'确认'"
+        :cancel-title="'取消'"
+        :title="attachModalName"
+        @ok="attachModalOk"
+        @hidden="attachModalHide"
+      >
+        <file
+          :fileShow="attachShow"
+          :fileCallBack="attachCallBack"
+          @fileClose="attachClose"
+        ></file>
+        <div class="mb-3 center">
+          <div class="news-cover" @click="attachOpen">
+            <img :src="getPicture()" />
+          </div>
+        </div>
+        <b-form
+          @submit.stop.prevent="attachModalSubmit"
+          autocomplete="off"
+          data-vv-scope="form-picture"
+        >
+          <b-form-group
+            label="图片地址:"
+            label-for="p-url"
+            description="选取图片库自动生成链接，或者手动填写外链."
+          >
+            <b-form-input
+              id="p-url"
+              type="text"
+              v-model="currentPicture.picUrl"
+              name="图片地址"
+              :state="!errors.has('form-picture.图片地址') "
+              v-validate="'required'"
+              placeholder="图片地址"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group
+            label="标题:"
+            label-for="p-title"
+            description="请填写5-30个字的标题."
+          >
+            <b-form-input
+              id="p-title"
+              type="text"
+              v-model="currentPicture.picTitle"
+              name="图片标题"
+              placeholder="图片标题"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group
+            label="描述:"
+            label-for="p-content"
+            description="简单的文字描述，不允许换行以及链接."
+          >
+            <b-form-textarea
+              id="p-content"
+              v-model="currentPicture.picContent"
+              placeholder="文字描述"
+            ></b-form-textarea>
+          </b-form-group>
+        </b-form>
+      </b-modal>
     </section>
     <section v-show="!editMode">
       <!-- Info modal -->

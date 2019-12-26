@@ -81,61 +81,69 @@
               </dd>
             </dl>
           </div>
-
           <div class="row file-content">
             <!--目录列表-->
             <div class="col-2 file-folder-container">
-              <ul class="file-folder">
-                <li
-                  v-for="(item,index) in Folders"
-                  :key="index"
-                  :class="item.open?'active':''"
-                >
-                  <i class="fas fa-chevron-right" @click="item.open=!item.open"></i>
-
-                  <!--<a :class="item.isActive?'active':''" @click="setTypeRoot(item)" @dblclick="item.open=!item.open">-->
-                  <a
-                    :class="item.isActive?'active':''"
-                    @click="oneClick($event,item)"
-                    @contextmenu="rightClick($event,item,true,null)"
+              <smooth-scroll
+                ref="fileFolderView"
+                :data="Folders"
+                :autoScroll="false"
+              >
+                <ul class="file-folder">
+                  <li
+                    v-for="(item,index) in Folders"
+                    :key="index"
+                    :class="item.open?'active':''"
                   >
                     <i
-                      :class="['far','mr-0',item.isActive?'fa-folder-open':'fa-folder']"
+                      class="fas fa-chevron-right"
+                      @click="item.open=!item.open"
                     ></i>
-                    {{item.name}}
-                  </a>
 
-                  <file-fodler-ul
-                    :model="item.subdir"
-                    :index="index"
-                    :breadcrumb="breadcrumb"
-                    :parent="item"
-                    @clearCurrent="clearCurrent"
-                    @setCurrent="setCurrent"
-                    @setCurrentFolder="setCurrentFolder"
-                    @setBreadcrumb="setBreadcrumb"
-                    @rightClick="rightClick"
-                  />
-                </li>
-              </ul>
+                    <!--<a :class="item.isActive?'active':''" @click="setTypeRoot(item)" @dblclick="item.open=!item.open">-->
+                    <a
+                      :class="item.isActive?'active':''"
+                      @click="oneClick($event,item)"
+                      @contextmenu="rightClick($event,item,true,null)"
+                    >
+                      <i
+                        :class="['far','mr-0',item.isActive?'fa-folder-open':'fa-folder']"
+                      ></i>
+                      {{item.name}}
+                    </a>
+
+                    <file-fodler-ul
+                      :model="item.subdir"
+                      :index="index"
+                      :breadcrumb="breadcrumb"
+                      :parent="item"
+                      @clearCurrent="clearCurrent"
+                      @setCurrent="setCurrent"
+                      @setCurrentFolder="setCurrentFolder"
+                      @setBreadcrumb="setBreadcrumb"
+                      @rightClick="rightClick"
+                    />
+                  </li>
+                </ul>
+              </smooth-scroll>
             </div>
             <!--活动目录内容-->
             <div class="col-10 file-list" @click="cancelCurrentFile">
               <Loading :isLoading="isLoading" style="border-radius:0;"></Loading>
-              <smooth-scroll
-                ref="fileListView"
-                :data="currentFolder.subdir"
-                :autoScroll="false"
-              >
-                <section>
-                  <ol class="breadcrumb">
-                    <li
-                      :class="['breadcrumb-item',item.value==currentFolder?'active':'']"
-                      v-for="(item,index) in breadcrumb"
-                      :key="index"
-                      @click.stop="breadcrumbClick(item.value,index)"
-                    >{{item.text}}</li>
-                  </ol>
+              <ol class="breadcrumb">
+                <li
+                  :class="['breadcrumb-item',item.value==currentFolder?'active':'']"
+                  v-for="(item,index) in breadcrumb"
+                  :key="index"
+                  @click.stop="breadcrumbClick(item.value,index)"
+                >{{item.text}}</li>
+              </ol>
+              <div class="file-folder-list">
+                <smooth-scroll
+                  ref="fileListView"
+                  :data="currentFolder.subdir"
+                  :autoScroll="false"
+                >
                   <dl>
                     <dd
                       v-for="(item,index) in currentFolder.subdir"
@@ -193,8 +201,8 @@
                       <span>{{item1.name}}</span>
                     </dd>
                   </dl>
-                </section>
-              </smooth-scroll>
+                </smooth-scroll>
+              </div>
             </div>
           </div>
         </div>
@@ -210,7 +218,7 @@ import axios from 'axios'
 import contextMenu from 'vue-context-menu'
 import smoothScroll from './smoothScroll'
 import Loading from './loading'
-import '@/assets/tankFiler.css'
+import '@/assets/tankFiler.less'
 export default {
     data() {
         return {

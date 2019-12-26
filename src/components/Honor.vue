@@ -69,10 +69,20 @@
           label-for="p-startDate"
           description="留空则不显示"
         >
-          <date-pick id="p-startDate" v-model="form.startDate"></date-pick>
+          <datepicker
+            input-class="form-control"
+            v-model="form.startDate"
+            :format="customFormatter"
+            name="p-startDate"
+          ></datepicker>
         </b-form-group>
         <b-form-group label="截至时间:" label-for="p-endDate" description="留空则不显示">
-          <date-pick id="p-endDate" v-model="form.endDate"></date-pick>
+          <datepicker
+            input-class="form-control"
+            v-model="form.endDate"
+            :format="customFormatter"
+            name="p-endDate"
+          ></datepicker>
         </b-form-group>
         <b-form-group label="是否含有简介:" label-for="p-hasInfo">
           <b-form-checkbox
@@ -219,10 +229,8 @@
 import tools from '../utiltools/tools'
 import swal from 'sweetalert'
 import tinymce from '@/components/custom/tinymce'
-import DatePick from 'vue-date-pick'
-import 'vue-date-pick/dist/vueDatePick.css'
 import file from '@/components/custom/tankFiler'
-
+import Datepicker from 'vuejs-datepicker'
 const baseFrom = {
     title: '',
     hasInfo: false,
@@ -236,7 +244,7 @@ export default {
     components: {
         tinymce,
         file,
-        DatePick
+        Datepicker
     },
     data() {
         return {
@@ -248,7 +256,7 @@ export default {
             editorWidths: [640, 800, 900, 1000, 1200],
             editRow: {},
             editRowIndex: null,
-            form: {},
+            form: { startDate: '', endDate: '' },
             formShow: true,
             /* table设置 start*/
             isBusy: false,
@@ -328,6 +336,19 @@ export default {
         }
     },
     methods: {
+        customFormatter(d) {
+            let day = d.getDate()
+            let month = d.getMonth() + 1
+            let year = d.getFullYear()
+            if (day < 10) {
+                day = '0' + day
+            }
+            if (month < 10) {
+                month = '0' + month
+            }
+            let date = year + '-' + month + '-' + day
+            return date
+        },
         coverOpen() {
             this.fileShow = true
             this.fileCallBack = this.coverSet
@@ -468,6 +489,7 @@ export default {
                 this.form.cover !== undefined
             ) {
                 this.form.info = this.$refs.tinymceNews.getVal()
+                this.form.miniCover = this.form.cover
                 this.editRow = JSON.parse(JSON.stringify(this.form))
                 if (!this.isUpdate) {
                     await this.$http.post(this.createUrl, this.editRow).then(res => {
