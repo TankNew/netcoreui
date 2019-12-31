@@ -32,8 +32,9 @@
         :module="module"
         @catalogChoose="catalogChoose"
         @ctxMenuOpen="ctxMenuOpen"
+        @catalogAdd="catalogAdd"
       ></group-tree>
-      <li>
+      <li v-if="!isPage">
         <div @click="catalogAdd(item,isPage)">
           <span>
             <i class="fas fa-plus"></i>

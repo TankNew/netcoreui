@@ -440,7 +440,6 @@ export default {
 
         add(parent, isPage) {
             let basicPage = { parentId: null, displayName: '', catalogType: null, cover: '', info: '' }
-
             if (!isPage) {
                 basicPage.catalogType = 1
             }
