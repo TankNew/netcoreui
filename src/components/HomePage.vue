@@ -122,127 +122,131 @@
     <section class="home-page-setting">
       <ul>
         <li>
-          <dl>
-            <dt class="bg-warning">广告类栏目</dt>
-            <draggable
-              :disabled="dragging"
-              v-model="blocks"
-              :animation="200"
-              :group="{ name: `blocks`}"
-              :ghost-class="'ghost'"
-              @change="handleChange"
+          <h6 class="bg-warning">广告类栏目</h6>
+          <draggable
+            tag="dl"
+            :disabled="dragging"
+            v-model="blocks"
+            :animation="200"
+            :group="{ name: `blocks`}"
+            :ghost-class="'ghost'"
+            @change="handleChange"
+          >
+            <dd
+              :class="item.noActive?'notActive':'img'"
+              v-for="(item,index) in blocks"
+              :key="index"
+              @click="openBlockModal(item,index,item.noActive)"
             >
-              <dd
-                :class="item.noActive?'notActive':'img'"
-                v-for="(item,index) in blocks"
-                :key="index"
-                @click="openBlockModal(item,index,item.noActive)"
-              >
+              <div v-if="!item.noActive">
                 <i
-                  v-if="!item.noActive"
                   class="fas fa-times fa-delete"
                   @click.stop="blockDelete(item,index)"
                 ></i>
-                <span v-if="!item.noActive">
-                  <img :src="item.img" />
-                </span>
-                <span v-else>{{index+1}}</span>
-              </dd>
-            </draggable>
-          </dl>
+                <img :src="item.img" />
+              </div>
+              <div v-else>
+                <span>{{index+1}}</span>
+              </div>
+            </dd>
+          </draggable>
+          <div class="clear"></div>
         </li>
         <li>
-          <dl>
-            <dt class="bg-primary">文字类栏目</dt>
-            <draggable
-              :disabled="dragging"
-              v-model="words"
-              :animation="200"
-              :group="{ name: `words`}"
-              :ghost-class="'ghost'"
-              @change="handleChange"
+          <h6 class="bg-primary">文字类栏目</h6>
+          <draggable
+            tag="dl"
+            :disabled="dragging"
+            v-model="words"
+            :animation="200"
+            :group="{ name: `words`}"
+            :ghost-class="'ghost'"
+            @change="handleChange"
+          >
+            <dd
+              :class="item.noActive?'notActive':''"
+              v-for="(item,index) in words"
+              :key="index"
+              @click="openGroupModal(item,index,item.noActive,1)"
             >
-              <dd
-                :class="item.noActive?'notActive':''"
-                v-for="(item,index) in words"
-                :key="index"
-                @click="openGroupModal(item,index,item.noActive,1)"
-              >
+              <div v-if="!item.noActive">
                 <i
-                  v-if="!item.noActive"
                   class="fas fa-times fa-delete"
                   @click.stop="groupDelete(item)"
                 ></i>
-                <span v-if="!item.noActive">
-                  <i class="fas fa-check"></i>
-                  {{item.catalogGroup?item.catalogGroup.displayName:null}}
-                </span>
-                <span v-else>{{index+1}}</span>
-              </dd>
-            </draggable>
-          </dl>
+                <span>{{item.catalogGroup?item.catalogGroup.displayName:null}}</span>
+                <i class="fas fa-check"></i>
+              </div>
+              <div v-else>
+                <span>{{index+1}}</span>
+              </div>
+            </dd>
+          </draggable>
+          <div class="clear"></div>
         </li>
         <li>
-          <dl>
-            <dt class="bg-info">图片类栏目</dt>
-            <draggable
-              :disabled="dragging"
-              v-model="pictures"
-              :animation="200"
-              :group="{ name: `pictures`}"
-              :ghost-class="'ghost'"
-              @change="handleChange"
+          <h6 class="bg-success">图片类栏目</h6>
+          <draggable
+            tag="dl"
+            :disabled="dragging"
+            v-model="pictures"
+            :animation="200"
+            :group="{ name: `pictures`}"
+            :ghost-class="'ghost'"
+            @change="handleChange"
+          >
+            <dd
+              :class="item.noActive?'notActive':''"
+              v-for="(item,index) in pictures"
+              :key="index"
+              @click="openGroupModal(item,index,item.noActive,2)"
             >
-              <dd
-                :class="item.noActive?'notActive':''"
-                v-for="(item,index) in pictures"
-                :key="index"
-                @click="openGroupModal(item,index,item.noActive,2)"
-              >
+              <div v-if="!item.noActive">
                 <i
-                  v-if="!item.noActive"
                   class="fas fa-times fa-delete"
                   @click.stop="groupDelete(item)"
                 ></i>
-                <span v-if="!item.noActive">
-                  <i class="fas fa-check"></i>
-                  {{item.catalogGroup?item.catalogGroup.displayName:null}}
-                </span>
-                <span v-else>{{index+1}}</span>
-              </dd>
-            </draggable>
-          </dl>
+                <span>{{item.catalogGroup?item.catalogGroup.displayName:null}}</span>
+                <i class="fas fa-check"></i>
+              </div>
+              <div v-else>
+                <span>{{index+1}}</span>
+              </div>
+            </dd>
+          </draggable>
+          <div class="clear"></div>
         </li>
         <li>
-          <dl>
-            <dt class="bg-success">产品类栏目</dt>
-            <draggable
-              :disabled="dragging"
-              v-model="products"
-              :animation="200"
-              :group="{ name: `products`}"
-              :ghost-class="'ghost'"
-              @change="handleChange"
+          <h6 class="bg-info">产品类栏目</h6>
+          <draggable
+            tag="dl"
+            :disabled="dragging"
+            v-model="products"
+            :animation="200"
+            :group="{ name: `products`}"
+            :ghost-class="'ghost'"
+            @change="handleChange"
+          >
+            <dd
+              :class="item.noActive?'notActive':''"
+              v-for="(item,index) in products"
+              :key="index"
+              @click="openGroupModal(item,index,item.noActive,3)"
             >
-              <dd
-                :class="item.noActive?'notActive':''"
-                v-for="(item,index) in products"
-                :key="index"
-                @click="openGroupModal(item,index,item.noActive,3)"
-              >
+              <div v-if="!item.noActive">
                 <i
-                  v-if="!item.noActive"
                   class="fas fa-times fa-delete"
                   @click.stop="groupDelete(item)"
                 ></i>
-                <span v-if="!item.noActive">
-                  <i class="fas fa-check"></i>
-                  {{item.catalogGroup?item.catalogGroup.displayName:null}}
-                </span>
-                <span v-else>{{index+1}}</span>
-              </dd>
-            </draggable>
-          </dl>
+                <span>{{item.catalogGroup?item.catalogGroup.displayName:null}}</span>
+                <i class="fas fa-check"></i>
+              </div>
+              <div v-else>
+                <span>{{index+1}}</span>
+              </div>
+            </dd>
+          </draggable>
+          <div class="clear"></div>
         </li>
       </ul>
     </section>
@@ -425,8 +429,8 @@ export default {
                 })
             }
             let l = list.length
-            if (l < 6) {
-                for (let i = 0; i < 6 - l; i++) {
+            if (l < 8) {
+                for (let i = 0; i < 8 - l; i++) {
                     list.push({ noActive: true })
                 }
             }

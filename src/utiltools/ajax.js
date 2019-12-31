@@ -60,7 +60,7 @@ ajax.interceptors.response.use(
             })
         } else if (!error.response) {
             swal({
-                title: window.abp.localization.localize('UnknownError'),
+                title: window.abp.localization.localize('Network Error'),
                 icon: 'error'
             })
         }

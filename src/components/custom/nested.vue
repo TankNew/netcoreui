@@ -105,6 +105,7 @@ export default {
                 console.log(`is dragging`)
                 return false
             }
+            console.log(e)
             let draged = e.draggedContext.element
             let to = e.relatedContext.element
             let json = {

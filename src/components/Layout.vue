@@ -55,7 +55,7 @@
           <b-navbar-nav class="ml-auto">
             <b-nav-item-dropdown right offset="25">
               <template slot="button-content">
-                <i class="fab fa-creative-commons mr_10"></i>
+                <i class="fab fa-creative-commons mx-2"></i>
                 {{this.L('Language')}}
               </template>
               <b-dropdown-item
@@ -70,7 +70,7 @@
             <b-nav-item-dropdown right offset="125">
               <!-- Using button-content slot -->
               <template slot="button-content">
-                <i class="fas fa-users-cog mr_10"></i>
+                <i class="fas fa-users-cog mx-2"></i>
                 {{this.L('Users')}}
               </template>
               <b-dropdown-item

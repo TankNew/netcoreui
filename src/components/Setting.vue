@@ -1,49 +1,17 @@
 <template>
-  <section class="container-fluid">
-    <tinymce
-      ref="tinymce"
-      @refreshScroll="refreshScroll"
-      @reloadScroll="reloadScroll"
-      :editorTop="70"
-      :editorWidth="800"
-      :scorllTopLength="scorllTopLength"
-    ></tinymce>
-    <div class="mt-3">
-      <button type="button" class="btn btn-success" @click="getContent">获取</button>
-      <button type="button" class="btn btn-success" @click="setContent">设置</button>
-    </div>
-  </section>
+    <section class="container-fluid">
+        <p class="lead">
+            <i class="far fa-copy text-primary mr-1"></i>
+            {{contentTitle}}
+        </p>
+        <b-jumbotron header="稍后上线" lead="Ednet.CMS 5.2版将包含这个功能">
+            <p>期待您的任何建议与建议！</p>
+            <b-button variant="primary" href="http://www.ednet.cn">前往官网</b-button>
+        </b-jumbotron>
+    </section>
 </template>
 <script>
-import tinymce from '@/components/custom/tinymce'
 export default {
-    name: 'setting',
-    data() {
-        return {}
-    },
-    props: ['scorllTopLength'],
-    components: { tinymce },
-    computed: {},
-    methods: {
-        getContent() {
-            console.log(this.$refs.tinymce.getVal())
-        },
-        setContent() {
-            this.$refs.tinymce.setVal('春天画画')
-        },
-        refreshScroll() {
-            this.$emit('refreshScroll')
-        },
-        reloadScroll() {
-            this.$emit('reloadScroll')
-        }
-    },
-    created() {},
-    mounted() {
-        this.$nextTick(() => this.$refs.tinymce.init())
-    },
-    beforeDestroy: function() {
-        this.$refs.tinymce.destroy()
-    }
+    props: ['contentTitle']
 }
 </script>

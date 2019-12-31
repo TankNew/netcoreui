@@ -4,16 +4,9 @@
       <i class="far fa-copy text-primary mr-1"></i>
       {{contentTitle}}
     </p>
-    <div class="news-edit-editmode">
-      <label>编辑模式:</label>
-      <button
-        v-for="(ew,index) in editorWidths"
-        :key="index"
-        type="button"
-        :class="['btn',editModeWidth==ew?'btn-secondary':'btn-light']"
-        @click="putEditModeWidth(ew)"
-      >{{ew}}</button>
-    </div>
+    <b-alert show dismissible>
+      <b>Info:</b>单击左侧列表图标或者直接双击列表标题展开列表，单击列表标题在右侧进行编辑
+    </b-alert>
     <form @submit.stop.prevent="handleSubmit" autocomplete="off">
       <!--正文-->
       <tinymce
@@ -22,7 +15,7 @@
         @reloadScroll="reloadScroll"
         :initial="page.content"
         :editorWidth="editModeWidth"
-        :scollMinTop="54"
+        :scollMinTop="36"
         :scorllTopLength="scorllTopLength"
         :height="600"
       ></tinymce>
@@ -39,8 +32,7 @@ export default {
     name: 'page',
     data() {
         return {
-            id: 0,
-            editModeWidth: 900,
+            id: null,
             editorWidths: [640, 800, 900, 1000, 1200],
             page: {},
             getUrl: '/api/services/app/Page/Get',
@@ -59,6 +51,11 @@ export default {
                 this.id = parseInt(val.params.id)
                 this.load()
             })
+        }
+    },
+    computed: {
+        editModeWidth() {
+            return abp.page.width
         }
     },
     methods: {
@@ -96,7 +93,7 @@ export default {
         }
     },
     async created() {
-        this.id = parseInt(this.$route.params.id)
+        if (this.$route.params.id) this.id = parseInt(this.$route.params.id)
         this.load()
     },
     mounted() {

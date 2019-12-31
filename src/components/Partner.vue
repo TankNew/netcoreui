@@ -72,6 +72,16 @@
             v-validate="'required'"
           ></b-form-input>
         </b-form-group>
+        <b-form-group label="官网链接:" label-for="p-url">
+          <b-form-input
+            ref="focusThis"
+            id="p-url"
+            type="text"
+            v-model="form.url"
+            name="官网链接"
+            placeholder="官网链接"
+          ></b-form-input>
+        </b-form-group>
         <b-form-group label="是否含有简介:" label-for="p-hasInfo">
           <b-form-checkbox
             id="p-hasInfo"
@@ -80,18 +90,6 @@
             v-model="form.hasInfo"
           >启用</b-form-checkbox>
         </b-form-group>
-
-        <div class="news-edit-editmode" v-show="form.hasInfo">
-          <label>编辑模式:</label>
-          <button
-            v-for="(ew,index) in editorWidths"
-            :key="index"
-            type="button"
-            :class="['btn',editModeWidth==ew?'btn-secondary':'btn-light']"
-            @click="putEditModeWidth(ew)"
-          >{{ew}}</button>
-        </div>
-
         <b-form-group label="正文" label-for="detail" v-show="form.hasInfo">
           <tinymce
             id="detail"
@@ -100,7 +98,7 @@
             @reloadScroll="reloadScroll"
             :initial="form.info"
             :editorWidth="editModeWidth"
-            :scollMinTop="238"
+            :scollMinTop="452"
             :scorllTopLength="scorllTopLength"
           ></tinymce>
         </b-form-group>
@@ -159,48 +157,81 @@
           <i class="fas fa-plus mr-1"></i>新增
         </button>
       </div>
-      <!-- Main table element -->
       <div class="news-table">
         <section style="min-height: 300px;">
-          <b-table
-            id="my-table"
-            show-empty
-            stacked="md"
-            primary-key="id"
-            :head-variant="'bTable'"
-            :hover="true"
-            :busy.sync="isBusy"
-            :bordered="true"
-            :items="myProvider"
-            :fields="fields"
-            :current-page="currentPage"
-            :per-page="perPage"
-            :filter="filter"
-            :sort-by.sync="sortBy"
-            :sort-desc.sync="sortDesc"
-            :sort-direction="sortDirection"
-            @filtered="onFiltered"
-          >
-            <template v-slot:cell(logo)="row">
-              <img :src="row.value" />
-            </template>
-            <template v-slot:cell(actions)="row">
-              <!-- We use @click.stop here to prevent a 'row-clicked' event from also happening -->
-              <b-button
-                size="sm"
-                @click.stop="_edit(row.item, row.index, $event.target)"
-                class="mr-1"
-                variant="info"
-              >编辑</b-button>
-              <b-button
-                size="sm"
-                @click.stop="_delete(row.item, row.index, $event.target)"
-                variant="dark"
-              >删除</b-button>
-            </template>
-          </b-table>
-        </section>
+          <b-table-simple hover responsive bordered>
+            <colgroup>
+              <col style="width:60px;" />
+              <col style="width:120px;" />
+              <col />
+              <col style="width:70px;" />
+              <col style="width:120px;" />
+            </colgroup>
+            <b-thead head-variant="light">
+              <b-tr>
+                <b-th class="text-center">ID</b-th>
+                <b-th class="text-center">Logo</b-th>
+                <b-th class="text-center">企业全称</b-th>
+                <b-th class="text-center">含有简介</b-th>
+                <b-th class="text-center">操作</b-th>
+              </b-tr>
+            </b-thead>
+            <b-tbody v-if="isBusy">
+              <b-tr>
+                <b-td colspan="5">
+                  <div class="text-center text-info my-2">
+                    <b-spinner class="align-middle"></b-spinner>
+                    <strong>Loading...</strong>
+                  </div>
+                </b-td>
+              </b-tr>
+            </b-tbody>
 
+            <draggable
+              v-else
+              tag="b-tbody"
+              :disabled="dragging"
+              :list="items"
+              :animation="200"
+              :group="{ name: `news`}"
+              :ghost-class="'ghost'"
+              :move="onMove"
+              @change="handleChange"
+            >
+              <b-tr v-for="(item,index) in items" :key="index">
+                <b-td class="text-center">
+                  <span class="news-number">{{parseInt(item.id)}}</span>
+                </b-td>
+                <b-td class="text-center">
+                  <img :src="item.logo" />
+                </b-td>
+                <b-td>{{item.title}}</b-td>
+                <b-td class="text-center">{{item.hasInfo}}</b-td>
+                <b-td class="text-center">
+                  <b-button
+                    size="sm"
+                    @click.stop="_edit(item, item.index, $event.target)"
+                    class="mr-1"
+                    variant="info"
+                  >编辑</b-button>
+                  <b-button
+                    size="sm"
+                    @click.stop="_delete(item, item.index, $event.target)"
+                    variant="dark"
+                  >删除</b-button>
+                </b-td>
+              </b-tr>
+            </draggable>
+            <b-tfoot>
+              <b-tr>
+                <b-td colspan="5" variant="light" class="text-left">
+                  Total Rows:
+                  <b>{{totalRows}}</b>
+                </b-td>
+              </b-tr>
+            </b-tfoot>
+          </b-table-simple>
+        </section>
         <b-pagination
           pills
           align="center"
@@ -219,37 +250,41 @@ import tools from '../utiltools/tools'
 import swal from 'sweetalert'
 import VueBase64FileUpload from 'vue-base64-file-upload'
 import tinymce from '@/components/custom/tinymce'
+import draggable from 'vuedraggable'
 
 const baseFrom = {
     logo: '',
     title: '',
+    url: '',
     hasInfo: false,
     info: ''
 }
 export default {
     components: {
         tinymce,
-        VueBase64FileUpload
+        VueBase64FileUpload,
+        draggable
     },
     data() {
         return {
             customImageMaxSize: 0.2,
             isUpdate: false, // 是否更新
             editMode: false,
-            editModeWidth: 800,
             editorWidths: [640, 800, 900, 1000, 1200],
             editRow: {},
             editRowIndex: null,
             form: {},
             formShow: true,
             /* table设置 start*/
-            isBusy: false,
+            items: [],
+            dragging: false,
+            isBusy: true,
             currentPage: 1,
             perPage: 10,
-            totalRows: 1,
+            totalRows: 0,
             pageOptions: [5, 10, 20, 50, 100],
             sortBy: 'number',
-            sortDesc: true,
+            sortDesc: false,
             sortDirection: 'desc',
             keyWord: null,
             filter: null,
@@ -257,7 +292,8 @@ export default {
             getAllUrl: '/api/services/app/Partner/GetAll',
             deleteUrl: `/api/services/app/Partner/Delete`,
             createUrl: `/api/services/app/Partner/Create`,
-            updateUrl: `/api/services/app/Partner/Update`
+            updateUrl: `/api/services/app/Partner/Update`,
+            dragUrl: `/api/services/app/Partner/Move`
         }
     },
     props: {
@@ -265,6 +301,16 @@ export default {
         scorllTopLength: Number
     },
     watch: {
+        sortBy(val) {
+            this.load()
+        },
+        sortDesc(val) {
+            this.load()
+        },
+        perPage() {
+            this.load()
+            this.refreshScroll()
+        },
         editMode(val) {
             var that = this
             if (val === true) {
@@ -280,17 +326,14 @@ export default {
 
             //刷新滚动轴
             that.refreshScroll()
-        },
-        perPage() {
-            this.refreshScroll()
         }
     },
     computed: {
         editModeTitle() {
             return this.isUpdate ? '编辑' : '新增'
         },
-        editModeCss() {
-            return 'width:' + this.editModeWidth + 'px'
+        editModeWidth() {
+            return abp.page.width
         },
         sortOptions() {
             // Create an options list from our fields
@@ -323,6 +366,29 @@ export default {
         }
     },
     methods: {
+        onMove(e) {
+            if (this.dragging || this.sortBy !== 'number' || this.sortDesc) {
+                return false
+            }
+        },
+        async handleChange(e) {
+            let toIndex = e.moved.newIndex - 1
+            if (e.moved.oldIndex > e.moved.newIndex) toIndex = e.moved.newIndex + 1
+
+            let draged = e.moved.element
+            let to = this.items[toIndex]
+            let json = {
+                id: draged.id,
+                toId: to.id,
+                above: to.number < draged.number
+            }
+            this.dragging = true
+            await this.$http.post(this.dragUrl, json).then(res => {
+                this.items[e.moved.newIndex].number = res.data.result.number
+                this.dragging = false
+                this.dragUpdate = null
+            })
+        },
         onFile(file) {},
         onLoadCover(dataUri) {
             this.form.logo = dataUri
@@ -343,19 +409,22 @@ export default {
         /**Table methods */
         search(val) {
             this.filter = val
+            this.load()
         },
         formatTime(val) {
             return tools.date(val)
         },
         pageChange(val) {
             this.currentPage = val
+            this.load()
         },
         onFiltered(filteredItems) {
             // Trigger pagination to update the number of buttons/pages due to filtering
             this.totalRows = filteredItems.length
             this.currentPage = 1
         },
-        myProvider(ctx) {
+        load() {
+            this.isBusy = true
             let sorts = ['IsTop DESC']
             let sort = String(this.sortBy)
             if (sort !== null && sort !== undefined && sort !== '') {
@@ -366,27 +435,26 @@ export default {
             }
             let params = {
                 params: {
-                    Keyword: ctx.filter,
+                    Keyword: this.filter,
                     IsActive: true,
-                    SkipCount: (ctx.currentPage - 1) * ctx.perPage,
-                    MaxResultCount: ctx.perPage,
+                    SkipCount: (this.currentPage - 1) * this.perPage,
+                    MaxResultCount: this.perPage,
                     Sorting: sorts.toString()
                 }
             }
-
-            let promise = this.$http.get(this.getAllUrl, params)
-            return promise
+            this.$http
+                .get(this.getAllUrl, params)
                 .then(res => {
                     if (res.data.success) {
                         let json = res.data.result
-                        let items = json.items
-                        items.forEach(i => (i._showDetails = false))
+                        this.items = json.items
+                        this.items.forEach(i => (i._showDetails = false))
                         this.totalRows = json.totalCount
-                        return items
+                        this.isBusy = false
                     }
                 })
                 .catch(() => {
-                    return []
+                    this.isBusy = false
                 })
         },
 
@@ -456,9 +524,7 @@ export default {
         },
         async onSubmit(evt) {
             evt.preventDefault()
-            if (
-                await this.validate('form-update')
-            ) {
+            if (await this.validate('form-update')) {
                 this.form.info = this.$refs.tinymceNews.getVal()
                 this.editRow = JSON.parse(JSON.stringify(this.form))
                 if (!this.isUpdate) {
@@ -475,7 +541,7 @@ export default {
                         }
                     })
                 }
-                this.outEditMode()
+                swal('操作成功!', '', 'success').then(() => this.outEditMode())
             } else {
                 swal({
                     title: '请填写必要的选项!',
@@ -508,7 +574,7 @@ export default {
         }
     },
     created() {
-        var that = this
+        this.load()
     },
 
     beforeDestroy: function() {

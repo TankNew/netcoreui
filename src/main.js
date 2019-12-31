@@ -23,13 +23,15 @@ import { setToken, getToken, getUerFromLocalStorage } from './utiltools/auth'
 import './plugins/AxiosPlugin'
 import './plugins/vee-validate'
 
-import './assets/Layout.css'
+import './assets/Layout.less'
 import 'famfamfam-flags/dist/sprite/famfamfam-flags.css'
 
 import fileFolderLi from './components/custom/fileFolderLi.vue'
 import filefolderUl from './components/custom/filefolderUl.vue'
+ 
 Vue.component('file-fodler-li', fileFolderLi)
 Vue.component('file-fodler-ul', filefolderUl)
+ 
 
 Vue.use(Vuex)
 Vue.use(PortalVue)
@@ -79,6 +81,12 @@ store.commit('setUser', getUerFromLocalStorage())
             Width: abp.setting.getInt('App.Banner.Width'),
             Height: abp.setting.getInt('App.Banner.Height'),
             Interval: abp.setting.getInt('App.Banner.Interval')
+        }
+        window.abp.page = {
+            width: abp.setting.getInt('App.Page.Width')
+        }
+        window.abp.catalogItem = {
+            width: abp.setting.getInt('App.CatalogItem.Width')
         }
         console.log(abp)
         new Vue({

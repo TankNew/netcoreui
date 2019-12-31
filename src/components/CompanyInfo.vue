@@ -62,28 +62,6 @@
               </b-btn>
             </b-input-group-append>
           </b-input-group>
-          <b-form-group label="简介" label-for="detail">
-            <div class="news-edit-editmode">
-              <label>编辑模式:</label>
-              <button
-                v-for="(ew,index) in editorWidths"
-                :key="index"
-                type="button"
-                :class="['btn',editModeWidth==ew?'btn-secondary':'btn-light']"
-                @click="putEditModeWidth(ew)"
-              >{{ew}}</button>
-            </div>
-            <tinymce
-              id="detail"
-              ref="tinymceNews"
-              @refreshScroll="refreshScroll"
-              @reloadScroll="reloadScroll"
-              :initial="companyInfo.content"
-              :editorWidth="editModeWidth"
-              :scollMinTop="348"
-              :scorllTopLength="scorllTopLength"
-            ></tinymce>
-          </b-form-group>
         </b-card>
         <b-card title="联系方式" class="contact-info-card">
           <p class="card-text">
@@ -135,7 +113,20 @@
             ></b-form-input>
           </b-input-group>
         </b-card>
-        <p class="m-3 text-center">
+        <h4 class="card-title mt-3">简介</h4>
+        <b-form-group class="mx-1">
+          <tinymce
+            id="detail"
+            ref="tinymceNews"
+            @refreshScroll="refreshScroll"
+            @reloadScroll="reloadScroll"
+            :initial="companyInfo.content"
+            :editorWidth="editModeWidth"
+            :scollMinTop="736"
+            :scorllTopLength="scorllTopLength"
+          ></tinymce>
+        </b-form-group>
+        <p class="m-3">
           <button class="btn btn-primary py-2 px-5" type="submit">提交</button>
         </p>
       </div>
@@ -151,7 +142,6 @@ export default {
         return {
             companyInfo: {},
             customImageMaxSize: 0.2,
-            editModeWidth: 900,
             editorWidths: [640, 800, 900, 1000, 1200]
         }
     },
@@ -162,6 +152,11 @@ export default {
     components: {
         VueBase64FileUpload,
         tinymce
+    },
+    computed: {
+        editModeWidth() {
+            return abp.page.width
+        }
     },
     methods: {
         //改变编辑器宽度
@@ -232,6 +227,6 @@ export default {
 </script>
 <style lang="less" scoped>
 .contact-info {
-    max-width: 100%;
+    max-width: 1140px;
 }
 </style>

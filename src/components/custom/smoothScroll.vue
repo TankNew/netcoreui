@@ -1,7 +1,7 @@
 <template>
   <section ref="scrollContainer" class="scroll-container">
     <!-- 他妈的神经病啊，必须加上一个div -->
-    <div>
+    <div class="content-container">
       <slot></slot>
     </div>
   </section>

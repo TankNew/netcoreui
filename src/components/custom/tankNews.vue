@@ -1,6 +1,10 @@
 <template>
   <section>
-    <section v-show="editMode" style="height:100%; position:relative;">
+    <section
+      v-show="editMode"
+      style="height:100%; position:relative;"
+      class="news-edit-editmode"
+    >
       <div class="alert alert-success" role="alert">
         <i class="far fa-bell mx-1"></i>
         您当前正处于{{editModeTitle}}模式
@@ -80,9 +84,9 @@
               @click="editPicture(f,i)"
             >
               <img :src="f.picUrl" />
-              <i class="fas fa-times" @click.stop="attachDelete(i)"></i>
+              <i class="fas fa-times fa-lg" @click.stop="attachDelete(i)"></i>
             </li>
-            <li @click="addPicture">
+            <li class="add" @click="addPicture">
               <span>
                 <i class="fas fa-plus mr-1"></i>添加图片
               </span>
@@ -90,16 +94,6 @@
           </draggable>
         </div>
         <label>正文</label>
-        <div class="news-edit-editmode">
-          <label>编辑模式:</label>
-          <button
-            v-for="(ew,index) in editorWidths"
-            :key="index"
-            type="button"
-            :class="['btn',editModeWidth==ew?'btn-secondary':'btn-light']"
-            @click="putEditModeWidth(ew)"
-          >{{ew}}</button>
-        </div>
         <b-form-group>
           <!--正文-->
           <tinymce
@@ -209,52 +203,6 @@
       <label>
         <i class="fas fa-wrench mx-2 text-info"></i>快捷工具
       </label>
-      <dl class="news-group-bar" v-if="hasGroup">
-        <dd style="width:100%">
-          <b-input-group prepend="子分类管理" size="sm">
-            <b-form-input
-              v-if="isSubGroupUpdating"
-              v-model="subGroupUpdating.displayName"
-              name="子分类名称"
-              :state="!errors.has('form-subGroup.子分类名称') "
-              v-validate="'required'"
-              data-vv-scope="form-subGroup"
-            ></b-form-input>
-            <b-form-select v-else v-model="subGroupIndex" :options="subGroups">
-              <option slot="first" :value="null">-- 选择子分类 --</option>
-            </b-form-select>
-            <b-input-group-append>
-              <b-button
-                v-if="!isSubGroupUpdating"
-                class="px-5"
-                variant="info"
-                @click="modifySubGroup"
-              >修改</b-button>
-              <b-button
-                v-else
-                class="px-5"
-                variant="success"
-                @click="updateSubGroup"
-              >更新</b-button>
-              <b-button
-                v-if="!isSubGroupUpdating"
-                class="px-5"
-                variant="dark"
-                @click="delSubGroup"
-              >删除</b-button>
-              <b-button v-else class="px-5" @click="cancelSubGroup">取消</b-button>
-            </b-input-group-append>
-          </b-input-group>
-        </dd>
-        <dd>
-          <b-input-group size="sm">
-            <b-form-input v-model="newSubGroup.displayName"></b-form-input>
-            <b-input-group-append>
-              <b-button variant="primary" @click="addSubGroup">添加子分类</b-button>
-            </b-input-group-append>
-          </b-input-group>
-        </dd>
-      </dl>
       <!-- User Interface controls -->
       <dl class="news-bar">
         <dd>
@@ -291,7 +239,7 @@
           </b-input-group>
         </dd>
       </dl>
-      <div class="mb-3 ml-4" v-if="(hasGroup&&enableAddButton)||!hasGroup">
+      <div class="mb-3 ml-4" v-if="(hasGroup&&!disableCreate)||!hasGroup">
         <button type="button" class="btn btn-primary btn-sm px-5" @click="_new">
           <i class="fas fa-plus mr-1"></i>新增
         </button>
@@ -299,85 +247,98 @@
       <!-- Main table element -->
       <div class="news-table">
         <section style="min-height: 300px;">
-          <b-table
-            id="my-table"
-            show-empty
-            stacked="md"
-            primary-key="id"
-            :head-variant="'bTable'"
-            :hover="true"
-            :busy.sync="isBusy"
-            :bordered="true"
-            :items="myProvider"
-            :fields="fields"
-            :current-page="currentPage"
-            :per-page="perPage"
-            :filter="filter"
-            :sort-by.sync="sortBy"
-            :sort-desc.sync="sortDesc"
-            :sort-direction="sortDirection"
-            @filtered="onFiltered"
-          >
-            <template v-slot:table-busy>
-              <div class="text-center text-info my-2">
-                <b-spinner class="align-middle"></b-spinner>
-                <strong>Loading...</strong>
-              </div>
-            </template>
-            <template v-slot:cell(mark)="row">{{row.value}}</template>
-            <template v-slot:cell(isTop)="row">
-              <button
-                type="button"
-                @click.stop="_putTop(row.item)"
-                :class="['btn','btn-sm',row.value?'btn-primary':'btn-light']"
-              >{{row.value?'取消':"置顶"}}</button>
-            </template>
-            <template v-slot:cell(number)="row">
-              <span class="news-number">{{parseInt(row.value)}}</span>
-            </template>
-            <template v-slot:cell(catalogGroupId)="row">
-              <span>{{row.item.catalogGroup.displayName}}</span>
-            </template>
-            <!-- <template v-slot:cell(number)="row">
-                            <span
-                                class="news-number"
-                                @click.stop="isChangeTopNum=!isChangeTopNum"
-                                v-if="!isChangeTopNum"
-                            >{{row.value}}</span>
-                            <input
-                                class="form-control form-control-sm"
-                                v-else
-                                type="number"
-                                v-model="row.value"
-                                @keyup.enter.prevent="isChangeTopNum=!isChangeTopNum"
-                            />
-            </template>-->
-            <template v-slot:cell(title)="row">{{row.value}}</template>
-            <template v-slot:cell(creationTime)="row">{{formatTime(row.value)}}</template>
-            <template slot="isfile" slot-scope="row">{{row.value?'是':'否'}}</template>
-            <template v-slot:cell(actions)="row">
-              <!-- We use @click.stop here to prevent a 'row-clicked' event from also happening -->
-              <b-button
-                size="sm"
-                @click.stop="rowClicked(row.item, row.index, $event.target)"
-                class="mr-1"
-                variant="light"
-              >预览</b-button>
-              <b-button
-                size="sm"
-                @click.stop="_edit(row.item, row.index, $event.target)"
-                class="mr-1"
-                variant="info"
-              >编辑</b-button>
-              <b-button
-                size="sm"
-                @click.stop="_delete(row.item, row.index, $event.target)"
-                variant="dark"
-              >删除</b-button>
-            </template>
-          </b-table>
-        </section>
+          <b-table-simple hover responsive bordered>
+            <colgroup>
+              <col style="width:70px;" />
+              <col style="width:60px;" />
+              <col />
+              <col style="width:80px;" />
+              <col v-if="hasGroup" style="width:80px;" />
+              <col style="width:90px;" />
+              <col style="width:170px;" />
+            </colgroup>
+            <b-thead head-variant="light">
+              <b-tr>
+                <b-th class="text-center">置顶</b-th>
+                <b-th class="text-center">ID</b-th>
+                <b-th class="text-center">标题</b-th>
+                <b-th class="text-center">标签</b-th>
+                <b-th v-if="hasGroup" class="text-center">分组</b-th>
+                <b-th class="text-center">发布时间</b-th>
+                <b-th class="text-center">操作</b-th>
+              </b-tr>
+            </b-thead>
+            <b-tbody v-if="isBusy">
+              <b-tr>
+                <b-td colspan="12">
+                  <div class="text-center text-info my-2">
+                    <b-spinner class="align-middle"></b-spinner>
+                    <strong>Loading...</strong>
+                  </div>
+                </b-td>
+              </b-tr>
+            </b-tbody>
 
+            <draggable
+              v-else
+              tag="b-tbody"
+              :disabled="dragging"
+              :list="items"
+              :animation="200"
+              :group="{ name: `news`}"
+              :ghost-class="'ghost'"
+              :move="onMove"
+              @change="handleChange"
+            >
+              <b-tr v-for="(item,index) in items" :key="index">
+                <b-th class="text-center">
+                  <button
+                    type="button"
+                    @click.stop="_putTop(item)"
+                    :class="['btn','btn-sm',item.isTop?'btn-primary':'btn-light']"
+                  >{{item.isTop?'取消':"置顶"}}</button>
+                </b-th>
+                <b-td class="text-center">
+                  <span class="news-number">{{parseInt(item.id)}}</span>
+                </b-td>
+                <b-td>{{item.title}}</b-td>
+                <b-td class="text-center">{{item.mark}}</b-td>
+                <b-td
+                  v-if="hasGroup"
+                  class="text-center"
+                >{{item.catalogGroup.displayName}}</b-td>
+                <b-td class="text-center">{{formatTime(item.creationTime)}}</b-td>
+                <b-td class="text-center">
+                  <b-button
+                    size="sm"
+                    @click.stop="rowClicked(item, item.index, $event.target)"
+                    class="mr-1"
+                    variant="light"
+                  >预览</b-button>
+                  <b-button
+                    size="sm"
+                    @click.stop="_edit(item, item.index, $event.target)"
+                    class="mr-1"
+                    variant="info"
+                  >编辑</b-button>
+                  <b-button
+                    size="sm"
+                    @click.stop="_delete(item, item.index, $event.target)"
+                    variant="dark"
+                  >删除</b-button>
+                </b-td>
+              </b-tr>
+            </draggable>
+            <b-tfoot>
+              <b-tr>
+                <b-td colspan="12" variant="light" class="text-left">
+                  Total Rows:
+                  <b>{{totalRows}}</b>
+                </b-td>
+              </b-tr>
+            </b-tfoot>
+          </b-table-simple>
+        </section>
         <b-pagination
           pills
           align="center"
@@ -410,6 +371,13 @@ const baseFrom = {
 }
 export default {
     name: 'tankNews',
+    components: {
+        //'editor': Editor,
+        file: file,
+        smoothScroll: smoothScroll,
+        tinymce: tinymce,
+        draggable: draggable
+    },
     data() {
         return {
             marks: [],
@@ -418,7 +386,6 @@ export default {
             /**编辑模式设置 */
             isUpdate: false,
             editMode: false,
-            editModeWidth: 800,
             editorWidths: [640, 800, 900, 1000, 1200],
             editRow: {},
             form: {},
@@ -433,24 +400,18 @@ export default {
 
             /*图片组设置*/
             attachModalName: '',
-            dragging: false,
             currentPictureIsUpdate: false, //新增或者更新
             currentPicture: {}, //当前编辑的图片
             currentPictureIndex: 0, //当前编辑图片的INDEX
             attachShow: false, // 打开/关闭文件管理器
             attachCallBack: function(x) {},
-            /**分组设置 */
-            isSubGroupUpdating: false,
-            isSubGroupLoading: true,
-            subGroupUpdating: {},
-            subGroupIndex: null,
-            newSubGroup: {},
-            subGroups: [],
             /* table设置 start*/
-            isBusy: false,
+            items: [],
+            dragging: false,
+            isBusy: true,
             currentPage: 1,
             perPage: 10,
-            totalRows: 1,
+            totalRows: 0,
             pageOptions: [5, 10, 20, 50, 100],
             sortBy: 'number',
             sortDesc: true,
@@ -480,6 +441,10 @@ export default {
             required: true,
             type: String
         },
+        dragUrl: {
+            required: true,
+            type: String
+        },
         hasAttach: {
             type: Boolean,
             default: true
@@ -494,23 +459,33 @@ export default {
         },
         dataGroup: Number,
         dataType: Number,
-        dataGroupListUrl: String,
-        dataGroupSortUrl: String,
-        dataGroupCreateUrl: String,
-        dataGroupUpdateUrl: String,
-        dataGroupDeleteUrl: String,
+        disableCreate: {
+            type: Boolean,
+            default: false
+        },
         editorTop: Number,
         scollMinTop: Number,
         scorllTopLength: Number
     },
-    components: {
-        //'editor': Editor,
-        file: file,
-        smoothScroll: smoothScroll,
-        tinymce: tinymce,
-        draggable: draggable
-    },
+
     watch: {
+        // form: {
+        //     handler(newVal) {
+        //         this.isEditRowChange = true
+        //     },
+        //     deep: true,
+        //     immediate: true
+        // },
+        sortBy(val) {
+            this.load()
+        },
+        sortDesc(val) {
+            this.load()
+        },
+        perPage() {
+            this.load()
+            this.refreshScroll()
+        },
         //监测是否出于编辑状态
         editMode(val) {
             var that = this
@@ -527,20 +502,14 @@ export default {
 
             //刷新滚动轴
             that.refreshScroll()
-        },
-        perPage() {
-            this.refreshScroll()
         }
     },
     computed: {
-        enableAddButton() {
-            return this.isSubGroupLoading ? false : this.subGroups.length === 0
-        },
         editModeTitle() {
             return this.isUpdate ? '编辑' : '新增'
         },
-        editModeCss() {
-            return 'width:' + this.editModeWidth + 'px'
+        editModeWidth() {
+            return abp.catalogItem.width
         },
         sortOptions() {
             // Create an options list from our fields
@@ -586,6 +555,30 @@ export default {
         }
     },
     methods: {
+        onMove(e) {
+            if (this.dragging || this.sortBy !== 'number' || !this.sortDesc) {
+                return false
+            }
+        },
+        async handleChange(e) {
+            console.log(e)
+            let toIndex = e.moved.newIndex - 1
+            if (e.moved.oldIndex > e.moved.newIndex) toIndex = e.moved.newIndex + 1
+
+            let draged = e.moved.element
+            let to = this.items[toIndex]
+            let json = {
+                id: draged.id,
+                toId: to.id,
+                above: to.number > draged.number
+            }
+            this.dragging = true
+            await this.$http.post(this.dragUrl, json).then(res => {
+                this.items[e.moved.newIndex].number = res.data.result.number
+                this.dragging = false
+                this.dragUpdate = null
+            })
+        },
         addPicture() {
             this.currentPictureIsUpdate = false
             this.currentPicture = {
@@ -630,22 +623,24 @@ export default {
         },
         search(val) {
             this.filter = val
+            this.load()
         },
         formatTime(val) {
             return tools.date(val)
         },
         pageChange(val) {
             this.currentPage = val
+            this.load()
         },
         onFiltered(filteredItems) {
             // Trigger pagination to update the number of buttons/pages due to filtering
             this.totalRows = filteredItems.length
             this.currentPage = 1
         },
-        myProvider(ctx) {
+        load() {
             // Here we don't set isBusy prop, so busy state will be
             // handled by table itself
-            // this.isBusy = true
+            this.isBusy = true
             let sorts = ['IsTop DESC']
             let sort = String(this.sortBy)
             if (sort !== null && sort !== undefined && sort !== '') {
@@ -656,34 +651,33 @@ export default {
             }
             let params = {
                 params: {
-                    Keyword: ctx.filter,
+                    Keyword: this.filter,
                     IsActive: true,
-                    SkipCount: (ctx.currentPage - 1) * ctx.perPage,
-                    MaxResultCount: ctx.perPage,
+                    SkipCount: (this.currentPage - 1) * this.perPage,
+                    MaxResultCount: this.perPage,
                     Sorting: sorts.toString()
                 }
             }
 
             if (this.hasGroup) params.params.catalogGroupId = this.dataGroup
-            let promise = this.$http.get(this.dataUrl, params)
-            return promise
+            this.$http
+                .get(this.dataUrl, params)
                 .then(res => {
                     if (res.data.success) {
                         let json = res.data.result
-                        let items = json.items
-                        items.forEach(i => (i._showDetails = false))
+                        this.totalRows = json.totalCount
+                        this.items = json.items
+                        this.items.forEach(i => (i._showDetails = false))
                         //_rowVariant用来定义行颜色
                         // items.forEach(i => { if (i.isTop) i._rowVariant = 'success' })
-                        this.totalRows = json.totalCount
-                        return items
+                        this.isBusy = false
                     }
                 })
                 .catch(() => {
-                    // Here we could override the busy state, setting isBusy to false
-                    // this.isBusy = false
+                    // Here we could override the busy sta
                     // Returning an empty array, allows table to correctly handle
-                    // internal busy state in case of error
-                    return []
+                    // internal busy state in case of errorte, setting isBusy to false
+                    this.isBusy = false
                 })
         },
         //查看
@@ -742,7 +736,7 @@ export default {
                 if (confirm) {
                     this.$http.delete(this.deleteUrl, { params: { id: item.id } }).then(res => {
                         if (res.data.success) {
-                            this.$root.$emit('bv::refresh::table', 'my-table')
+                            this.load()
                         }
                     })
                 }
@@ -853,13 +847,13 @@ export default {
                     await this.$http.post(this.createUrl, this.editRow).then(res => {
                         if (res.data.success) {
                             let json = res.data.result
-                            this.$root.$emit('bv::refresh::table', 'my-table')
+                            this.load()
                         }
                     })
                 } else {
                     await this.$http.put(this.updateUrl, this.editRow).then(res => {
                         if (res.data.success) {
-                            this.$root.$emit('bv::refresh::table', 'my-table')
+                            this.load()
                         }
                     })
                 }
@@ -870,113 +864,50 @@ export default {
                     icon: 'warning'
                 })
             }
-        },
-
-        // 子分类管理
-        getSubGroups() {
-            this.subGroups = []
-            this.$http.get(this.dataGroupListUrl, { params: { id: this.dataGroup } }).then(res => {
-                if (res.data.success) {
-                    let json = res.data.result
-                    json.forEach(element => {
-                        this.subGroups.push({ text: element.displayName, value: element.id })
-                    })
-                    this.isSubGroupLoading = false
-                }
-            })
-        },
-        addSubGroup() {
-            this.newSubGroup.parentId = this.dataGroup
-            this.newSubGroup.catalogType = this.dataType
-            if (
-                this.newSubGroup.displayName !== null &&
-                this.newSubGroup.displayName !== '' &&
-                this.newSubGroup.displayName !== undefined
-            )
-                this.$http.post(this.dataGroupCreateUrl, this.newSubGroup).then(res => {
-                    if (res.data.success) {
-                        let element = res.data.result
-                        this.subGroups.push({ text: element.displayName, value: element.id })
-                        this.$emit('getMenu')
-                        this.newSubGroup = {}
-                    }
-                })
-            else
-                swal({
-                    title: '请填写必要的选项!',
-                    icon: 'warning'
-                })
-        },
-        modifySubGroup() {
-            if (this.subGroupIndex != null) {
-                this.subGroups.forEach(x => {
-                    if (x.value === this.subGroupIndex) {
-                        this.subGroupUpdating.displayName = x.text
-                        this.subGroupUpdating.id = x.value
-                        this.isSubGroupUpdating = true
-                    }
-                })
-            } else
-                swal({
-                    title: '请填写必要的选项!',
-                    icon: 'warning'
-                })
-        },
-        cancelSubGroup() {
-            this.subGroupUpdating = {}
-            this.subGroupIndex = null
-            this.isSubGroupUpdating = false
-        },
-        async updateSubGroup() {
-            if (await this.validate('form-subGroup')) {
-                this.$http.put(this.dataGroupUpdateUrl, this.subGroupUpdating).then(res => {
-                    if (res.data.success) {
-                        this.$emit('getMenu')
-                        this.getSubGroups()
-                        this.isSubGroupUpdating = false
-                    }
-                })
-            } else
-                swal({
-                    title: '请填写必要的选项!',
-                    icon: 'warning'
-                })
-        },
-        delSubGroup() {
-            if (this.subGroupIndex != null) {
-                swal({
-                    title: '确认吗?',
-                    text: '被删除数据可能无法恢复，请您再次确认!',
-                    icon: 'warning',
-                    buttons: ['取消', '确认'],
-                    dangerMode: true
-                }).then(async confirm => {
-                    if (confirm) {
-                        this.$http.delete(this.dataGroupDeleteUrl, { params: { id: this.subGroupIndex } }).then(res => {
-                            if (res.data.success) {
-                                this.$emit('getMenu')
-                                this.getSubGroups()
-                                this.subGroupIndex = null
-                            }
-                        })
-                    }
-                })
-            } else
-                swal({
-                    title: '请填写必要的选项!',
-                    icon: 'warning'
-                })
         }
+        // onpopstate() {
+        //     if (window.history && window.history.pushState) {
+        //         history.pushState(null, null, document.URL)
+        //         window.addEventListener('popstate', this.closeViews, false)
+        //         window.addEventListener('beforeunload', this.beforeunloadFn, false)
+        //     }
+        // },
+        // afterpopstate() {
+        //     window.removeEventListener('popstate', this.closeViews, false)
+        //     window.removeEventListener('beforeunload', this.beforeunloadFn, false)
+        // },
+        // beforeunloadFn(e) {
+        //     e.returnValue = ''
+        // },
+        // closeViews() {
+        //     if (this.editMode) {
+        //         if (this.isEditRowChange)
+        //             swal({
+        //                 title: '确认吗?',
+        //                 text: '您输入的内容尚未保存，确定离开此页面吗？',
+        //                 icon: 'warning',
+        //                 buttons: ['取消', '确认'],
+        //                 dangerMode: true
+        //             }).then(async confirm => {
+        //                 if (confirm) this.outEditMode()
+        //                 else history.pushState(null, null, document.URL)
+        //             })
+        //         else this.outEditMode()
+        //     } else history.back()
+        // }
     },
     created() {
         var that = this
         // 增加预置的标签
         abp.custom.news_marks.forEach(i => this.marks.push(i))
         this.form = JSON.parse(JSON.stringify(baseFrom))
-        this.getSubGroups()
+        this.load()
     },
     beforeDestroy: function() {
         if (this.editMode) this.$refs.tinymceNews.destroy()
+    },
+    destroyed() {
+        // this.afterpopstate()
     }
 }
 </script>

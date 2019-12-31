@@ -2,17 +2,19 @@
 .editor-container {
     position: relative;
     padding-right: 20px;
+    max-width: 100%;
 }
 .editor {
     min-height: 300px;
     max-height: 32767px;
     background-color: #fff;
     position: relative;
-    border: 1px solid #ccc;
+    border: 1px solid #999;
     border-radius: 4px;
-    padding: 1rem;
+    padding: 20px;
     outline: none;
     overflow-x: auto;
+    box-shadow: 0 0 3px #999;
 }
 #editorToolbar {
     position: absolute;

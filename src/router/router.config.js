@@ -19,6 +19,11 @@ export const router = new Router({
             meta: { auth: true },
             children: [
                 {
+                    path: 'Administration',
+                    name: 'AdministrationList',
+                    redirect: '/Administration/Users'
+                },
+                {
                     path: 'Users',
                     name: 'Users',
                     meta: { title: 'Users', permission: 'Pages.Users' },
@@ -51,6 +56,7 @@ export const router = new Router({
                     meta: { title: 'Hello' },
                     component: () => import('@/components/Hello')
                 },
+
                 {
                     path: 'honor',
                     name: 'honor',
@@ -110,7 +116,7 @@ export const router = new Router({
                     path: 'setting',
                     name: 'setting',
                     meta: { title: 'Setting', permission: 'Pages.Content' },
-                    component: () => import('@/components/Setting')
+                    redirect: '/home/modules'
                 },
                 {
                     path: 'modules',

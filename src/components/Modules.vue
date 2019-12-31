@@ -4,211 +4,306 @@
       <i class="far fa-copy text-primary mr-1"></i>
       {{contentTitle}}
     </p>
-    <!--自定义模块新增/修改-->
-    <section v-if="editMode" class="mr-3">
-      <file
-        :fileShow="fileShow"
-        :fileCallBack="fileCallBack"
-        @fileClose="fileClose"
-      ></file>
-      <section>
-        <div class="alert alert-success" role="alert">
-          <i class="far fa-bell mx-1"></i>
-          您当前正处于{{editModeTitle}}模式
-          <button
-            type="button"
-            class="btn btn-secondary btn-sm mx-1 float-right"
-            @click="outEditMode"
-          >退出{{editModeTitle}}模式</button>
-        </div>
-        <p class="lead">{{getPageEditTitle(module)}}</p>
-        <div class="w-50" style="min-width:640px;">
-          <b-form @submit.stop.prevent="onSubmit" autocomplete="off">
-            <div v-if="!isUpdate">
-              <b-button
-                v-if="!isPage"
-                variant="outline-info"
-                :class="module.catalogType==1?'active':''"
-                @click="module.catalogType=1"
-              >
-                <i class="fas fa-quote-left mr-1"></i>文字类
-              </b-button>
-              <b-button
-                v-if="!isPage"
-                variant="outline-info"
-                :class="module.catalogType==2?'active':''"
-                @click="module.catalogType=2"
-              >
-                <i class="fas fa-images mr-1"></i>图片类
-              </b-button>
-              <b-button
-                v-if="!isPage"
-                variant="outline-info"
-                :class="module.catalogType==3?'active':''"
-                @click="module.catalogType=3"
-              >
-                <i class="fas fa-luggage-cart mr-1"></i>产品类
-              </b-button>
-              <b-button v-if="isPage" variant="outline-info" class="active">
-                <i class="fas fa-pen-nib mr-1"></i>
-                自由编辑类
-              </b-button>
-              <hr />
-            </div>
-            <b-form-group
-              id="exampleInputGroup1"
-              label="标识名称:"
-              label-for="exampleInput1"
-              description="设置一个便于您识别的标识名称，该名称不会显示在任何前端页面中."
-            >
-              <b-form-input
-                id="exampleInput1"
-                type="text"
-                v-model="module.displayName"
-                placeholder="输入一个标识名称"
-                required
-              ></b-form-input>
-            </b-form-group>
-
-            <b-input-group size="sm" prepend="封面" class="mb-3">
-              <div class="info-img">
-                <img :src="module.cover" />
-              </div>
-              <b-input-group-append>
-                <b-btn size="sm" variant="primary" @click="coverOpen">选择</b-btn>
-              </b-input-group-append>
-            </b-input-group>
-            <b-form-group
-              label="简介:"
-              label-for="p-content"
-              description="简单的文字描述，不允许换行以及链接."
-            >
-              <b-form-textarea
-                id="p-content"
-                v-model="module.info"
-                placeholder="模块简介"
-                rows="5"
-                max-rows="10"
-              ></b-form-textarea>
-            </b-form-group>
-            <hr />
-            <b-button type="submit" variant="primary">确认</b-button>
-          </b-form>
-        </div>
-      </section>
-    </section>
     <!--模块总览-->
-    <section v-else>
-      <b-alert show dismissible class="small">
-        <b>Info:</b>预设模块无法删除或者更改，自定义模块会随着版本更新增加种类.
-      </b-alert>
-      <section class="px-3">
-        <p class="lead mb-3">预设模块</p>
-        <div class="mb-3">
-          <button
-            class="btn btn-outline-info mr-3 py-4 px-5 mb-3"
-            v-for="(item,index) in sections"
-            :key="index"
-          >{{item.displayName}}</button>
-        </div>
-      </section>
-
-      <hr />
-
-      <section class="px-3">
-        <p class="lead mb-3">
-          列表模块
-          <button
-            type="button"
-            class="btn btn-primary btn-sm ml-2"
-            @click="add(false)"
+    <section>
+      <div ref="ctxMenuContainer">
+        <context-menu
+          id="context-menu"
+          ref="ctxMenu"
+          @ctx-open="onCtxOpen"
+          @ctx-cancel="onCtxClose"
+          @ctx-close="onCtxClose"
+        >
+          <li @contextmenu.prevent @click="edit(menuData,menuIsPage)">
+            <i class="fas color-primary fa-pencil-alt mr-1"></i>
+            编辑模块
+          </li>
+          <li v-if="!isPage" @contextmenu.prevent @click="add(menuData,isPage)">
+            <i class="fas color-success fa-plus mr-1"></i>
+            增加子模块
+          </li>
+          <li
+            @contextmenu.prevent
+            @click="del(menuData,menuIndex,menuIsPage,menuArray)"
           >
-            <i class="fas fa-plus mr-2"></i>新增
-          </button>
-        </p>
-
-        <div class="custom-module-list">
-          <b-card-group deck class="mb-3">
-            <b-card
-              v-for="(item,index) in customSections"
-              :key="index"
-              @click="edit(item,false)"
-              align="center"
-            >
-              <h4 class="card-text font-weight-bold color-Purple mt-2">
-                <span>
-                  {{item.displayName}}
-                  <b-badge
-                    class="font-weight-light font_10"
-                    pill
-                    v-html="getCatalogType(item)"
-                    :variant="getPageListBorder(item)"
-                  ></b-badge>
-                </span>
-              </h4>
-
-              <h6 v-html="'创建时间：'+formatTime(item.creationTime)"></h6>
-              <div>
-                <button
-                  class="btn btn-sm btn-link"
-                  @click.stop="edit(item,false)"
-                >编辑</button>
-                <button
-                  class="btn btn-sm btn-link"
-                  @click.stop="del(item,index,false)"
-                >移除</button>
+            <i class="fas color-danger fa-minus mr-1"></i>
+            删除模块
+          </li>
+        </context-menu>
+      </div>
+      <div @contextmenu.prevent>
+        <b-card class="module-body" no-body>
+          <b-card-header header-tag="nav">
+            <b-nav card-header tabs>
+              <b-nav-item
+                :active="currentSection===1"
+                @click="changeCurrentSection(1)"
+              >列表模块</b-nav-item>
+              <b-nav-item
+                :active="currentSection===2"
+                @click="changeCurrentSection(2)"
+              >设计模块</b-nav-item>
+              <b-nav-item
+                :active="currentSection===3"
+                @click="changeCurrentSection(3)"
+              >预设模块</b-nav-item>
+            </b-nav>
+          </b-card-header>
+          <b-card-body>
+            <section class="px-3" v-show="currentSection===1">
+              <b-alert show dismissible>
+                <b>Info:</b>单击左侧列表图标或者直接双击列表标题展开列表，单击列表标题在右侧进行编辑
+              </b-alert>
+              <div class="mb-5 group-module">
+                <div class="list p-3">
+                  <p class="lead mb-3">列表模块</p>
+                  <section class="group-tree">
+                    <ul>
+                      <group-tree
+                        v-for="(item,index) in catalogGroups"
+                        :key="index"
+                        :item="item"
+                        :items="catalogGroups"
+                        :itemIndex="index"
+                        :isPage="false"
+                        :module="module"
+                        @ctxMenuOpen="ctxMenuOpen"
+                        @catalogAdd="add"
+                        @catalogChoose="edit"
+                      />
+                      <li>
+                        <div @click="add(null,false)">
+                          <span>
+                            <i class="fas fa-plus"></i>
+                            新增
+                          </span>
+                        </div>
+                      </li>
+                    </ul>
+                  </section>
+                </div>
+                <div class="p-3 detail">
+                  <div class="no-action" v-if="!editMode">选择左侧模块进行编辑</div>
+                  <div v-else>
+                    <file
+                      :fileShow="fileShow"
+                      :fileCallBack="fileCallBack"
+                      @fileClose="fileClose"
+                    ></file>
+                    <p class="tips">
+                      <b-spinner
+                        v-if="isUpdate"
+                        variant="success"
+                        small
+                        label="Spinning"
+                      ></b-spinner>
+                      <b-spinner
+                        v-else
+                        variant="success"
+                        small
+                        label="Spinning"
+                        type="grow"
+                      ></b-spinner>
+                      <span class="path">
+                        <span>{{isUpdate?`编辑`:`新增`}}</span>
+                        <span
+                          class="action"
+                        >{{isUpdate?module.displayName:parent?parent.displayName:``}}</span>
+                        {{!isUpdate?'子模块':''}}
+                      </span>
+                    </p>
+                    <b-form @submit.stop.prevent="onSubmit" autocomplete="off">
+                      <div v-if="!isUpdate" class="mb-3">
+                        <b-button
+                          variant="outline-info"
+                          :class="module.catalogType==1?'active':''"
+                          @click="module.catalogType=1"
+                        >
+                          <i class="fas fa-quote-left mr-1"></i>文字类
+                        </b-button>
+                        <b-button
+                          variant="outline-success"
+                          :class="module.catalogType==2?'active':''"
+                          @click="module.catalogType=2"
+                        >
+                          <i class="fas fa-images mr-1"></i>图片类
+                        </b-button>
+                        <b-button
+                          variant="outline-primary"
+                          :class="module.catalogType==3?'active':''"
+                          @click="module.catalogType=3"
+                        >
+                          <i class="fas fa-luggage-cart mr-1"></i>产品类
+                        </b-button>
+                      </div>
+                      <b-form-group
+                        label="标识名称:"
+                        description="设置一个便于您识别的标识名称，该名称不会显示在任何前端页面中."
+                      >
+                        <b-form-input
+                          type="text"
+                          v-model="module.displayName"
+                          placeholder="输入一个标识名称"
+                          required
+                        ></b-form-input>
+                      </b-form-group>
+                      <b-input-group size="sm" prepend="封面" class="mb-3">
+                        <div class="info-img">
+                          <img :src="module.cover" />
+                        </div>
+                        <b-input-group-append>
+                          <b-btn
+                            size="sm"
+                            variant="primary"
+                            @click="coverOpen"
+                          >选择</b-btn>
+                        </b-input-group-append>
+                      </b-input-group>
+                      <b-form-group
+                        label="简介:"
+                        description="简单的文字描述，不允许换行以及链接."
+                      >
+                        <b-form-textarea
+                          v-model="module.info"
+                          placeholder="模块简介"
+                          rows="5"
+                          max-rows="10"
+                        ></b-form-textarea>
+                      </b-form-group>
+                      <hr />
+                      <b-button type="submit" variant="primary">确认</b-button>
+                    </b-form>
+                  </div>
+                </div>
               </div>
-            </b-card>
-          </b-card-group>
-        </div>
-      </section>
-      <hr />
-      <section class="px-3">
-        <p class="lead mb-3">
-          自由编辑模块
-          <button
-            type="button"
-            class="btn btn-primary btn-sm ml-2"
-            @click="add(true)"
-          >
-            <i class="fas fa-plus mr-2"></i>新增
-          </button>
-        </p>
+            </section>
+            <section class="px-3" v-show="currentSection===2">
+              <b-alert show dismissible>
+                <b>Info:</b>单击左侧列表图标或者直接双击列表标题展开列表，单击列表标题在右侧进行编辑
+              </b-alert>
+              <div class="mb-5 group-module">
+                <div class="list p-3">
+                  <p class="lead mb-3">设计模块</p>
+                  <section class="group-tree">
+                    <ul>
+                      <group-tree
+                        v-for="(item,index) in pages"
+                        :key="index"
+                        :item="item"
+                        :items="pages"
+                        :itemIndex="index"
+                        :isPage="true"
+                        :module="module"
+                        @ctxMenuOpen="ctxMenuOpen"
+                        @catalogAdd="add"
+                        @catalogChoose="edit"
+                      />
+                      <li>
+                        <div @click="add(null,true)">
+                          <span>
+                            <i class="fas fa-plus"></i>
+                            新增
+                          </span>
+                        </div>
+                      </li>
+                    </ul>
+                  </section>
+                </div>
 
-        <div class="custom-module-list">
-          <b-card-group deck class="mb-3">
-            <b-card
-              v-for="(item,index) in pageSections"
-              :key="index"
-              @click="edit(item,true)"
-              align="center"
-            >
-              <h4 class="card-text font-weight-bold color-Purple mt-2">
-                <span>
-                  {{item.displayName}}
-                  <b-badge
-                    class="font-weight-light font_10"
-                    pill
-                    variant="warning"
-                  >自由编辑类</b-badge>
-                </span>
-              </h4>
-
-              <h6 v-html="'创建时间：'+formatTime(item.creationTime)"></h6>
-              <div>
-                <button
-                  class="btn btn-sm btn-link"
-                  @click.stop="edit(item,true)"
-                >编辑</button>
-                <button
-                  class="btn btn-sm btn-link"
-                  @click.stop="del(item,index,true)"
-                >移除</button>
+                <div class="p-3 detail">
+                  <div class="no-action" v-if="!editMode">选择左侧模块进行编辑</div>
+                  <div v-else>
+                    <file
+                      :fileShow="fileShow"
+                      :fileCallBack="fileCallBack"
+                      @fileClose="fileClose"
+                    ></file>
+                    <p class="tips">
+                      <b-spinner
+                        v-if="isUpdate"
+                        variant="success"
+                        small
+                        label="Spinning"
+                      ></b-spinner>
+                      <b-spinner
+                        v-else
+                        variant="success"
+                        small
+                        label="Spinning"
+                        type="grow"
+                      ></b-spinner>
+                      <span class="path">
+                        <span>{{isUpdate?`编辑`:`新增`}}</span>
+                        <span
+                          class="action"
+                        >{{isUpdate?module.displayName:parent?parent.displayName:``}}</span>
+                        {{!isUpdate?'子模块':''}}
+                      </span>
+                    </p>
+                    <b-form @submit.stop.prevent="onSubmit" autocomplete="off">
+                      <div v-if="!isUpdate" class="mb-3">
+                        <b-button variant="outline-info" class="active">
+                          <i class="fas fa-pen-nib mr-1"></i>
+                          设计模块
+                        </b-button>
+                      </div>
+                      <b-form-group
+                        label="标识名称:"
+                        description="设置一个便于您识别的标识名称，该名称不会显示在任何前端页面中."
+                      >
+                        <b-form-input
+                          type="text"
+                          v-model="module.displayName"
+                          placeholder="输入一个标识名称"
+                          required
+                        ></b-form-input>
+                      </b-form-group>
+                      <b-input-group size="sm" prepend="封面" class="mb-3">
+                        <div class="info-img">
+                          <img :src="module.cover" />
+                        </div>
+                        <b-input-group-append>
+                          <b-btn
+                            size="sm"
+                            variant="primary"
+                            @click="coverOpen"
+                          >选择</b-btn>
+                        </b-input-group-append>
+                      </b-input-group>
+                      <b-form-group
+                        label="简介:"
+                        description="简单的文字描述，不允许换行以及链接."
+                      >
+                        <b-form-textarea
+                          v-model="module.info"
+                          placeholder="模块简介"
+                          rows="5"
+                          max-rows="10"
+                        ></b-form-textarea>
+                      </b-form-group>
+                      <hr />
+                      <b-button type="submit" variant="primary">确认</b-button>
+                    </b-form>
+                  </div>
+                </div>
               </div>
-            </b-card>
-          </b-card-group>
-        </div>
-      </section>
+            </section>
+            <section class="px-3" v-show="currentSection===3">
+              <b-alert show variant="success" dismissible>
+                <b>Info:</b>预设模块是系统初始内置给企业的模块，无法删除可修改.
+              </b-alert>
+              <p class="lead mb-3">预设模块</p>
+              <div class="mb-3">
+                <button
+                  class="btn btn-sm btn-outline-info mr-3 py-3 px-5 mb-3"
+                  v-for="(item,index) in webModules"
+                  :key="index"
+                >{{item.displayName}}</button>
+              </div>
+            </section>
+          </b-card-body>
+        </b-card>
+      </div>
     </section>
   </section>
 </template>
@@ -216,45 +311,71 @@
 import swal from 'sweetalert'
 import tools from '../utiltools/tools'
 import file from '@/components/custom/tankFiler'
+import groupTree from '@/components/custom/groupTree'
+import contextMenu from 'vue-context-menu'
 
 export default {
+    components: {
+        file,
+        groupTree,
+        contextMenu
+    },
     data() {
         return {
             fileShow: false,
             fileCallBack: function(x) {},
-            module: {},
-            editRow: {},
+            module: {}, // 可操作数据
+            editRow: {}, // 原始数据
             editMode: false,
             isUpdate: false,
-            isPage: true,
-            isEditRowChange: false,
-            //预设模块
-            sections: [],
-            //自定义模块
-            customSections: [],
-            pageSections: []
+            isPage: false,
+            parent: null,
+
+            menuData: {},
+            menuIndex: 0,
+            menuArray: [],
+
+            currentSection: 1,
+            webModules: [],
+            catalogGroups: [],
+            pages: [],
+
+            dataGroupUrl: '/api/services/app/CatalogGroup/Get',
+            dataGroupListUrl: '/api/services/app/CatalogGroup/GetAll',
+            dataGroupSortUrl: '/api/services/app/CatalogGroup/Move',
+            dataGroupCreateUrl: '/api/services/app/CatalogGroup/Create',
+            dataGroupUpdateUrl: '/api/services/app/CatalogGroup/Update',
+            dataGroupDeleteUrl: '/api/services/app/CatalogGroup/Delete',
+
+            dataPageUrl: '/api/services/app/Page/Get',
+            dataPageListUrl: '/api/services/app/Page/GetAll',
+            dataPageSortUrl: '/api/services/app/Page/Move',
+            dataPageCreateUrl: '/api/services/app/Page/Create',
+            dataPageUpdateUrl: '/api/services/app/Page/Update',
+            dataPageDeleteUrl: '/api/services/app/Page/Delete'
         }
     },
-    computed: {
-        editModeTitle() {
-            return this.isUpdate ? '编辑' : '新增'
-        }
-    },
-    components: {
-        file
-    },
+
     props: ['contentTitle'],
 
-    watch: {
-        module: {
-            handler(newVal) {
-                this.isEditRowChange = true
-            },
-            deep: true,
-            immediate: true
-        }
-    },
     methods: {
+        changeCurrentSection(val) {
+            this.outEditMode()
+            this.parent = null
+            this.editMode = false
+            this.currentSection = val
+        },
+        // 当右键菜单打开时
+        onCtxOpen(locals) {},
+        onCtxClose(locals) {},
+        // 打开右键
+        ctxMenuOpen(e, item, isPage, index, array) {
+            this.menuData = item
+            this.menuIsPage = isPage
+            this.menuIndex = index
+            this.menuArray = array
+            this.$refs.ctxMenu.open(e, item)
+        },
         coverOpen() {
             this.fileShow = true
             this.fileCallBack = this.coverSet
@@ -265,49 +386,16 @@ export default {
         fileClose() {
             this.fileShow = false
         },
-        getPageEditTitle(item) {
-            if (item.catalogType) {
-                switch (item.catalogType) {
-                    case 1:
-                        return `文字类`
-                    case 2:
-                        return `图片类`
-                    case 3:
-                        return `产品类`
-                }
-            } else return '自由编辑类'
-        },
-        getPageListBorder(item) {
-            switch (item.catalogType) {
-                case 1:
-                    return `primary`
-                case 2:
-                    return `success`
-                case 3:
-                    return `info`
-            }
-        },
-
-        getCatalogType(item) {
-            switch (item.catalogType) {
-                case 1:
-                    return `<i class="fas fa-quote-left mr-1"></i>文字类`
-                case 2:
-                    return `<i class="fas fa-images mr-1" ></i>图片类`
-                case 3:
-                    return `<i class="fas fa-luggage-cart mr-1" ></i>产品类`
-            }
-        },
         formatTime(val) {
             return tools.date(val)
         },
         outEditMode() {
-            this.editMode = false
             this.module = {}
             this.editRow = {}
             this.isUpdate = false
-            this.isEditRowChange = false
-            this.afterpopstate()
+            this.menuData = {}
+            this.menuIndex = 0
+            this.menuArray = []
         },
         async onSubmit(evt) {
             evt.preventDefault()
@@ -316,14 +404,16 @@ export default {
                     await this.$http.post('/api/services/app/Page/Create', this.module).then(res => {
                         if (res.data.success) {
                             let json = res.data.result
-                            this.pageSections.push(json)
+                            if (this.parent != null) this.parent.children.push(json)
+                            else this.pages.push(json)
                         }
                     })
                 else
                     await this.$http.post('/api/services/app/CatalogGroup/Create', this.module).then(res => {
                         if (res.data.success) {
                             let json = res.data.result
-                            this.customSections.push(json)
+                            if (this.parent != null) this.parent.children.push(json)
+                            else this.catalogGroups.push(json)
                         }
                     })
             } else {
@@ -345,36 +435,30 @@ export default {
                     })
             }
             this.$emit('getMenu')
-            this.outEditMode()
+            swal('操作成功!', '', 'success').then(() => this.outEditMode())
         },
 
-        add(isPage) {
-            let basicPage = { displayName: '', catalogType: null, cover: '', info: '' }
+        add(parent, isPage) {
+            let basicPage = { parentId: null, displayName: '', catalogType: null, cover: '', info: '' }
 
             if (!isPage) {
                 basicPage.catalogType = 1
             }
+            if (parent) basicPage.parentId = parent.id
+            this.editMode = true
             this.isPage = isPage
+            this.parent = parent
             this.isUpdate = false
             this.module = JSON.parse(JSON.stringify(basicPage))
-            this.editMode = !this.editMode
-            this.$nextTick(() => {
-                this.isEditRowChange = false
-                this.onpopstate()
-            })
         },
         edit(val, isPage) {
             this.isPage = isPage
+            this.editMode = true
             this.isUpdate = true
             this.editRow = val
             this.module = JSON.parse(JSON.stringify(val))
-            this.editMode = !this.editMode
-            this.$nextTick(() => {
-                this.isEditRowChange = false
-                this.onpopstate()
-            })
         },
-        del(item, index, isPage) {
+        del(item, index, isPage, menuArray = []) {
             swal({
                 title: '确认吗?',
                 text: '被删除数据可能无法恢复，请您再次确认!',
@@ -387,14 +471,14 @@ export default {
                     if (isPage)
                         this.$http.delete('/api/services/app/Page/Delete', params).then(res => {
                             if (res.data.success) {
-                                this.pageSections.splice(index, 1)
+                                menuArray.splice(index, 1)
                                 this.$emit('getMenu')
                             }
                         })
                     else
                         this.$http.delete('/api/services/app/CatalogGroup/Delete', params).then(res => {
                             if (res.data.success) {
-                                this.customSections.splice(index, 1)
+                                menuArray.splice(index, 1)
                                 this.$emit('getMenu')
                             }
                         })
@@ -405,59 +489,32 @@ export default {
             this.$http.get('/api/services/app/WebModule/GetAll').then(res => {
                 if (res.data.success) {
                     let json = res.data.result
-                    this.sections = json
+                    this.webModules = json
                 }
             })
             this.$http.get('/api/services/app/CatalogGroup/GetAll').then(res => {
                 if (res.data.success) {
                     let json = res.data.result
-                    this.customSections = json
+                    this.catalogGroups = json
                 }
             })
 
             this.$http.get('/api/services/app/Page/GetAll').then(res => {
                 if (res.data.success) {
                     let json = res.data.result
-                    this.pageSections = json.items
+                    this.pages = json.items
                 }
             })
-        },
-        onpopstate() {
-            if (window.history && window.history.pushState) {
-                history.pushState(null, null, document.URL)
-                window.addEventListener('popstate', this.closeViews, false)
-                window.addEventListener('beforeunload', this.beforeunloadFn, false)
-            }
-        },
-        afterpopstate() {
-            window.removeEventListener('popstate', this.closeViews, false)
-            window.removeEventListener('beforeunload', this.beforeunloadFn, false)
-        },
-        beforeunloadFn(e) {
-            e.returnValue = ''
-        },
-        closeViews() {
-            if (this.editMode) {
-                if (this.isEditRowChange)
-                    swal({
-                        title: '确认吗?',
-                        text: '您输入的内容尚未保存，确定离开此页面吗？',
-                        icon: 'warning',
-                        buttons: ['取消', '确认'],
-                        dangerMode: true
-                    }).then(async confirm => {
-                        if (confirm) this.outEditMode()
-                        else history.pushState(null, null, document.URL)
-                    })
-                else this.outEditMode()
-            } else history.back()
         }
     },
     created() {
         this.load()
     },
-    destroyed() {
-        this.afterpopstate()
+    mounted() {
+        this.$nextTick(() => {
+            let moveNodeRef = this.$refs.ctxMenuContainer
+            document.body.appendChild(moveNodeRef)
+        })
     }
 }
 </script> 
