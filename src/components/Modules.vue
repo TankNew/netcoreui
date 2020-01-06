@@ -136,6 +136,14 @@
                           <i class="fas fa-luggage-cart mr-1"></i>产品类
                         </b-button>
                       </div>
+                      <b-input-group size="sm" prepend="ICON" class="mb-3">
+                        <div class="icon-img">
+                          <img :src="module.icon" />
+                        </div>
+                        <b-input-group-append>
+                          <b-btn size="sm" variant="info" @click="iconOpen">选择</b-btn>
+                        </b-input-group-append>
+                      </b-input-group>
                       <b-form-group
                         label="标识名称:"
                         description="设置一个便于您识别的标识名称，该名称不会显示在任何前端页面中."
@@ -247,6 +255,14 @@
                           设计模块
                         </b-button>
                       </div>
+                      <b-input-group size="sm" prepend="ICON" class="mb-3">
+                        <div class="icon-img">
+                          <img :src="module.icon" />
+                        </div>
+                        <b-input-group-append>
+                          <b-btn size="sm" variant="info" @click="iconOpen">选择</b-btn>
+                        </b-input-group-append>
+                      </b-input-group>
                       <b-form-group
                         label="标识名称:"
                         description="设置一个便于您识别的标识名称，该名称不会显示在任何前端页面中."
@@ -376,6 +392,13 @@ export default {
             this.menuArray = array
             this.$refs.ctxMenu.open(e, item)
         },
+        iconOpen() {
+            this.fileShow = true
+            this.fileCallBack = this.iconSet
+        },
+        iconSet(fileUrl) {
+            this.module.icon = fileUrl
+        },
         coverOpen() {
             this.fileShow = true
             this.fileCallBack = this.coverSet
@@ -423,6 +446,7 @@ export default {
                             this.editRow.displayName = this.module.displayName
                             this.editRow.cover = this.module.cover
                             this.editRow.info = this.module.info
+                            this.editRow.icon = this.module.icon
                         }
                     })
                 else
@@ -431,11 +455,12 @@ export default {
                             this.editRow.displayName = this.module.displayName
                             this.editRow.cover = this.module.cover
                             this.editRow.info = this.module.info
+                            this.editRow.icon = this.module.icon
                         }
                     })
             }
             this.$emit('getMenu')
-            swal('操作成功!', '', 'success').then(() => this.outEditMode())
+            swal('操作成功!', '', 'success').then(() => (this.isUpdate ? '' : this.outEditMode()))
         },
 
         add(parent, isPage) {

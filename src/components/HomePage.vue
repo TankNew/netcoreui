@@ -47,6 +47,17 @@
           autocomplete="off"
           data-vv-scope="form-picture"
         >
+          <b-form-group label="标题:" label-for="p-title" description="广告标题.">
+            <b-form-input
+              id="p-title"
+              type="text"
+              v-model="currentBlock.title"
+              name="标题"
+              :state="!errors.has('form-picture.标题') "
+              v-validate="'required'"
+              placeholder="标题"
+            ></b-form-input>
+          </b-form-group>
           <b-form-group
             label="图片地址:"
             label-for="p-img"
@@ -57,8 +68,6 @@
               type="text"
               v-model="currentBlock.img"
               name="图片地址"
-              :state="!errors.has('form-picture.图片地址') "
-              v-validate="'required'"
               placeholder="图片地址"
             ></b-form-input>
           </b-form-group>
@@ -93,37 +102,57 @@
       ref="groupModal"
       size="lg"
       scrollable
-      ok-only
       :ok-title="'确认'"
-      title="选择栏目"
+      :cancel-title="'取消'"
+      title="选择分组"
+      @ok="groupModalOk"
       @hidden="groupModalHide"
     >
       <b-alert show dismissible>
-        <b>Info:</b> 请双击选择关联的栏目，或者双击《清除选择》以取消关联任何
+        <b>Info:</b> 您可以更改默认分组名称
       </b-alert>
-      <section class="tree-item">
-        <ul>
-          <tree-item
-            v-for="(item,index) in treeData"
-            :key="index"
-            :item="item"
-            :currentPageGroup="currentPageGroup"
-            @catalogChoose="catalogChoose"
-          ></tree-item>
-          <li>
-            <div @dblclick="catalogChoose(null)">
-              <i class="fas fa-times-circle"></i>
-              清除选择
-            </div>
-          </li>
-        </ul>
-      </section>
+      <b-form
+        @submit.stop.prevent="groupModalOk"
+        autocomplete="off"
+        data-vv-scope="form-group"
+      >
+        <b-form-group
+          label="标题:"
+          label-for="g-title"
+          description="选取分组自动生成，也可以自定义."
+        >
+          <b-form-input
+            id="g-title"
+            type="text"
+            v-model="currentPageGroup.title"
+            name="标题"
+            :state="!errors.has('form-group.标题') "
+            v-validate="'required'"
+            placeholder="标题"
+          ></b-form-input>
+        </b-form-group>
+        <treeselect
+          v-model="value"
+          name="分组"
+          v-validate="'required'"
+          :multiple="false"
+          :options="treeData"
+          :normalizer="normalizer"
+          :show-count="true"
+          @select="onSelect"
+        ></treeselect>
+      </b-form>
     </b-modal>
     <section class="home-page-setting">
       <ul>
         <li>
           <h6 class="bg-warning">广告类栏目</h6>
+          <div v-if="isLoading" class="text-center loading text-info">
+            <b-spinner class="align-middle"></b-spinner>
+            <strong>Loading...</strong>
+          </div>
           <draggable
+            v-else
             tag="dl"
             :disabled="dragging"
             v-model="blocks"
@@ -154,7 +183,12 @@
         </li>
         <li>
           <h6 class="bg-primary">文字类栏目</h6>
+          <div v-if="isLoading" class="text-center loading text-info">
+            <b-spinner class="align-middle"></b-spinner>
+            <strong>Loading...</strong>
+          </div>
           <draggable
+            v-else
             tag="dl"
             :disabled="dragging"
             v-model="words"
@@ -174,7 +208,7 @@
                   class="fas fa-times fa-delete"
                   @click.stop="groupDelete(item)"
                 ></i>
-                <span>{{item.catalogGroup?item.catalogGroup.displayName:null}}</span>
+                <span>{{item.title?item.title:item.catalogGroup.displayName}}</span>
                 <i class="fas fa-check"></i>
               </div>
               <div v-else>
@@ -186,7 +220,12 @@
         </li>
         <li>
           <h6 class="bg-success">图片类栏目</h6>
+          <div v-if="isLoading" class="text-center loading text-info">
+            <b-spinner class="align-middle"></b-spinner>
+            <strong>Loading...</strong>
+          </div>
           <draggable
+            v-else
             tag="dl"
             :disabled="dragging"
             v-model="pictures"
@@ -206,7 +245,7 @@
                   class="fas fa-times fa-delete"
                   @click.stop="groupDelete(item)"
                 ></i>
-                <span>{{item.catalogGroup?item.catalogGroup.displayName:null}}</span>
+                <span>{{item.title?item.title:item.catalogGroup.displayName}}</span>
                 <i class="fas fa-check"></i>
               </div>
               <div v-else>
@@ -218,7 +257,12 @@
         </li>
         <li>
           <h6 class="bg-info">产品类栏目</h6>
+          <div v-if="isLoading" class="text-center loading text-info">
+            <b-spinner class="align-middle"></b-spinner>
+            <strong>Loading...</strong>
+          </div>
           <draggable
+            v-else
             tag="dl"
             :disabled="dragging"
             v-model="products"
@@ -238,7 +282,7 @@
                   class="fas fa-times fa-delete"
                   @click.stop="groupDelete(item)"
                 ></i>
-                <span>{{item.catalogGroup?item.catalogGroup.displayName:null}}</span>
+                <span>{{item.title?item.title:item.catalogGroup.displayName}}</span>
                 <i class="fas fa-check"></i>
               </div>
               <div v-else>
@@ -258,18 +302,24 @@ import file from '@/components/custom/tankFiler'
 import AppConsts from '../utiltools/appconst'
 import treeItem from '@/components/custom/treeItem'
 import draggable from 'vuedraggable'
+// import the component
+import Treeselect from '@riophae/vue-treeselect'
+// import the styles
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import VueBase64FileUpload from 'vue-base64-file-upload'
+
 export default {
     data() {
         return {
             homePage: {},
-            treeData: {},
+            treeData: [],
             blocks: [],
             blocksCrude: [],
             groupsCrude: [],
             words: [],
             pictures: [],
             products: [],
-
+            isLoading: true,
             currentBlockIndex: null,
             currentBlock: {},
             currentBlockIsUpdate: false,
@@ -281,12 +331,27 @@ export default {
             currentPageGroup: {},
             currentPageGroupIsUpdate: false,
 
-            dragging: false
+            dragging: false,
+            // define the default value
+            value: null
         }
     },
-    components: { file, treeItem, draggable },
+    components: { file, treeItem, draggable, VueBase64FileUpload, Treeselect },
     props: ['contentTitle'],
     methods: {
+        normalizer(node) {
+            return {
+                id: node.id,
+                label: node.displayName,
+                children: node.children.length > 0 ? node.children : undefined,
+                isDefaultExpanded: true
+            }
+        },
+        async onSelect(node, instanceId) {
+            this.currentPageGroup.catalogGroupId = node.id
+            this.currentPageGroup.type = node.catalogType
+            this.currentPageGroup.title = node.displayName
+        },
         getPicture() {
             if (this.currentBlock.img !== null && this.currentBlock.img !== '' && this.currentBlock.img !== undefined) {
                 return this.currentBlock.img
@@ -363,13 +428,35 @@ export default {
                         this.treeData = json
                     }
                 })
-
             this.currentPageGroupIsUpdate = !noActive
             if (!this.currentPageGroupIsUpdate) this.currentPageGroup.catalogGroupId = 0
             else {
                 this.currentPageGroup = JSON.parse(JSON.stringify(item))
+                this.value = item.catalogGroupId
             }
             this.$refs.groupModal.show()
+        },
+        async groupModalOk(e) {
+            e.preventDefault()
+            if (await this.validate('form-group')) {
+                if (this.value !== undefined && this.value !== null) {
+                    if (this.currentPageGroupIsUpdate)
+                        this.groupsCrude[this.currentPageGroup.crudeIndex].catalogGroupId = item.id
+                    else this.groupsCrude.push(this.currentPageGroup)
+                    await this.submit()
+                    this.groupModalHide()
+                }
+            } else
+                swal({
+                    title: '请填写必要的选项!',
+                    icon: 'warning'
+                })
+        },
+        groupModalHide() {
+            this.currentPageGroupIsUpdate = false
+            this.currentPageGroup = {}
+            this.value = null
+            this.$refs.groupModal.hide()
         },
         async groupDelete(item) {
             this.groupsCrude.splice(item.crudeIndex, 1)
@@ -383,33 +470,16 @@ export default {
                 this.dragging = false
             }
         },
-        async catalogChoose(item) {
-            if (this.currentPageGroupIsUpdate) {
-                if (item === null) await this.groupDelete(this.currentPageGroup)
-                else {
-                    this.currentPageGroup.catalogGroupId = item.id
-                    this.groupsCrude[this.currentPageGroup.crudeIndex].catalogGroupId = item.id
-                }
-            } else if (item !== null) {
-                this.currentPageGroup.catalogGroupId = item.id
-                this.groupsCrude.push(this.currentPageGroup)
-            }
-            await this.submit()
-            this.groupModalHide()
-        },
-        groupModalHide() {
-            this.currentPageGroupIsUpdate = false
-            this.currentPageGroup = {}
-            this.$refs.groupModal.hide()
-        },
 
         // 一起提交
         async submit() {
+            this.isLoading = true
             await this.$http.put('/api/services/app/HomePage/Update', this.homePage).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.homePage = json
                     this.dataMapSign()
+                    this.isLoading = false
                 }
             })
         },
@@ -446,11 +516,13 @@ export default {
             this.homePage.groups = this.groupsCrude
         },
         load() {
+            this.isLoading = true
             this.$http.get('/api/services/app/HomePage/GetOrCreate').then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.homePage = json
                     this.dataMapSign()
+                    this.isLoading = false
                 }
             })
         },
