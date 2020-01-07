@@ -4,6 +4,11 @@
       <i class="far fa-copy text-primary mr-1"></i>
       {{contentTitle}}
     </p>
+    <file
+      :fileShow="fileShow"
+      :fileCallBack="fileCallBack"
+      @fileClose="fileClose"
+    ></file>
     <!--模块总览-->
     <section>
       <div ref="ctxMenuContainer">
@@ -66,6 +71,7 @@
                         :items="catalogGroups"
                         :itemIndex="index"
                         :isPage="false"
+                        :isUpdate="isUpdate"
                         :module="module"
                         @ctxMenuOpen="ctxMenuOpen"
                         @catalogAdd="add"
@@ -85,25 +91,9 @@
                 <div class="p-3 detail">
                   <div class="no-action" v-if="!editMode">选择左侧模块进行编辑</div>
                   <div v-else>
-                    <file
-                      :fileShow="fileShow"
-                      :fileCallBack="fileCallBack"
-                      @fileClose="fileClose"
-                    ></file>
                     <p class="tips">
-                      <b-spinner
-                        v-if="isUpdate"
-                        variant="success"
-                        small
-                        label="Spinning"
-                      ></b-spinner>
-                      <b-spinner
-                        v-else
-                        variant="success"
-                        small
-                        label="Spinning"
-                        type="grow"
-                      ></b-spinner>
+                      <i class="fas fa-edit path" v-if="isUpdate"></i>
+                      <i class="fas fa-plus path" v-else></i>
                       <span class="path">
                         <span>{{isUpdate?`编辑`:`新增`}}</span>
                         <span
@@ -136,7 +126,7 @@
                           <i class="fas fa-luggage-cart mr-1"></i>产品类
                         </b-button>
                       </div>
-                      <b-input-group size="sm" prepend="ICON" class="mb-3">
+                      <b-input-group size="sm" prepend="图标SVG" class="mb-3">
                         <div class="icon-img">
                           <img :src="module.icon" />
                         </div>
@@ -201,6 +191,7 @@
                         :items="pages"
                         :itemIndex="index"
                         :isPage="true"
+                        :isUpdate="isUpdate"
                         :module="module"
                         @ctxMenuOpen="ctxMenuOpen"
                         @catalogAdd="add"
@@ -221,25 +212,9 @@
                 <div class="p-3 detail">
                   <div class="no-action" v-if="!editMode">选择左侧模块进行编辑</div>
                   <div v-else>
-                    <file
-                      :fileShow="fileShow"
-                      :fileCallBack="fileCallBack"
-                      @fileClose="fileClose"
-                    ></file>
                     <p class="tips">
-                      <b-spinner
-                        v-if="isUpdate"
-                        variant="success"
-                        small
-                        label="Spinning"
-                      ></b-spinner>
-                      <b-spinner
-                        v-else
-                        variant="success"
-                        small
-                        label="Spinning"
-                        type="grow"
-                      ></b-spinner>
+                      <i class="fas fa-edit path" v-if="isUpdate"></i>
+                      <i class="fas fa-plus path" v-else></i>
                       <span class="path">
                         <span>{{isUpdate?`编辑`:`新增`}}</span>
                         <span
@@ -255,7 +230,7 @@
                           设计模块
                         </b-button>
                       </div>
-                      <b-input-group size="sm" prepend="ICON" class="mb-3">
+                      <b-input-group size="sm" prepend="图标SVG" class="mb-3">
                         <div class="icon-img">
                           <img :src="module.icon" />
                         </div>

@@ -1,7 +1,7 @@
 <template>
-  <li :class="isOpen?'active':''">
+  <li :class="isOpen||module.parentId===item.id?'active':''">
     <div
-      :class="module&&module.id==item.id?'choose':''"
+      :class="module&&(module.id==item.id||(!isUpdate&&module.parentId===item.id))?'choose':''"
       @dblclick="isPage?'':toggle(item)"
       @click="catalogChoose(item,isPage)"
       @contextmenu.prevent="ctxMenuOpen($event,item,isPage,itemIndex,items)"
@@ -20,9 +20,8 @@
         {{ item.displayName }}
       </span>
     </div>
-    <ul>
+    <ul v-if="isFolder">
       <group-tree
-        v-if="isFolder"
         v-for="(element,index) in item.children"
         :key="index"
         :items="item.children"
@@ -34,14 +33,6 @@
         @ctxMenuOpen="ctxMenuOpen"
         @catalogAdd="catalogAdd"
       ></group-tree>
-      <li v-if="!isPage">
-        <div @click="catalogAdd(item,isPage)">
-          <span>
-            <i class="fas fa-plus"></i>
-            新增
-          </span>
-        </div>
-      </li>
     </ul>
   </li>
 </template>
@@ -76,6 +67,10 @@ export default {
         item: Object,
         module: Object,
         isPage: {
+            type: Boolean,
+            default: false
+        },
+        isUpdate: {
             type: Boolean,
             default: false
         }

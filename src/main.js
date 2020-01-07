@@ -26,13 +26,6 @@ import './plugins/vee-validate'
 import './assets/Layout.less'
 import 'famfamfam-flags/dist/sprite/famfamfam-flags.css'
 
-import fileFolderLi from './components/custom/fileFolderLi.vue'
-import filefolderUl from './components/custom/filefolderUl.vue'
- 
-Vue.component('file-fodler-li', fileFolderLi)
-Vue.component('file-fodler-ul', filefolderUl)
- 
-
 Vue.use(Vuex)
 Vue.use(PortalVue)
 Vue.use(BootstrapVue)

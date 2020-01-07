@@ -90,40 +90,19 @@
                 :autoScroll="false"
               >
                 <ul class="file-folder">
-                  <li
-                    v-for="(item,index) in Folders"
-                    :key="index"
-                    :class="item.open?'active':''"
-                  >
-                    <i
-                      class="fas fa-chevron-right"
-                      @click="item.open=!item.open"
-                    ></i>
-
-                    <!--<a :class="item.isActive?'active':''" @click="setTypeRoot(item)" @dblclick="item.open=!item.open">-->
-                    <a
-                      :class="item.isActive?'active':''"
-                      @click="oneClick($event,item)"
-                      @contextmenu="rightClick($event,item,true,null)"
-                    >
-                      <i
-                        :class="['far','mr-0',item.isActive?'fa-folder-open':'fa-folder']"
-                      ></i>
-                      {{item.name}}
-                    </a>
-
-                    <file-fodler-ul
-                      :model="item.subdir"
-                      :index="index"
-                      :breadcrumb="breadcrumb"
-                      :parent="item"
-                      @clearCurrent="clearCurrent"
-                      @setCurrent="setCurrent"
-                      @setCurrentFolder="setCurrentFolder"
-                      @setBreadcrumb="setBreadcrumb"
-                      @rightClick="rightClick"
-                    />
-                  </li>
+                  <folder-li
+                    v-for="(child,i) in Folders"
+                    :isRoot="true"
+                    :key="i"
+                    :folder="child"
+                    :index="i"
+                    :parent="null"
+                    :breadcrumb="breadcrumb"
+                    @disActive="disActive"
+                    @rightClick="rightClick"
+                    @setCurrentFolder="setCurrentFolder"
+                    @setBreadcrumb="setBreadcrumb"
+                  ></folder-li>
                 </ul>
               </smooth-scroll>
             </div>
@@ -139,66 +118,47 @@
                 >{{item.text}}</li>
               </ol>
               <div class="file-folder-list">
-                <smooth-scroll
-                  ref="fileListView"
-                  :data="currentFolder.subdir"
-                  :autoScroll="false"
-                >
+                <smooth-scroll ref="fileListView" :autoScroll="false">
                   <dl>
                     <dd
-                      v-for="(item,index) in currentFolder.subdir"
+                      v-for="(item,index) in mapFolder"
                       :key="index"
                       @click.stop="fileLeftClick(item)"
+                      @dblclick.stop="fileDbClick(item)"
                       :class="currentFile==item?'active':''"
-                      v-if="item.isSubdir"
                       @contextmenu="fileRightClick($event,item)"
                     >
                       <p v-if="item.isSubdir">
                         <i class="fas fa-folder"></i>
                       </p>
-                      <p v-else>
-                        <img src="static/imgs/128.png" />
-                      </p>
-                      <span>{{item.name}}</span>
-                    </dd>
-                    <dd
-                      v-for="(item1,index1) in currentFolder.subdir"
-                      :key="index1"
-                      @click.stop="fileLeftClick(item1)"
-                      :class="currentFile==item1?'active':''"
-                      v-if="!item1.isSubdir"
-                      @contextmenu="fileRightClick($event,item1)"
-                    >
-                      <p v-if="item1.isSubdir">
-                        <i class="fas fa-folder"></i>
-                      </p>
+
                       <p v-else>
                         <i
                           class="fas fa-file-archive"
-                          v-if="getFileExpansion(item1.name)==='zip'"
+                          v-if="getFileExpansion(item.name)==='zip'"
                         ></i>
                         <i
                           class="fas fa-file-word"
-                          v-else-if="getFileExpansion(item1.name)==='word'"
+                          v-else-if="getFileExpansion(item.name)==='word'"
                         ></i>
                         <i
                           class="fas fa-file-excel"
-                          v-else-if="getFileExpansion(item1.name)==='excel'"
+                          v-else-if="getFileExpansion(item.name)==='excel'"
                         ></i>
                         <i
                           class="fas fa-file-pdf"
-                          v-else-if="getFileExpansion(item1.name)==='pdf'"
+                          v-else-if="getFileExpansion(item.name)==='pdf'"
                         ></i>
                         <i
                           class="fas fa-file-video"
-                          v-else-if="getFileExpansion(item1.name)==='video'"
+                          v-else-if="getFileExpansion(item.name)==='video'"
                         ></i>
                         <img
-                          v-else-if="getFileExpansion(item1.name)==='img'"
-                          :src="getImgUrl(item1.url)"
+                          v-else-if="getFileExpansion(item.name)==='img'"
+                          :src="getImgUrl(item.url)"
                         />
                       </p>
-                      <span>{{item1.name}}</span>
+                      <span>{{item.name}}</span>
                     </dd>
                   </dl>
                 </smooth-scroll>
@@ -212,6 +172,7 @@
 </template>
 <script>
 import tools from 'tools'
+import folderLi from './folderLi'
 import AppConsts from '@/utiltools/appconst'
 import swal from 'sweetalert'
 import axios from 'axios'
@@ -220,6 +181,7 @@ import smoothScroll from './smoothScroll'
 import Loading from './loading'
 import '@/assets/tankFiler.less'
 export default {
+    components: { contextMenu, smoothScroll, Loading, folderLi },
     data() {
         return {
             isLoading: false,
@@ -231,20 +193,17 @@ export default {
             //当前文件夹所在目录
             breadcrumb: [],
             //当前文件夹
-            currentFolder: {},
+            currentFolder: {
+                subdir: []
+            },
             //当前文件夹的父文件夹
             currentFolderParent: {},
             //是否首目录
             isRoot: false,
             RootPath: null,
-            Folders: [],
-            //定义点击双击事件参数
-            delay: 300,
-            clicks: 0,
-            timer: null
+            Folders: []
         }
     },
-    components: { contextMenu, smoothScroll, Loading },
     watch: {
         fileShow: {
             handler(newVal) {
@@ -256,7 +215,13 @@ export default {
             immediate: true
         }
     },
-    computed: {},
+    computed: {
+        mapFolder() {
+            let folders = this.currentFolder.subdir.filter(x => x.isSubdir)
+            let files = this.currentFolder.subdir.filter(x => !x.isSubdir)
+            return folders.concat(files)
+        }
+    },
     props: {
         fileShow: {
             type: Boolean,
@@ -270,7 +235,7 @@ export default {
             this.currentFile = null
             this.isUploading = false
         },
-        //后腿
+        //后退
         back() {
             if (this.breadcrumb.length > 1) {
                 this.breadcrumb.splice(-1)
@@ -308,7 +273,7 @@ export default {
             that.isUploading = true
             that.uploadPercentage = 0
 
-            that.$http
+            this.$http
                 .post(tools.fileUpload, formdata, {
                     onUploadProgress: function(progressEvent) {
                         that.uploadPercentage = parseInt(Math.round((progressEvent.loaded * 100) / progressEvent.total))
@@ -329,6 +294,17 @@ export default {
                 .catch(error => {
                     that.isUploading = false
                 })
+        },
+        // 删除file
+        fileDelete() {
+            var that = this
+            that.currentFolder.subdir.splice(that.currentFolder.subdir.indexOf(that.currentFile), 1)
+            // 如果是文件夹
+            var url = tools.filedeletefolder + '?folderName=' + that.currentFile.url
+            //如果是文件
+            if (!that.currentFile.isSubdir) url = tools.fileDelete + '?fileName=' + that.currentFile.url
+
+            that.$http.delete(url)
         },
         //拖动
         mousedown(e) {
@@ -384,6 +360,10 @@ export default {
                 //图片
                 case 'jpg':
                     return 'img'
+                case 'jepg':
+                    return 'img'
+                case 'svg':
+                    return 'img'
                 case 'png':
                     return 'img'
                 case 'gif':
@@ -402,27 +382,19 @@ export default {
         //文件左键
         fileLeftClick(val) {
             var that = this
-            this.clicks++
-            if (this.clicks >= 2) this.clicks = 2
-            if (this.clicks === 1) {
-                that.currentFile = val
-                that.timer = setTimeout(function() {
-                    if (that.clicks === 2) {
-                        if (that.currentFile.isSubdir) {
-                            that.breadcrumb.push({ text: that.currentFile.name, value: that.currentFile })
-                            that.setCurrentFolderByBreadcrumb(that.currentFile)
-                        } else {
-                            //that.$emit('MceSetFile', AppConsts.remoteServiceBaseUrl + '/' + that.currentFile.url)
+            that.currentFile = val
+        },
+        // 双击
+        fileDbClick(val) {
+            var that = this
+            if (that.currentFile.isSubdir) {
+                that.breadcrumb.push({ text: that.currentFile.name, value: that.currentFile })
+                that.setCurrentFolderByBreadcrumb(that.currentFile)
+            } else {
+                //that.$emit('MceSetFile', AppConsts.remoteServiceBaseUrl + '/' + that.currentFile.url)
 
-                            that.fileCallBack(
-                                AppConsts.remoteServiceBaseUrl + '/' + that.RootPath + that.currentFile.url
-                            )
-                            that.close()
-                        }
-                    }
-                    that.clicks = 0
-                    clearTimeout(that.timer)
-                }, this.delay)
+                that.fileCallBack(AppConsts.remoteServiceBaseUrl + '/' + that.RootPath + that.currentFile.url)
+                that.close()
             }
         },
         // 文件右键
@@ -431,70 +403,48 @@ export default {
             this.$refs.listMenu.open()
             e.preventDefault()
         },
-        // 删除file
-        fileDelete() {
-            var that = this
-            that.currentFolder.subdir.splice(that.currentFolder.subdir.indexOf(that.currentFile), 1)
-            // 如果是文件夹
-            var url = tools.filedeletefolder + '?folderName=' + that.currentFile.url
-            //如果是文件
-            if (!that.currentFile.isSubdir) url = tools.fileDelete + '?fileName=' + that.currentFile.url
 
-            that.$http.delete(url)
-        },
         // 导航 - 设置当前内容
         setCurrentFolderByBreadcrumb(val) {
             var that = this
             that.currentFolder.open = true
             that.currentFolder.isActive = false
-            that.setCurrentFolder(val)
-            that.currentFolder.open = true
-            that.currentFolder.isActive = true
-            that.currentFile = ''
+            this.setCurrentFolder(val)
         },
         /*内容部分的操作结束*/
 
         /*左侧文件夹操作*/
-
         // 子目录- 设置当前内容
         setCurrentFolder(val) {
             this.currentFolder = val
+            this.currentFolder.isActive = true
+            this.currentFile = ''
         },
         //子目录- 同步组件内导航数据
         setBreadcrumb(val) {
             this.breadcrumb = val
         },
-        //子目录将-crud数据-同步到根目录集合
-        setCurrent(val, key) {
-            var that = this
-            that.Folders[key].subdir = val
-            that.breadcrumb.unshift({ text: that.Folders[key].name, value: that.Folders[key] })
-        },
-
         //禁用空白区域右键
-        rightClickNull(e) {
-            //e.preventDefault()
-        },
+        rightClickNull(e) {},
         //初始目录 - 定义右键菜单
         rightClick(e, item, bool, parent) {
+            e.preventDefault()
             this.isRoot = bool
             this.$refs.ctxMenu.open(e, item)
             this.currentFolderParent = parent
-            e.preventDefault()
         },
         // 添加子文件夹动作
         onCtxOpen(locals) {
             var that = this
-            locals.open = true
-            that.currentFolder = locals
-            if (that.isRoot) that.setTypeRoot(locals)
-            that.currentFile = ''
+            that.disActive()
+            this.setCurrentFolder(locals)
         },
         //删除子文件夹
         folderDelete() {
             var that = this
             that.currentFolderParent.subdir.splice(that.currentFolderParent.subdir.indexOf(that.currentFolder), 1)
             that.$http.delete(tools.filedeletefolder + '?folderName=' + that.currentFolder.url)
+            this.setCurrentFolder(this.currentFolderParent)
         },
         //增加子文件夹
         folderCreate() {
@@ -520,30 +470,17 @@ export default {
                     that.currentFolder.subdir.push(_newFloder)
                     that.$http.post(tools.fileCreatefolder + '?folderName=' + _newFloder.url).then(function(response) {
                         var json = response.data.result
+                        that.currentFolder.open = true
+                        swal.stopLoading()
+                        swal.close()
                     })
                 }
-                swal.stopLoading()
-                swal.close()
             })
-        },
-        //初始目录 -定义点击双击事件
-        oneClick: function(event, item) {
-            this.clicks++
-            if (this.clicks >= 2) this.clicks = 2
-            if (this.clicks === 1) {
-                var that = this
-                that.setTypeRoot(item)
-                that.timer = setTimeout(function() {
-                    if (that.clicks === 2) item.open = !item.open
-                    that.clicks = 0
-                    clearTimeout(that.timer)
-                }, this.delay)
-            }
         },
         //初始目录- 设置当前活动目录、设置当前路径、设置当前内容
         setTypeRoot(val) {
             var that = this
-            that.clearCurrent()
+            that.disActive()
             val.isActive = true
             that.currentFolder = val
             that.breadcrumb = [
@@ -554,7 +491,7 @@ export default {
             ]
         },
         //所有目录- 清除当前活动目录
-        clearCurrent() {
+        disActive() {
             this.breadcrumb = []
             pick(this.Folders)
             function pick(_json) {
@@ -569,12 +506,12 @@ export default {
             var that = this
             that.$emit('fileClose')
         },
+        // 清空选择
         setnull() {
             this.fileCallBack(null)
             this.close()
         }
     },
-    created() {},
     mounted() {
         this.$nextTick(() => {
             let moveNodeRef = this.$refs.moveNodeRef

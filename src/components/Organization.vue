@@ -51,7 +51,7 @@
           <b-form-input
             ref="modalInput"
             name="节点显示名"
-            :state="hasError(module.displayName,'节点显示名')"
+            :state="!errors.has('节点显示名')"
             v-validate="'required'"
             v-model="module.displayName"
           ></b-form-input>
@@ -96,10 +96,6 @@ export default {
         },
         onDrag(e) {
             this.dragging = e
-        },
-        hasError(val, name) {
-            if (val) return val.length ? !this.errors.has(name) : null
-            else return null
         },
         add() {
             this.editMode = false

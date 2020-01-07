@@ -300,7 +300,6 @@
 import swal from 'sweetalert'
 import file from '@/components/custom/tankFiler'
 import AppConsts from '../utiltools/appconst'
-import treeItem from '@/components/custom/treeItem'
 import draggable from 'vuedraggable'
 // import the component
 import Treeselect from '@riophae/vue-treeselect'
@@ -336,7 +335,7 @@ export default {
             value: null
         }
     },
-    components: { file, treeItem, draggable, VueBase64FileUpload, Treeselect },
+    components: { file, draggable, VueBase64FileUpload, Treeselect },
     props: ['contentTitle'],
     methods: {
         normalizer(node) {

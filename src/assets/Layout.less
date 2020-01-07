@@ -1074,52 +1074,7 @@ table.b-table[aria-busy='true'] {
         }
     }
 }
-
-.tree-item {
-    padding: 10px;
-    color: white;
-    background-color: #374459;
-    ul {
-        margin-top: 10px;
-        padding-left: 0;
-    }
-    li {
-        overflow: hidden;
-        list-style: none;
-        margin-bottom: 10px;
-        overflow: hidden;
-        padding-left: 20px;
-        max-height: 40px;
-        cursor: pointer;
-        transition: max-height 0.2s ease-out;
-
-        > div {
-            padding-left: 10px;
-            padding-top: 6px;
-            padding-bottom: 10px;
-            border-radius: 4px;
-            > i {
-                transition: all 0.2s ease-out;
-            }
-            &:hover {
-                color: @bule;
-                background-color: rgba(0, 0, 0, 0.3);
-            }
-            &.choose {
-                color: @bule;
-            }
-        }
-        &.active {
-            max-height: 10000px;
-            transition: max-height 0.2s ease-in;
-            > div > i {
-                color: @bule;
-                transition: all 0.2s ease-in;
-                transform: rotate(180deg);
-            }
-        }
-    }
-}
+ 
 .group-module {
     padding-top: 20px;
     input,
