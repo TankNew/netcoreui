@@ -33,8 +33,8 @@
             <p class="lead">上传中 {{uploadPercentage}}%</p>
             <b-progress
               :value="uploadPercentage"
-              class="m-3 w95"
-              style="height:3px;"
+              class="m-3 w-100"
+              height="4px"
             ></b-progress>
           </div>
           <div class="file-toolbar" @mousedown="mousedown($event)">
@@ -269,7 +269,6 @@ export default {
             that.uploadfiles.forEach(u => formdata.append('file', u))
             //清空input=file的值，否则不能二次上传同名文件
             document.getElementById('uploadfiles').value = null
-
             that.isUploading = true
             that.uploadPercentage = 0
 
