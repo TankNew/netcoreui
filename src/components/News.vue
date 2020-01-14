@@ -21,7 +21,7 @@
       @getMenu="getMenu"
       @refreshScroll="refreshScroll"
       @reloadScroll="reloadScroll"
-      :scollMinTop="806"
+      :scollMinTop="788"
       :scorllTopLength="scorllTopLength"
     ></tank-news>
   </section>

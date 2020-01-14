@@ -15,12 +15,15 @@
               v-validate="'required'"
             ></b-form-input>
           </b-input-group>
-          <b-input-group
-            size="sm"
-            prepend="企业 LOGO"
-            class="mb-3"
-            :state="!errors.has('企业名称')"
-          >
+          <b-input-group size="sm" prepend="关键词" class="mb-3">
+            <b-form-textarea
+              v-model="companyInfo.seoKeyWords"
+              :rows="6"
+              size="sm"
+              placeholder="多个关键词请用逗号隔开"
+            ></b-form-textarea>
+          </b-input-group>
+          <b-input-group size="sm" prepend="网站LOGO" class="mb-3">
             <div class="info-img">
               <img :src="companyInfo.logo" />
             </div>
@@ -32,11 +35,32 @@
                   accept="image/png, image/jpeg"
                   image-class="v1-image"
                   input-class="v1-file"
-                  :max-size="customImageMaxSize"
+                  :max-size="0.2"
                   :disable-preview="true"
                   @size-exceeded="onSizeExceeded"
                   @file="onFile"
                   @load="onLoad"
+                />
+              </b-btn>
+            </b-input-group-append>
+          </b-input-group>
+          <b-input-group size="sm" prepend="网站ICO" class="mb-3">
+            <div class="info-img">
+              <img :src="companyInfo.icon" />
+            </div>
+            <b-input-group-append>
+              <b-btn size="sm" variant="primary">
+                选择
+                <vue-base64-file-upload
+                  class="v1"
+                  accept="image/x-icon"
+                  image-class="v1-image"
+                  input-class="v1-file"
+                  :max-size="0.01"
+                  :disable-preview="true"
+                  @size-exceeded="onSizeExceeded"
+                  @file="onFile"
+                  @load="onLoadIcon"
                 />
               </b-btn>
             </b-input-group-append>
@@ -53,7 +77,7 @@
                   accept="image/png, image/jpeg"
                   image-class="v1-image"
                   input-class="v1-file"
-                  :max-size="customImageMaxSize"
+                  :max-size="0.2"
                   :disable-preview="true"
                   @size-exceeded="onSizeExceeded"
                   @file="onFile"
@@ -62,12 +86,6 @@
               </b-btn>
             </b-input-group-append>
           </b-input-group>
-        </b-card>
-        <b-card title="联系方式" class="contact-info-card">
-          <p class="card-text">
-            <i class="far fa-envelope text-primary mr-1"></i>
-            Contact Info
-          </p>
           <b-input-group size="sm" prepend="联系人" class="mb-3">
             <b-form-input
               v-model="companyInfo.contacter"
@@ -112,9 +130,10 @@
               :state="hasError(companyInfo.zipCode,'邮编')"
             ></b-form-input>
           </b-input-group>
-        </b-card>
-        <h4 class="card-title mt-3">简介</h4>
-        <b-form-group class="mx-1">
+          <p class="card-text">
+            <i class="fas fa-info-circle text-primary mr-1"></i>
+            简介
+          </p>
           <tinymce
             id="detail"
             ref="tinymceNews"
@@ -125,7 +144,8 @@
             :scollMinTop="736"
             :scorllTopLength="scorllTopLength"
           ></tinymce>
-        </b-form-group>
+        </b-card>
+
         <p class="m-3">
           <button class="btn btn-primary py-2 px-5" type="submit">提交</button>
         </p>
@@ -141,7 +161,6 @@ export default {
     data() {
         return {
             companyInfo: {},
-            customImageMaxSize: 0.2,
             editorWidths: [640, 800, 900, 1000, 1200]
         }
     },
@@ -173,6 +192,9 @@ export default {
         onFile(file) {},
         onLoad(dataUri) {
             this.companyInfo.logo = dataUri
+        },
+        onLoadIcon(dataUri) {
+            this.companyInfo.icon = dataUri
         },
         onLoadWX(dataUri) {
             this.companyInfo.weixinBarCode = dataUri
@@ -226,7 +248,8 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-.contact-info {
-    max-width: 1140px;
+.input-group-text {
+    width: 100px;
+    justify-content: center;
 }
 </style>

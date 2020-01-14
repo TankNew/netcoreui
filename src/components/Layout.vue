@@ -281,18 +281,18 @@ export default {
             this.isCollapsed = !this.isCollapsed
         },
         // 更改语言
-        async changeLanguage(val) {
-            await this.$store.dispatch({
-                type: 'changeLanguage',
-                data: { languageName: val }
-            })
+        changeLanguage(val) {
+            // await this.$store.dispatch({
+            //     type: 'changeLanguage',
+            //     data: { languageName: val }
+            // })
             abp.utils.setCookieValue(
                 abp.localization.cookieName,
                 val,
                 new Date(new Date().getTime() + 5 * 365 * 86400000), //5 year
                 abp.appPath
             )
-            location.reload()
+            window.location.href = '/home'
         },
 
         // 更改密码

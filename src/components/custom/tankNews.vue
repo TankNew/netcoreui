@@ -101,6 +101,7 @@
             @refreshScroll="refreshScroll"
             @reloadScroll="reloadScroll"
             :editorTop="editorTop"
+            :initial="form.content"
             :editorWidth="editModeWidth"
             :scollMinTop="scollMinTop"
             :scorllTopLength="scorllTopLength"

@@ -1,7 +1,6 @@
 <style scoped>
 .editor-container {
     position: relative;
-    padding-right: 20px;
     max-width: 100%;
 }
 .editor {

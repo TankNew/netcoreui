@@ -26,10 +26,10 @@ const userLogin = async ({ userNameOrEmailAddress, password, rememberClient, Rur
             }
             store.commit('setToken', token)
             store.commit('setUser', jwtDecode(token.AccessToken))
-            store.dispatch({
-                type: 'changeLanguage',
-                data: { languageName: abp.utils.getCookieValue(abp.localization.cookieName) }
-            })
+            // store.dispatch({
+            //     type: 'changeLanguage',
+            //     data: { languageName: abp.utils.getCookieValue(abp.localization.cookieName) }
+            // })
             setToken(token)
             location.replace(Rurl)
         } else {

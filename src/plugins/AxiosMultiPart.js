@@ -71,7 +71,7 @@ AxiosMulti.interceptors.request.use(
                                         title: '您的登陆授权已经过期，请重新登陆',
                                         icon: 'error'
                                     }).then(() => {
-                                        window.location.href = '#/login'
+                                        window.location.href = '/login'
                                     })
                                 }
                             } else if (error.request) {
@@ -110,7 +110,7 @@ AxiosMulti.interceptors.response.use(
             if (error.response.status === 401) {
                 // 401 说明 token 验证失败
                 // 可以直接跳转到登录页面，重新登录获取 token
-                window.location.href = '#/login'
+                window.location.href = '/login'
                 return Promise.reject(error)
             } else if (error.response.status === 500) {
                 // 服务器错误
