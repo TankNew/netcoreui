@@ -47,6 +47,7 @@
         @onDrag="onDrag"
         @ctxMenuOpen="ctxMenuOpen"
       />
+      <div class="clear"></div>
     </li>
   </draggable>
 </template>

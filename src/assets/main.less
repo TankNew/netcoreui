@@ -4,7 +4,9 @@
     box-sizing: border-box;
     // outline: none !important;
 }
-
+.form-control::placeholder {
+    color: #ccc;
+}
 html {
     font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial,
         sans-serif;
@@ -21,7 +23,11 @@ body {
     -ms-user-select: none;
     -moz-user-select: none;
 }
-
+a {
+    &:hover {
+        text-decoration: none;
+    }
+}
 #app {
     height: 100%;
 }

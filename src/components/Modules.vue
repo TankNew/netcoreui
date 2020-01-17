@@ -88,7 +88,7 @@
                     </ul>
                   </section>
                 </div>
-                <div class="p-3 detail">
+                <div class="detail p-3">
                   <div class="no-action" v-if="!editMode">选择左侧模块进行编辑</div>
                   <div v-else>
                     <p class="tips">

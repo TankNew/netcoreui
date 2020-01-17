@@ -230,6 +230,7 @@ export default {
             this.$http.get('/api/services/app/CompanyInfo/GetOrCreate').then(res => {
                 var json = res.data.result
                 this.companyInfo = JSON.parse(JSON.stringify(json))
+                console.log(json)
             })
         }
     },

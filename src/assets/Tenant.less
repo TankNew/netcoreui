@@ -1,0 +1,92 @@
+.domain-list {
+    font-size: 13px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 40px;
+    input,
+    textarea,
+    button {
+        font-size: 13px;
+    }
+    .list {
+        width: 40%;
+        margin-right: 20px;
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 0 3px #ccc;
+        dl {
+            border-left: 1px solid #ccc;
+
+            dd {
+                cursor: pointer;
+                padding: 10px 10px 10px 20px;
+                margin-bottom: 10px;
+                vertical-align: middle;
+                position: relative;
+                i {
+                    cursor: pointer;
+                }
+                &:hover {
+                    background-color: rgba(0, 0, 0, 0.1);
+                }
+                &:before {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    left: 0;
+                    width: 10px;
+                    border-bottom: 1px solid #ccc;
+                }
+            }
+        }
+    }
+    .detail {
+        width: 60%;
+        padding: 10px;
+        min-height: 260px;
+        position: relative;
+        border-radius: 4px;
+        box-shadow: 0 0 3px #ccc;
+        .input-group-prepend > .input-group-text {
+            width: 100px;
+            justify-content: center;
+        }
+        .input-group-append > .input-group-text {
+            width: 30px;
+            justify-content: center;
+        }
+        .no-action {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 4px;
+            padding: 20px;
+            background-color: #e9ecef;
+            border: 1px solid #ccc;
+        }
+        .tips {
+            .path {
+                color: @bule;
+            }
+            .action {
+                font-style: italic;
+                color: @purple;
+            }
+        }
+        .gongan {
+            color: #333;
+            display: block;
+            margin: 10px;
+            img,
+            p {
+                display: inline-block;
+                vertical-align: top;
+                margin: 0;
+            }
+        }
+    }
+}

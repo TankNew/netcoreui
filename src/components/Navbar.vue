@@ -18,14 +18,14 @@
             <i class="fas color-Purple fa-link mr-1"></i>
             绑定
           </li>
-          <li @contextmenu.prevent @click="add" v-if="currentLayer<2">
+          <li @contextmenu.prevent @click="add">
             <i class="fas color-success fa-plus mr-1"></i>
             扩展
           </li>
           <li
             @contextmenu.prevent
             @click="expandNavbar"
-            v-if="currentLayer<2 && currentNavbar.navbarType===2"
+            v-if="currentNavbar.navbarType===2"
             style="width:140px;"
           >
             <i class="fas color-success fa-exchange-alt mr-1"></i>
@@ -260,49 +260,48 @@ export default {
             this.modalName = ` 新增 [${this.currentNavbar.displayName}] 子节点：`
             this.$refs.modal.show()
         },
-        expandNavbar() {
-            this.$http
-                .get('/api/services/app/CatalogGroup/GetAll', { params: { id: this.currentNavbar.catalogGroupId } })
-                .then(res => {
-                    if (res.data.success) {
-                        let json = res.data.result
-                        if (json.length < 1)
-                            swal({
-                                title: '当前模块没有子分类!',
-                                icon: 'info'
-                            })
-                        else {
-                            let childrenNames = this.currentNavbar.children.map(x => x.displayName)
-                            let preUrl
-                            switch (this.currentNavbar.catalogGroup.catalogType) {
-                                case 1:
-                                    preUrl = '/Main/News/'
-                                    break
-                                case 2:
-                                    preUrl = '/Main/PhotoNews/'
-                                    break
-                                case 3:
-                                    preUrl = '/Main/Product/'
-                                    break
-                            }
-                            json.forEach(async x => {
-                                if (childrenNames.indexOf(x.displayName) < 0)
-                                    await this.$http
-                                        .post('/api/services/app/Navbar/Create', {
-                                            displayName: x.displayName,
-                                            navbarType: 2,
-                                            parentId: this.currentNavbar.id,
-                                            webModuleId: null,
-                                            catalogGroupId: x.id,
-                                            url: preUrl + x.id
-                                        })
-                                        .then(res => {
-                                            if (res.data.success) this.load()
-                                        })
-                            })
-                        }
+        async expandNavbar() {
+            const res = await this.$http.get('/api/services/app/CatalogGroup/GetAll', {
+                params: { id: this.currentNavbar.catalogGroupId }
+            })
+            if (res.data.success) {
+                let json = res.data.result
+                if (json.length < 1)
+                    swal({
+                        title: '当前模块没有子分类!',
+                        icon: 'info'
+                    })
+                else {
+                    let childrenNames = this.currentNavbar.children.map(x => x.displayName)
+                    let preUrl
+                    switch (this.currentNavbar.catalogGroup.catalogType) {
+                        case 1:
+                            preUrl = '/Main/News/'
+                            break
+                        case 2:
+                            preUrl = '/Main/PhotoNews/'
+                            break
+                        case 3:
+                            preUrl = '/Main/Product/'
+                            break
                     }
-                })
+                    const navbars = []
+                    json.forEach(x => {
+                        if (childrenNames.indexOf(x.displayName) < 0)
+                            navbars.push({
+                                displayName: x.displayName,
+                                navbarType: 2,
+                                parentId: this.currentNavbar.id,
+                                webModuleId: null,
+                                catalogGroupId: x.id,
+                                url: preUrl + x.id
+                            })
+                    })
+                    this.$http.post('/api/services/app/Navbar/MassCreate', navbars).then(res => {
+                        if (res.data.success) this.load()
+                    })
+                }
+            }
         },
         edit() {
             this.editMode = true
