@@ -1,10 +1,6 @@
 <template>
   <section>
-    <section
-      v-show="editMode"
-      style="height:100%; position:relative;"
-      class="news-edit-editmode"
-    >
+    <section v-show="editMode" class="news-edit-editmode">
       <div class="alert alert-success" role="alert">
         <i class="far fa-bell mx-1"></i>
         您当前正处于{{editModeTitle}}模式

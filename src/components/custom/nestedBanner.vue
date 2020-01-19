@@ -16,9 +16,7 @@
         :style="getImgUrl(element)"
       >
         <div class="img-cover-toolbar" v-show="imgtools==index">
-          <p
-            v-if="(getCodeNumber(element)>=3&&element.bannerImgs.length>0)||getCodeNumber(element)!==3"
-          >
+          <p v-if="element.bannerImgs.length>0">
             <button
               type="button"
               title="编辑"
@@ -29,7 +27,7 @@
               <i class="fas fa-pencil-alt" aria-hidden="true"></i>
             </button>
           </p>
-          <p v-if="getCodeNumber(element)>=3&&element.bannerImgs.length>0">
+          <p v-if="element.bannerImgs.length>0">
             <button
               type="button"
               title="删除"
@@ -40,7 +38,7 @@
               <i class="fas fa-minus" aria-hidden="true"></i>
             </button>
           </p>
-          <p v-if="getCodeNumber(element)>=3&&!element.bannerImgs.length>0">
+          <p v-if="!element.bannerImgs.length>0">
             <button
               type="button"
               title="自定义"
@@ -80,13 +78,22 @@ export default {
         }
     },
     props: {
+        dragging: {
+            type: Boolean,
+            required: true
+        },
         children: {
             required: true,
             type: Array
         },
-        parentId: Number,
-        parent: Object,
-        dragging: Boolean
+        parentId: {
+            type: Number,
+            default: 0
+        },
+        parent: {
+            type: Object,
+            default: null
+        }
     },
     components: {
         draggable
@@ -95,15 +102,16 @@ export default {
         getImgUrl(item) {
             let style = ''
             if (item.bannerImgs && item.bannerImgs.length > 0) {
-                style = `background-image:url('${AppConsts.remoteServiceBaseUrl + item.bannerImgs[0].imgUrl}');`
-            } else if (this.getCodeNumber(item) >= 2) {
+                style = `background-image:url('${`https://cms.ednet.cn` + item.bannerImgs[0].imgUrl}');`
+            } else if (this.parent !== null && this.parent !== undefined) {
                 if (this.parent.bannerImgs && this.parent.bannerImgs.length > 0) {
-                    style = `background-image:url('${AppConsts.remoteServiceBaseUrl +
-                        this.parent.bannerImgs[0].imgUrl}');`
-                }
+                    item.grandParentImage = this.parent.bannerImgs[0].imgUrl
+                } else if (this.parent.grandParentImage)
+                    item.grandParentImage = this.parent.grandParentImage
+                if (item.grandParentImage)
+                    style = `background-image:url('${`https://cms.ednet.cn` + item.grandParentImage}');`
             }
 
-            if (item.navbarType === 5) style += `height:100px;`
             return style
         },
         getCodeNumber(item) {

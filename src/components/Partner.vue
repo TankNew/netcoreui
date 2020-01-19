@@ -4,7 +4,7 @@
       <i class="far fa-copy text-primary mr-1"></i>
       {{contentTitle}}
     </p>
-    <section v-show="editMode" style="height:100%; position:relative;">
+    <section v-show="editMode">
       <div class="alert alert-success" role="alert">
         <i class="far fa-bell mx-1"></i>
         您当前正处于{{editModeTitle}}模式

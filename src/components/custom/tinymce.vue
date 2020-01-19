@@ -26,6 +26,7 @@
   <section
     :style="{ width: editorWidth+'px',marginTop: editorTop+'px'}"
     class="editor-container"
+    ref="editorContainer"
   >
     <div ref="editorToolbar" id="editorToolbar"></div>
     <file
@@ -66,12 +67,11 @@ export default {
     },
     watch: {
         scorllTopLength(val) {
-            let maxtop = val - this.scollMinTop
+            let maxtop = val - this.$refs.editorContainer.offsetTop + 70
             if (maxtop < 0) maxtop = 0
             if (maxtop >= 0) {
-                maxtop -= this.editorTop + 70
+                maxtop -= 70
                 this.$refs.editorToolbar.style.top = Math.round(maxtop) + 'px'
-
                 // if (this.roll) clearTimeout(this.roll)
                 // this.roll = setTimeout(() => {
                 //     this.$refs.editorToolbar.style.top = Math.round(maxtop) + 'px'
@@ -267,6 +267,7 @@ export default {
         }
     },
     mounted() {
+        console.log(this.$refs.editorToolbar.offsetTop)
         // this.$nextTick(() => this.init())
     }
 }

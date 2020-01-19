@@ -13,8 +13,7 @@
       <section class="tankBannerTree">
         <nested-banner
           :dragging="true"
-          :children="pages.children"
-          :parentId="pages.id"
+          :children="pages"
           @add="add"
           @del="del"
           @edit="edit"
@@ -222,10 +221,7 @@ export default {
             editMode: false,
             isUpdate: false,
             isEditRowChange: false,
-            pages: {
-                id: 0,
-                children: []
-            },
+            pages: [],
             currentPage: {},
             currentBanner: {},
             slide: 0,
@@ -404,7 +400,7 @@ export default {
             this.$http.get('/api/services/app/Navbar/GetAll', { params: { Id: null } }).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
-                    this.pages = json[0]
+                    this.pages = json
                 }
             })
         },

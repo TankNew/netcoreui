@@ -4,7 +4,7 @@
       <i class="far fa-copy text-primary mr-1"></i>
       {{contentTitle}}
     </p>
-    <section v-show="editMode" style="height:100%; position:relative;">
+    <section v-show="editMode">
       <file
         :fileShow="fileShow"
         :fileCallBack="fileCallBack"
