@@ -218,6 +218,7 @@ import contextMenu from 'vue-context-menu'
 export default {
     data() {
         return {
+            currentLanguage: 'en',
             editMode: false,
             module: {},
             modalName: '',
@@ -276,13 +277,13 @@ export default {
                     let preUrl
                     switch (this.currentNavbar.catalogGroup.catalogType) {
                         case 1:
-                            preUrl = '/Main/News/'
+                            preUrl = `/${this.currentLanguage}/News/`
                             break
                         case 2:
-                            preUrl = '/Main/PhotoNews/'
+                            preUrl = `/${this.currentLanguage}/PhotoNews/`
                             break
                         case 3:
-                            preUrl = '/Main/Product/'
+                            preUrl = `/${this.currentLanguage}/Product/`
                             break
                     }
                     const navbars = []
@@ -372,19 +373,19 @@ export default {
                     this.module.catalogGroupId = item.id
                     switch (item.catalogType) {
                         case 1:
-                            this.module.url = '/Main/News/' + item.id
+                            this.module.url = `/${this.currentLanguage}/News/` + item.id
                             break
                         case 2:
-                            this.module.url = '/Main/PhotoNews/' + item.id
+                            this.module.url = `/${this.currentLanguage}/PhotoNews/` + item.id
                             break
                         case 3:
-                            this.module.url = '/Main/Product/' + item.id
+                            this.module.url = `/${this.currentLanguage}/Product/` + item.id
                             break
                     }
                     break
                 case 3:
                     this.module.pageId = item.id
-                    this.module.url = '/Main/Page/' + item.id
+                    this.module.url = `/${this.currentLanguage}/Page/` + item.id
                     break
             }
             this.update()
@@ -453,6 +454,7 @@ export default {
     },
     created: function() {
         this.loadAll()
+        this.currentLanguage = abp.localization.currentLanguage.name
     },
     mounted() {
         this.$nextTick(() => {
