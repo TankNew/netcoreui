@@ -6,17 +6,13 @@
       @click="catalogChoose(item,isPage)"
       @contextmenu.prevent="ctxMenuOpen($event,item,isPage,itemIndex,items)"
     >
-      <span>
+      <span v-b-tooltip.hover.right :title="isFolder?'双击查看子项':''">
         <i
           v-if="isFolder"
-          :class="['fas' ,'fa-circle-notch' ,tipsColor]"
+          :class="['fas' ,'fa-chevron-right' ,tipsColor]"
           @click="toggle(item)"
         ></i>
-        <i
-          v-else
-          :class="['far' ,'fa-circle' ,tipsColor]"
-          @click="toggle(item)"
-        ></i>
+        <span v-else style="padding-right:4px;">-</span>
         {{ item.displayName }}
       </span>
     </div>

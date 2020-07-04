@@ -6,7 +6,7 @@ import jwtDecode from 'jwt-decode'
 //使BootStrap-vue支持到IE11
 import 'babel-polyfill'
 import PortalVue from 'portal-vue'
-import BootstrapVue from 'bootstrap-vue'
+import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
@@ -29,6 +29,7 @@ import 'famfamfam-flags/dist/sprite/famfamfam-flags.css'
 Vue.use(Vuex)
 Vue.use(PortalVue)
 Vue.use(BootstrapVue)
+Vue.use(BootstrapVueIcons)
 Vue.config.productionTip = false
 
 // 设置ABP本地化
@@ -81,6 +82,10 @@ store.commit('setUser', getUerFromLocalStorage())
         window.abp.catalogItem = {
             width: abp.setting.getInt('App.CatalogItem.Width')
         }
+        window.abp.localization.languageDefineByBrower = abp.setting.getBoolean(
+            'Abp.Localization.LanguageDefineByBrower'
+        )
+
         console.log(abp)
         new Vue({
             el: '#app',

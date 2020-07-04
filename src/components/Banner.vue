@@ -10,7 +10,10 @@
           <b>Info:</b> 每个模块节点默认继承root节点的海报，您当然也可以自定义每个模块节点海报，只要您将鼠标移动到这个节点选择功能按钮。
         </b-alert>
       </div>
-      <section class="tankBannerTree">
+      <div v-if="loading" class="text-center">
+        <b-spinner variant="primary" label="Loading"></b-spinner>
+      </div>
+      <section v-else class="tankBannerTree">
         <nested-banner
           :dragging="true"
           :children="pages"
@@ -218,6 +221,7 @@ import nestedBanner from './custom/nestedBanner'
 export default {
     data() {
         return {
+            loading: true,
             editMode: false,
             isUpdate: false,
             isEditRowChange: false,
@@ -396,13 +400,14 @@ export default {
         onSlideEnd(slide) {
             this.sliding = false
         },
-        loadNavbar() {
-            this.$http.get('/api/services/app/Navbar/GetAll', { params: { Id: null } }).then(res => {
+        async loadNavbar() {
+            await this.$http.get('/api/services/app/Navbar/GetAll', { params: { Id: null } }).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.pages = json
                 }
             })
+            this.loading = false
         },
         onpopstate() {
             if (window.history && window.history.pushState) {

@@ -10,7 +10,7 @@
           <h5>{{ UserModel.UserName }}</h5>
         </div>
         <div class="form-group" v-if="!hasUser">
-          <label for="inputEmail3" class="control-label">用户名</label>
+          <label for="inputEmail3" class="control-label">{{this.L('UserName')}}</label>
           <div>
             <input
               type="text"
@@ -24,7 +24,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="inputPassword3" class="control-label">密 码</label>
+          <label for="inputPassword3" class="control-label">{{this.L('Password')}}</label>
           <div>
             <input
               type="password"
@@ -61,10 +61,9 @@
           >
             <a
               @click="changeLanguage(language.name)"
-              :class="[ 'btn',  'btn-outline-primary',  language.displayName == currentLanguage.displayName ? 'active' : '' ]"
+              :class="[ 'btn', 'btn-sm' ,'btn-outline-primary',  language.displayName == currentLanguage.displayName ? 'active' : '' ]"
             >
               <i :class="['fas', language.icon]" />
-              {{ language.displayName }}
             </a>
           </dd>
         </dl>

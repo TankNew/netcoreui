@@ -512,7 +512,6 @@ export default {
         },
         async domainBindSubmit(e) {
             if (await this.validate('form-domainBind')) {
-                console.log(this.domainModel)
                 if (this.domainModelIndex > -1)
                     this.$http
                         .put(this.updateDomainUrl, this.domainModel)

@@ -10,6 +10,7 @@
       @fileClose="fileClose"
     ></file>
     <!--模块总览-->
+
     <section>
       <div ref="ctxMenuContainer">
         <context-menu
@@ -23,7 +24,11 @@
             <i class="fas color-primary fa-pencil-alt mr-1"></i>
             编辑模块
           </li>
-          <li v-if="!isPage" @contextmenu.prevent @click="add(menuData,isPage)">
+          <li
+            v-if="!menuIsPage"
+            @contextmenu.prevent
+            @click="add(menuData,menuIsPage)"
+          >
             <i class="fas color-success fa-plus mr-1"></i>
             增加子模块
           </li>
@@ -54,12 +59,16 @@
               >预设模块</b-nav-item>
             </b-nav>
           </b-card-header>
+
           <b-card-body>
             <section class="px-3" v-show="currentSection===1">
               <b-alert show dismissible>
                 <b>Info:</b>单击左侧列表图标或者直接双击列表标题展开列表，单击列表标题在右侧进行编辑
               </b-alert>
-              <div class="mb-5 group-module">
+              <div v-if="loading" class="text-center">
+                <b-spinner variant="primary" label="Loading"></b-spinner>
+              </div>
+              <div v-else class="mb-5 group-module">
                 <div class="list p-3">
                   <p class="lead mb-3">列表模块</p>
                   <section class="group-tree">
@@ -313,6 +322,7 @@ export default {
     },
     data() {
         return {
+            loading: true,
             fileShow: false,
             fileCallBack: function(x) {},
             module: {}, // 可操作数据
@@ -320,6 +330,7 @@ export default {
             editMode: false,
             isUpdate: false,
             isPage: false,
+            menuIsPage: false,
             parent: null,
 
             menuData: {},
@@ -484,26 +495,27 @@ export default {
                 }
             })
         },
-        load() {
-            this.$http.get('/api/services/app/WebModule/GetAll').then(res => {
+        async load() {
+            await this.$http.get('/api/services/app/WebModule/GetAll').then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.webModules = json
                 }
             })
-            this.$http.get('/api/services/app/CatalogGroup/GetAll').then(res => {
+            await this.$http.get('/api/services/app/CatalogGroup/GetAll').then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.catalogGroups = json
                 }
             })
 
-            this.$http.get('/api/services/app/Page/GetAll').then(res => {
+            await this.$http.get('/api/services/app/Page/GetAll').then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.pages = json.items
                 }
             })
+            this.loading = false
         }
     },
     created() {

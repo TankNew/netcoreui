@@ -38,7 +38,10 @@
         </context-menu>
       </div>
     </div>
-    <section class="tankTree" @contextmenu.prevent>
+    <div v-if="loading" class="text-center">
+      <b-spinner variant="primary" label="Loading"></b-spinner>
+    </div>
+    <section v-else class="tankTree" @contextmenu.prevent>
       <nested-draggable
         :dragging="dragging"
         :dragUrl="dragUrl"
@@ -218,6 +221,7 @@ import contextMenu from 'vue-context-menu'
 export default {
     data() {
         return {
+            loading: true,
             currentLanguage: 'en',
             editMode: false,
             module: {},
@@ -422,7 +426,6 @@ export default {
             })
         },
         loadAll() {
-            this.load()
             this.$http.get('/api/services/app/WebModule/GetAll').then(res => {
                 if (res.data.success) {
                     let json = res.data.result
@@ -443,16 +446,18 @@ export default {
                 }
             })
         },
-        load() {
-            this.$http.get('/api/services/app/Navbar/GetAll', { params: { Id: null } }).then(res => {
+        async load() {
+            await this.$http.get('/api/services/app/Navbar/GetAll', { params: { Id: null } }).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.navbarList = json
                 }
             })
+            this.loading = false
         }
     },
     created: function() {
+        this.load()
         this.loadAll()
         this.currentLanguage = abp.localization.currentLanguage.name
     },

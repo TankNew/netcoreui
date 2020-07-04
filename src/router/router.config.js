@@ -115,8 +115,14 @@ export const router = new Router({
                 {
                     path: 'setting',
                     name: 'setting',
-                    meta: { title: 'Setting', permission: 'Pages.Content' },
-                    redirect: '/home/modules'
+                    meta: { title: 'Setting', permission: 'Pages.Roles' },
+                    component: () => import('@/components/Setting')
+                },
+                {
+                    path: 'language',
+                    name: 'language',
+                    meta: { title: 'Language', permission: 'Pages.Roles' },
+                    component: () => import('@/components/Language')
                 },
                 {
                     path: 'modules',

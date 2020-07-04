@@ -12,7 +12,7 @@
       :deleteUrl="deleteUrl"
       :dragUrl="dragUrl"
       :hasAttach="false"
-      :hasCover="false"
+      :hasCover="true"
       :hasGroup="false"
       @refreshScroll="refreshScroll"
       @reloadScroll="reloadScroll"
