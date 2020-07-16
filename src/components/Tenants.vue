@@ -672,6 +672,7 @@ export default {
             this.items[this.editRowIndex].domains = this.editRow.domains
             this.items[this.editRowIndex].templateId = this.editRow.templateId
             this.items[this.editRowIndex].template = this.editRow.template
+            this.items[this.editRowIndex].themeId = this.editRow.themeId
             this.items[this.editRowIndex].theme = this.editRow.theme
             this.items[this.editRowIndex].templateSnapshot = this.editRow.templateSnapshot
             this.items[this.editRowIndex].isActive = this.editRow.isActive

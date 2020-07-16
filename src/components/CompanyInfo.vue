@@ -44,6 +44,13 @@
               </b-btn>
             </b-input-group-append>
           </b-input-group>
+          <b-input-group size="sm" prepend="Logo文本" class="mb-3">
+            <b-form-input
+              v-model="companyInfo.logoText"
+              name="Logo文本"
+              :state="!errors.has('Logo文本') "
+            ></b-form-input>
+          </b-input-group>
           <b-input-group size="sm" prepend="网站ICO" class="mb-3">
             <div class="info-img">
               <img :src="companyInfo.icon" />
@@ -230,7 +237,6 @@ export default {
             this.$http.get('/api/services/app/CompanyInfo/GetOrCreate').then(res => {
                 var json = res.data.result
                 this.companyInfo = JSON.parse(JSON.stringify(json))
-                console.log(json)
             })
         }
     },

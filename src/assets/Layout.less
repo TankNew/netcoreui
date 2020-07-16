@@ -174,6 +174,7 @@ table.b-table[aria-busy='true'] {
 }
 .sidebar-menu {
     padding: 20px 4px;
+    font-size: 0.9rem;
     > ul > li > div {
         width: calc(100% - 20px);
         margin-left: 20px;
@@ -962,12 +963,12 @@ table.b-table[aria-busy='true'] {
             font-size: 14px;
             position: relative;
             width: calc(25% - 20px);
-            padding-bottom: 8%;
+            padding-bottom: 10%;
             margin: 10px;
             border-radius: 4px;
             color: #0c5460;
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
+            background-color: @gray;
+            border: 1px solid #ccc;
             cursor: pointer;
             overflow: hidden;
             position: relative;
@@ -997,12 +998,12 @@ table.b-table[aria-busy='true'] {
                 }
                 .fa-delete {
                     border-radius: 50%;
-                    padding: 8px 10px;
+                    padding: 0.4rem 0.6rem;
                     left: auto;
-                    top: 4px;
-                    right: 10px;
+                    top: 0.2rem;
+                    right: 0.2rem;
                     color: white;
-                    background-color: rgba(0, 0, 0, 0.5);
+                    background-color: rgba(0, 0, 0, 0.4);
                     transform: none;
 
                     &:hover {
@@ -1012,7 +1013,7 @@ table.b-table[aria-busy='true'] {
             }
 
             &:hover {
-                background-color: #c3e6cb;
+                background-color: #ccc;
             }
 
             &.notActive {
@@ -1023,7 +1024,7 @@ table.b-table[aria-busy='true'] {
 
                 &:hover {
                     color: #333;
-                    background-color: #c3e6cb;
+                    background-color: @gray;
                 }
             }
         }

@@ -246,13 +246,13 @@
         <section style="min-height: 300px;">
           <b-table-simple hover responsive bordered>
             <colgroup>
-              <col style="width:70px;" />
-              <col style="width:60px;" />
+              <col style="width:4rem;" />
+              <col style="width:4rem;" />
               <col />
-              <col style="width:80px;" />
-              <col v-if="hasGroup" style="width:80px;" />
-              <col style="width:90px;" />
-              <col style="width:170px;" />
+              <col style="width:6rem;" />
+              <col v-if="hasGroup" style="width:8rem;" />
+              <col style="width:6rem;" />
+              <col style="width:12rem;" />
             </colgroup>
             <b-thead head-variant="light">
               <b-tr>

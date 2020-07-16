@@ -146,7 +146,7 @@
     <section class="home-page-setting">
       <ul>
         <li>
-          <h6 class="bg-warning">广告类栏目</h6>
+          <div class="alert alert-success text-center">首页广告绑定</div>
           <div v-if="isLoading" class="text-center loading text-info">
             <b-spinner class="align-middle"></b-spinner>
             <strong>Loading...</strong>
@@ -182,7 +182,7 @@
           <div class="clear"></div>
         </li>
         <li>
-          <h6 class="bg-primary">文字类栏目</h6>
+          <div class="alert alert-primary text-center">列表模块绑定</div>
           <div v-if="isLoading" class="text-center loading text-info">
             <b-spinner class="align-middle"></b-spinner>
             <strong>Loading...</strong>
@@ -191,91 +191,17 @@
             v-else
             tag="dl"
             :disabled="dragging"
-            v-model="words"
+            v-model="groups"
             :animation="200"
-            :group="{ name: `words`}"
+            :group="{ name: `groups`}"
             :ghost-class="'ghost'"
             @change="handleChange"
           >
             <dd
               :class="item.noActive?'notActive':''"
-              v-for="(item,index) in words"
+              v-for="(item,index) in groups"
               :key="index"
-              @click="openGroupModal(item,index,item.noActive,1)"
-            >
-              <div v-if="!item.noActive">
-                <i
-                  class="fas fa-times fa-delete"
-                  @click.stop="groupDelete(item)"
-                ></i>
-                <span>{{item.title?item.title:item.catalogGroup.displayName}}</span>
-                <i class="fas fa-check"></i>
-              </div>
-              <div v-else>
-                <span>{{index+1}}</span>
-              </div>
-            </dd>
-          </draggable>
-          <div class="clear"></div>
-        </li>
-        <li>
-          <h6 class="bg-success">图片类栏目</h6>
-          <div v-if="isLoading" class="text-center loading text-info">
-            <b-spinner class="align-middle"></b-spinner>
-            <strong>Loading...</strong>
-          </div>
-          <draggable
-            v-else
-            tag="dl"
-            :disabled="dragging"
-            v-model="pictures"
-            :animation="200"
-            :group="{ name: `pictures`}"
-            :ghost-class="'ghost'"
-            @change="handleChange"
-          >
-            <dd
-              :class="item.noActive?'notActive':''"
-              v-for="(item,index) in pictures"
-              :key="index"
-              @click="openGroupModal(item,index,item.noActive,2)"
-            >
-              <div v-if="!item.noActive">
-                <i
-                  class="fas fa-times fa-delete"
-                  @click.stop="groupDelete(item)"
-                ></i>
-                <span>{{item.title?item.title:item.catalogGroup.displayName}}</span>
-                <i class="fas fa-check"></i>
-              </div>
-              <div v-else>
-                <span>{{index+1}}</span>
-              </div>
-            </dd>
-          </draggable>
-          <div class="clear"></div>
-        </li>
-        <li>
-          <h6 class="bg-info">产品类栏目</h6>
-          <div v-if="isLoading" class="text-center loading text-info">
-            <b-spinner class="align-middle"></b-spinner>
-            <strong>Loading...</strong>
-          </div>
-          <draggable
-            v-else
-            tag="dl"
-            :disabled="dragging"
-            v-model="products"
-            :animation="200"
-            :group="{ name: `products`}"
-            :ghost-class="'ghost'"
-            @change="handleChange"
-          >
-            <dd
-              :class="item.noActive?'notActive':''"
-              v-for="(item,index) in products"
-              :key="index"
-              @click="openGroupModal(item,index,item.noActive,3)"
+              @click="openGroupModal(item,index,item.noActive)"
             >
               <div v-if="!item.noActive">
                 <i
@@ -313,11 +239,9 @@ export default {
             homePage: {},
             treeData: [],
             blocks: [],
+            groups: [],
             blocksCrude: [],
             groupsCrude: [],
-            words: [],
-            pictures: [],
-            products: [],
             isLoading: true,
             currentBlockIndex: null,
             currentBlock: {},
@@ -418,15 +342,23 @@ export default {
         },
 
         /* 新闻类管理 */
-        async openGroupModal(item, index, noActive, type) {
-            await this.$http
-                .get('/api/services/app/CatalogGroup/GetAll', { params: { catalogType: type } })
-                .then(res => {
-                    if (res.data.success) {
-                        let json = res.data.result
-                        this.treeData = json
-                    }
-                })
+        async openGroupModal(item, index, noActive) {
+            const newsGroupsRes = await this.$http.get('/api/services/app/CatalogGroup/GetAll', {
+                params: { catalogType: 1 }
+            })
+            const photoGroupsRes = await this.$http.get('/api/services/app/CatalogGroup/GetAll', {
+                params: { catalogType: 2 }
+            })
+            const productGroupsRes = await this.$http.get('/api/services/app/CatalogGroup/GetAll', {
+                params: { catalogType: 3 }
+            })
+
+            const json = []
+            if (newsGroupsRes.data.success) json.concat(newsGroupsRes.data.result)
+            if (photoGroupsRes.data.success) json.concat(photoGroupsRes.data.result)
+            if (productGroupsRes.data.success) json.concat(productGroupsRes.data.result)
+
+            this.treeData = json
             this.currentPageGroupIsUpdate = !noActive
             if (!this.currentPageGroupIsUpdate) this.currentPageGroup.catalogGroupId = 0
             else {
@@ -507,10 +439,8 @@ export default {
         },
         unMapSign() {
             this.blocksCrude = this.blocks.filter(x => !x.noActive)
-            this.groupsCrude = this.words
-                .filter(x => !x.noActive)
-                .concat(this.pictures.filter(x => !x.noActive))
-                .concat(this.products.filter(x => !x.noActive))
+            this.groupsCrude = this.groups.filter(x => !x.noActive)
+
             this.homePage.blocks = this.blocksCrude
             this.homePage.groups = this.groupsCrude
         },
@@ -529,9 +459,7 @@ export default {
             this.blocksCrude = this.homePage.blocks
             this.groupsCrude = this.homePage.groups
             this.blocks = this.mapSign(this.blocksCrude)
-            this.words = this.mapSign(this.groupsCrude, 1)
-            this.pictures = this.mapSign(this.groupsCrude, 2)
-            this.products = this.mapSign(this.groupsCrude, 3)
+            this.groups = this.mapSign(this.groupsCrude)
         }
     },
     created() {
