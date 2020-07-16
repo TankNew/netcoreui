@@ -36,6 +36,18 @@ export const router = new Router({
                     component: () => import('@/components/Roles')
                 },
                 {
+                    path: 'Template',
+                    name: 'Template',
+                    meta: { title: 'Template', permission: 'Pages.Tenants' },
+                    component: () => import('@/components/Template')
+                },
+                {
+                    path: 'Theme',
+                    name: 'Theme',
+                    meta: { title: 'Theme', permission: 'Pages.Tenants' },
+                    component: () => import('@/components/Theme')
+                },
+                {
                     path: 'Tenants',
                     name: 'Tenants',
                     meta: { title: 'Tenants', permission: 'Pages.Tenants' },

@@ -12,112 +12,187 @@
       :title="editRow.name"
       @hidden="domainModelHidden"
     >
-      <section @click="domainModelClear" class="domain-list h-100">
-        <div class="list" @click.stop>
-          <p class="lead mb-3">域名列表</p>
-          <dl>
-            <dd
-              v-for="(domain,index) in editRow.domains"
-              :key="index"
-              @click.stop="editDomain(domain,index)"
+      <smooth-scroll ref="domainModelScroll" :autoScroll="false">
+        <section
+          @click="domainModelClear"
+          class="tenant-modify-container h-100"
+        >
+          <b-form
+            @submit.stop.prevent="domainModelSubmit"
+            autocomplete="off"
+            data-vv-scope="form-update"
+          >
+            <b-form-group
+              label="公司名称:"
+              label-for="up-name"
+              description="填写公司的中文名称."
             >
-              <a @click.stop>
-                <b-form-checkbox
-                  class="d-inline"
-                  switch
-                  v-model="domain.isActive"
-                  @input="domainActiveSubmit($event,domain,index)"
-                ></b-form-checkbox>
-              </a>
-              <a>{{index+1}}.{{domain.name}}</a>
-              <i
-                class="far fa-trash-alt text-danger ml-2"
-                @click.stop="domainRemoveSubmit(domain,index)"
-              ></i>
-            </dd>
-            <dd class="text-success" @click.stop="newDomain">
-              <i class="fas fa-plus path mr-1"></i>新增
-            </dd>
-          </dl>
-        </div>
-        <div class="detail" @click.stop>
-          <div
-            class="no-action"
-            v-if="Object.entries(domainModel).length === 0 && domainModel.constructor === Object"
-          >选择左侧模块进行编辑</div>
-          <div v-else>
-            <p class="tips">
-              <i class="fas fa-edit path" v-if="domainModelIndex>-1"></i>
-              <i class="fas fa-plus path" v-else></i>
-              <span class="path">
-                <span>{{domainModelIndex>-1?`编辑`:`新增`}}</span>
-                <span class="action">{{domainModelIndex>-1?domainModel.name:``}}</span>
-                <span>
-                  <b-button
-                    size="sm"
-                    v-if="domainModel.isActive"
-                    variant="success"
-                    disabled
-                  >
-                    <b-spinner small></b-spinner>
-                  </b-button>
-                  <b-button size="sm" v-else variant="danger" disabled>
-                    <b-spinner small type="grow"></b-spinner>
-                  </b-button>
-                </span>
-              </span>
-            </p>
-            <b-form
-              @submit.stop.prevent="domainBindSubmit"
-              autocomplete="off"
-              data-vv-scope="form-domainBind"
-            >
-              <p>
-                <b-input-group size="sm" prepend="域名">
-                  <b-form-input
-                    id="p-domain"
-                    type="text"
-                    name="域名"
-                    v-model="domainModel.name"
-                    :disabled="domainModelIndex>-1"
-                    :state="!errors.has('form-domainBind.域名') "
-                    v-validate="'required'"
-                    placeholder="www.domain.com"
-                  ></b-form-input>
-                </b-input-group>
-              </p>
+              <b-form-input
+                ref="focusThis"
+                id="up-name"
+                type="text"
+                v-model="editRow.name"
+                name="公司名称"
+                :state="!errors.has('form-update.公司名称') "
+                v-validate="'required'"
+                placeholder="公司名称"
+                @keyup.enter.prevent="domainModelSubmit"
+              ></b-form-input>
+            </b-form-group>
+          </b-form>
+          <h3 class="modal-insider-title">
+            模板管理
+            <i class="fas fa-ellipsis-h"></i>
+          </h3>
+          <section class="my-3 template-choose-container">
+            <div class="template-snapshot">
+              <div class="template-snapshot-container">
+                <img :src="getSnapUrl(editRow)" />
+              </div>
+              <h6>{{editRow.template?editRow.template.displayName:'未选择模板'}}</h6>
+              <h6>{{editRow.theme?editRow.theme.name:'未选择主题'}}</h6>
+            </div>
 
-              <p>
-                <b-input-group size="sm" prepend="津ICP备">
-                  <b-form-input
-                    id="p-icp"
-                    type="text"
-                    name="津ICP"
-                    v-model="domainModel.icp"
-                    placeholder="B1-10000000号-1"
-                  ></b-form-input>
-                </b-input-group>
-              </p>
+            <div class="template-choose">
+              <div class="template-list">
+                <smooth-scroll :autoScroll="false">
+                  <ul>
+                    <li v-for="item in templates" :key="item.id">
+                      <div class="snapshot">
+                        <div :class="getClass(item)">
+                          <img
+                            :src="getImgUrl(item)"
+                            @click="ChooseTemplate(item)"
+                          />
+                        </div>
+                        <a
+                          href="javascript:void(0)"
+                          class="display-name"
+                          @click="ChooseTemplate(item)"
+                        >{{ item.displayName }}</a>
+                      </div>
+                    </li>
+                  </ul>
+                </smooth-scroll>
+              </div>
+              <div class="theme-list">
+                <ul>
+                  <li v-for="item in themes" :key="item.id">
+                    <b-form-checkbox
+                      v-model="editRow.themeId"
+                      :value="item.id"
+                      name="flavour-3a"
+                    >
+                      <i
+                        class="fas fa-circle"
+                        :style="`color:${item.primaryColor}`"
+                      ></i>
+                      {{ item.name }}
+                    </b-form-checkbox>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </section>
+          <h3 class="modal-insider-title">
+            域名管理
+            <i class="fas fa-ellipsis-h"></i>
+          </h3>
+          <div class="domain-list" @click.stop>
+            <div class="list">
+              <p class="lead mb-3">域名列表</p>
+              <dl>
+                <dd
+                  v-for="(domain,index) in editRow.domains"
+                  :key="index"
+                  @click.stop="_domainEdit(domain,index)"
+                >
+                  <a @click.stop>
+                    <b-form-checkbox
+                      class="d-inline"
+                      switch
+                      v-model="domain.isActive"
+                      @input="domainActiveSubmit($event,domain,index)"
+                    ></b-form-checkbox>
+                  </a>
+                  <a>{{index+1}}.{{domain.name}}</a>
+                  <i
+                    class="far fa-trash-alt text-danger ml-2"
+                    @click.stop="domainRemoveSubmit(domain,index)"
+                  ></i>
+                </dd>
+                <dd class="text-success" @click.stop="_domainNew">
+                  <i class="fas fa-plus path mr-1"></i>新增
+                </dd>
+              </dl>
+            </div>
+            <div class="detail">
+              <div
+                class="no-action"
+                v-if="Object.entries(domainModel).length === 0 && domainModel.constructor === Object"
+              >选择左侧模块进行编辑</div>
+              <div v-else>
+                <p class="tips">
+                  <i class="fas fa-edit path" v-if="domainModelIndex>-1"></i>
+                  <i class="fas fa-plus path" v-else></i>
+                  <span class="path">{{domainModelIndex>-1?`编辑`:`新增`}}</span>
+                  <span
+                    class="action"
+                  >{{domainModelIndex>-1?domainModel.name:``}}</span>
+                </p>
+                <b-form
+                  @submit.stop.prevent="domainBindSubmit"
+                  autocomplete="off"
+                  data-vv-scope="form-domainBind"
+                >
+                  <p>
+                    <b-input-group size="sm" prepend="域名">
+                      <b-form-input
+                        id="p-domain"
+                        type="text"
+                        name="域名"
+                        v-model="domainModel.name"
+                        :disabled="domainModelIndex>-1"
+                        :state="!errors.has('form-domainBind.域名') "
+                        v-validate="'required'"
+                        placeholder="www.domain.com"
+                      ></b-form-input>
+                    </b-input-group>
+                  </p>
 
-              <p>
-                <b-input-group size="sm" prepend="津公网安备" append="号">
-                  <b-form-input
-                    id="p-gongan"
-                    type="text"
-                    name="津公网安备"
-                    v-model="domainModel.gongAn"
-                    placeholder="120000000000000"
-                  ></b-form-input>
-                </b-input-group>
-              </p>
-              <hr />
-              <p class="center">
-                <b-button type="submit" variant="primary">提交</b-button>
-              </p>
-            </b-form>
+                  <p>
+                    <b-input-group size="sm" prepend="津ICP备">
+                      <b-form-input
+                        id="p-icp"
+                        type="text"
+                        name="津ICP"
+                        v-model="domainModel.icp"
+                        placeholder="B1-10000000号-1"
+                      ></b-form-input>
+                    </b-input-group>
+                  </p>
+
+                  <p>
+                    <b-input-group size="sm" prepend="津公网安备" append="号">
+                      <b-form-input
+                        id="p-gongan"
+                        type="text"
+                        name="津公网安备"
+                        v-model="domainModel.gongAn"
+                        placeholder="120000000000000"
+                      ></b-form-input>
+                    </b-input-group>
+                  </p>
+                  <hr />
+                  <p class="center">
+                    <b-button type="submit" variant="primary">提交</b-button>
+                  </p>
+                </b-form>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </smooth-scroll>
     </b-modal>
     <!-- Info modal -->
     <b-modal
@@ -144,7 +219,7 @@
               ref="focusThis"
               id="p-name"
               type="text"
-              v-model="editRow.name"
+              v-model="newRow.name"
               name="公司名称"
               :state="!errors.has('form-modal.公司名称') "
               v-validate="'required'"
@@ -159,7 +234,7 @@
             <b-form-input
               id="p-tenancyName"
               type="text"
-              v-model="editRow.tenancyName"
+              v-model="newRow.tenancyName"
               name="标识"
               :state="!errors.has('form-modal.标识') "
               v-validate="'required'"
@@ -175,7 +250,7 @@
             <b-form-input
               id="p-connectionString"
               type="text"
-              v-model="editRow.connectionString"
+              v-model="newRow.connectionString"
               name="数据库连接"
               placeholder="数据库连接"
             ></b-form-input>
@@ -189,7 +264,7 @@
             <b-form-input
               id="p-adminEmailAddress"
               type="text"
-              v-model="editRow.adminEmailAddress"
+              v-model="newRow.adminEmailAddress"
               name="管理员邮箱地址"
               :state="!errors.has('form-modal.管理员邮箱地址') "
               v-validate="'required'"
@@ -199,115 +274,168 @@
           <label>管理员默认密码：tianjin@001</label>
           <b-form-checkbox
             switch
-            @change="editRow.isActive=!editRow.isActive"
-            v-model="editRow.isActive"
+            @change="newRow.isActive=!newRow.isActive"
+            v-model="newRow.isActive"
           >启用</b-form-checkbox>
         </b-form>
       </section>
     </b-modal>
-    <label>
-      <i class="fas fa-wrench mx-2 text-info"></i>快捷工具
-    </label>
-    <!-- User Interface controls -->
-    <dl class="news-bar">
-      <dd>
-        <b-input-group size="sm">
-          <b-form-input
-            v-model="keyWord"
-            placeholder="关键词"
-            @keyup.enter.prevent="search(keyWord)"
-          />
-          <b-input-group-append>
-            <b-btn @click="search(keyWord)">查找</b-btn>
-          </b-input-group-append>
-        </b-input-group>
-      </dd>
-      <dd>
-        <b-input-group size="sm">
-          <b-form-select v-model="sortBy" :options="sortOptions">
-            <option slot="first" :value="null">-- 排序依据 --</option>
-          </b-form-select>
-          <b-form-select
-            size="sm"
-            :disabled="!sortBy"
-            v-model="sortDesc"
-            slot="append"
-          >
-            <option :value="false">正序</option>
-            <option :value="true">倒序</option>
-          </b-form-select>
-        </b-input-group>
-      </dd>
-      <dd>
-        <b-input-group size="sm" append="单页条目">
-          <b-form-select size="sm" :options="pageOptions" v-model="perPage" />
-        </b-input-group>
-      </dd>
-    </dl>
-    <div class="m-2">
-      <button type="button" class="btn btn-primary btn-sm px-5" @click="_new">
-        <i class="fas fa-plus mr-1"></i>新增
-      </button>
+    <!-- table tools -->
+    <div class="news-bar-contaner">
+      <label>
+        <i class="fas fa-wrench mx-2 text-info"></i>快捷工具
+      </label>
+      <!-- User Interface controls -->
+      <dl class="news-bar">
+        <dd>
+          <b-input-group size="sm">
+            <b-form-input
+              v-model="keyWord"
+              placeholder="关键词"
+              @keyup.enter.prevent="search(keyWord)"
+            />
+            <b-input-group-append>
+              <b-btn @click="search(keyWord)">查找</b-btn>
+            </b-input-group-append>
+          </b-input-group>
+        </dd>
+        <dd>
+          <b-input-group size="sm">
+            <b-form-select v-model="sortBy" :options="sortOptions">
+              <option slot="first" :value="null">-- 排序依据 --</option>
+            </b-form-select>
+            <b-form-select
+              size="sm"
+              :disabled="!sortBy"
+              v-model="sortDesc"
+              slot="append"
+            >
+              <option :value="false">正序</option>
+              <option :value="true">倒序</option>
+            </b-form-select>
+          </b-input-group>
+        </dd>
+        <dd>
+          <b-input-group size="sm" append="单页条目">
+            <b-form-select size="sm" :options="pageOptions" v-model="perPage" />
+          </b-input-group>
+        </dd>
+      </dl>
+      <p class="m-2">
+        <button type="button" class="btn btn-primary btn-sm px-5" @click="_new">
+          <i class="fas fa-plus mr-1"></i>新增
+        </button>
+      </p>
     </div>
-    <!-- Main table element -->
+    <!-- tables list -->
     <div class="news-table">
       <section style="min-height: 300px;">
-        <b-table
-          id="my-table"
-          show-empty
-          stacked="md"
-          primary-key="id"
-          :head-variant="'bTable'"
-          :hover="true"
-          :busy.sync="isBusy"
-          :bordered="true"
-          :items="myProvider"
-          :fields="fields"
-          :current-page="currentPage"
-          :per-page="perPage"
-          :filter="filter"
-          :sort-by.sync="sortBy"
-          :sort-desc.sync="sortDesc"
-          :sort-direction="sortDirection"
-          @filtered="onFiltered"
-        >
-          <template v-slot:cell(isActive)="row">
-            <button
-              type="button"
-              @click.stop="_changeState(row.item)"
-              :class="['btn','btn-sm',row.value?'btn-primary':'btn-light']"
-            >{{row.value?'正常':"停用"}}</button>
-          </template>
-          <template v-slot:cell(domains)="row">
-            <dl class="mb-0">
-              <dd
-                class="my-1"
-                v-for="(item,index) in row.value"
-                :key="index"
-              >{{index+1}}.{{item.name}}</dd>
-            </dl>
-          </template>
-          <template v-slot:cell(actions)="row">
-            <!-- We use @click.stop here to prevent a 'row-clicked' event from also happening -->
-            <b-button
-              size="sm"
-              @click.stop="domainBind(row.item, row.index, $event.target)"
-              class="mr-1"
-              variant="success"
-            >域名管理</b-button>
-            <b-button
-              size="sm"
-              @click.stop="_edit(row.item, row.index, $event.target)"
-              class="mr-1"
-              variant="info"
-            >编辑</b-button>
-            <b-button
-              size="sm"
-              @click.stop="_delete(row.item, row.index, $event.target)"
-              variant="dark"
-            >删除</b-button>
-          </template>
-        </b-table>
+        <b-table-simple responsive bordered>
+          <colgroup>
+            <col style="width:4rem;" />
+            <col style="width:6rem;" />
+            <col />
+            <col style="width:10rem;" />
+            <col style="width:8rem;" />
+          </colgroup>
+          <b-thead head-variant="light">
+            <b-tr>
+              <b-th class="text-center">ID</b-th>
+              <b-th class="text-center">开通时间</b-th>
+              <b-th class="text-center">企业名称</b-th>
+              <b-th class="text-center">企业标识</b-th>
+              <b-th class="text-center">操作</b-th>
+            </b-tr>
+          </b-thead>
+          <b-tbody v-if="isBusy">
+            <b-tr>
+              <b-td colspan="6">
+                <div class="text-center text-info my-2">
+                  <b-spinner class="align-middle"></b-spinner>
+                  <strong>Loading...</strong>
+                </div>
+              </b-td>
+            </b-tr>
+          </b-tbody>
+          <b-tbody v-else>
+            <b-tr v-for="(item,index) in items" :key="index">
+              <b-td colspan="5" class="p-0">
+                <table class="tr-table">
+                  <colgroup>
+                    <col style="width:4rem;" />
+                    <col style="width:6rem;" />
+                    <col />
+                    <col style="width:10rem;" />
+                    <col style="width:8rem;" />
+                  </colgroup>
+                  <tr @click="showDetail(item,$event)">
+                    <td class="text-center">
+                      <span class="news-number">{{parseInt(item.id)}}</span>
+                    </td>
+                    <td class="text-center">{{formatTime(item.creationTime)}}</td>
+
+                    <td class="text-left company-name">{{item.name}}</td>
+                    <td class="text-left">
+                      <i
+                        :class="['fas','fa-circle',item.isActive?'color-success':'color-danger']"
+                      ></i>
+                      {{item.tenancyName}}
+                    </td>
+                    <td class="text-center">
+                      <b-button
+                        size="sm"
+                        @click.stop="domainModelOpen(item, index, $event.target)"
+                        class="mr-1"
+                        variant="info"
+                      >管理</b-button>
+                      <b-button
+                        size="sm"
+                        @click.stop="_delete(item, index, $event.target)"
+                        variant="light"
+                      >删除</b-button>
+                    </td>
+                  </tr>
+                  <tr v-if="item._showDetails" class="news-show-tr">
+                    <td colspan="5">
+                      <div class="news-show-detail">
+                        <div class="domains">
+                          <h3>绑定域名列表:</h3>
+                          <ul>
+                            <li
+                              v-for="(x,index) in item.domains"
+                              :key="index"
+                            >{{index + 1 + '.' + x.name}}</li>
+                          </ul>
+                        </div>
+                        <div class="template">
+                          <h3>当前模板:{{item.template ? item.template.displayName : '未选择'}}</h3>
+                          <div class="snopshot">
+                            <img :src="getSnapUrl(item)" />
+                          </div>
+                          <h3 v-if="item.theme">
+                            <i
+                              class="fas fa-circle"
+                              :style="`color:${item.theme.primaryColor}`"
+                            ></i>
+                          </h3>
+                          <h3 v-else>未选择</h3>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </b-td>
+            </b-tr>
+          </b-tbody>
+          <b-tfoot>
+            <b-tr>
+              <b-td colspan="6" variant="light" class="text-left">
+                Total Rows:
+                <b>{{totalRows}}</b>
+              </b-td>
+            </b-tr>
+          </b-tfoot>
+        </b-table-simple>
       </section>
       <b-pagination
         pills
@@ -323,7 +451,9 @@
 </template>
 <script>
 import tools from '../utiltools/tools'
+import AppConsts from '../utiltools/appconst'
 import swal from 'sweetalert'
+import smoothScroll from './custom/smoothScroll'
 const baseRow = {
     tenancyName: '',
     name: '',
@@ -332,21 +462,29 @@ const baseRow = {
     connectionString: ''
 }
 export default {
+    components: {
+        smoothScroll: smoothScroll
+    },
     data() {
         return {
+            snapshotSimple: '/static/imgs/960-1280.jpg',
+            templates: [],
+            themes: [],
             /**编辑设定 */
             isUpdate: false, // 是否更新
-            editRowIndex: null,
+            editRowIndex: -1,
+            newRow: {},
             editRow: {},
             domainModel: {},
             domainModelIndex: -1,
             /* table设置 start*/
-            isBusy: false,
+            items: [],
+            isBusy: true,
             currentPage: 1,
             perPage: 10,
             totalRows: 1,
             pageOptions: [5, 10, 20, 50, 100],
-            sortBy: null,
+            sortBy: 'creationTime',
             sortDesc: true,
             sortDirection: 'desc',
             keyWord: null,
@@ -360,13 +498,39 @@ export default {
             addDomainUrl: `/api/services/app/Tenant/AddDomainToTenant`,
             activeDomainUrl: '/api/services/app/Tenant/ActiveDomainInTenant',
             removeDomainUrl: `/api/services/app/Tenant/RemoveDomainFromTenant`,
-            updateDomainUrl: `/api/services/app/Tenant/UpdateDomain`
+            updateDomainUrl: `/api/services/app/Tenant/UpdateDomain`,
+
+            templateGetUrl: '/api/services/app/Template/Get',
+            templateGetAllUrl: '/api/services/app/Template/GetAll',
+
+            themeGetUrl: '/api/services/app/theme/Get',
+            themeGetAllUrl: '/api/services/app/theme/GetAll'
         }
     },
     props: ['contentTitle'],
     watch: {
+        editRow: {
+            handler(val, oldval) {
+                if (
+                    this.editRowIndex > -1 &&
+                    this.isUpdate &&
+                    Object.keys(val).length !== 0 &&
+                    Object.keys(oldval).length !== 0
+                ) {
+                    this.domainModelSubmit()
+                }
+            },
+            deep: true
+        },
         perPage() {
+            this.load()
             this.refreshScroll()
+        },
+        sortBy(val) {
+            this.load()
+        },
+        sortDesc(val) {
+            this.load()
         }
     },
     computed: {
@@ -383,195 +547,60 @@ export default {
         },
         fields() {
             let fields = [
-                {
-                    key: 'isActive',
-                    label: '状态',
-                    class: 'text-center'
-                },
-
                 { key: 'name', label: '企业名称', sortable: true, sortDirection: 'desc' },
-                { key: 'tenancyName', label: '标识', class: 'text-center' },
-                { key: 'domains', label: '域名', class: 'text-center' },
-                { key: 'actions', label: '操作', class: 'text-center w25' }
+                { key: 'tenancyName', label: '标识', sortable: true, sortDirection: 'desc' },
+                { key: 'creationTime', label: '创建时间', sortable: true, sortDirection: 'desc' }
             ]
 
             return fields
         }
     },
     methods: {
+        getSnapUrl(item) {
+            return item.templateSnapshot ? AppConsts.remoteServiceBaseUrl + item.templateSnapshot : this.snapshotSimple
+        },
+        getImgUrl(item) {
+            return item.templateSnapshots &&
+                item.templateSnapshots.filter(x => x.themeId === this.editRow.themeId).length > 0
+                ? AppConsts.remoteServiceBaseUrl +
+                      item.templateSnapshots.filter(x => x.themeId === this.editRow.themeId)[0].snapshot
+                : this.snapshotSimple
+        },
+        getClass(item) {
+            return item.id === this.editRow.templateId ? 'choose' : ''
+        },
+        ChooseTemplate(item) {
+            this.editRow.templateId = item.id
+        },
         refreshScroll() {
             this.$emit('refreshScroll')
         },
         reloadScroll() {
             this.$emit('reloadScroll')
         },
-
         /**Table methods */
         search(val) {
             this.filter = val
+            this.load()
         },
         formatTime(val) {
             return tools.date(val)
         },
         pageChange(val) {
             this.currentPage = val
+            this.load()
         },
         onFiltered(filteredItems) {
             // Trigger pagination to update the number of buttons/pages due to filtering
             this.totalRows = filteredItems.length
             this.currentPage = 1
         },
-        myProvider(ctx) {
-            let params = {
-                params: {
-                    Keyword: ctx.filter,
-                    // IsActive: true,
-                    SkipCount: (ctx.currentPage - 1) * ctx.perPage,
-                    MaxResultCount: ctx.perPage
-                }
-            }
-            let sort = String(this.sortBy)
-            if (sort !== null && sort !== undefined && sort !== '') {
-                sort = sort.replace(sort[0], sort[0].toUpperCase())
-                sort += ' '
-                sort += this.sortDesc ? 'DESC' : 'ASC'
-                params.params.Sorting = sort
-            }
-
-            let promise = this.$http.get(this.getAllUrl, params)
-            return promise
-                .then(res => {
-                    if (res.data.success) {
-                        let json = res.data.result
-                        let items = json.items
-                        items.forEach(i => (i._showDetails = false))
-                        this.totalRows = json.totalCount
-                        return items
-                    }
-                })
-                .catch(() => {
-                    return []
-                })
+        showDetail(item, event) {
+            item._showDetails = !item._showDetails
         },
-        // CRUD
-        async _changeState(item) {
-            item.isActive = !item.isActive
-            await this.update(this.editRow)
-            this.$root.$emit('bv::refresh::table', 'my-table')
-        },
-        modalInfoHide() {
-            this.isUpdate = false
-            this.editRow = {}
-            this.editRowIndex = null
-            this.$root.$emit('bv::hide::modal', 'modalInfo')
-        },
-
-        modalInfoShow(e) {
-            this.$refs.focusThis.focus()
-        },
-        modalOk(e) {
-            e.preventDefault()
-            this.modalSubmit()
-        },
-        async modalSubmit(e) {
-            if (await this.validate('form-modal')) {
-                if (!this.isUpdate) {
-                    await this.create(this.editRow)
-                } else {
-                    await this.update(this.editRow)
-                }
-                this.$root.$emit('bv::refresh::table', 'my-table')
-                this.modalInfoHide()
-            } else
-                swal({
-                    title: '请填写必要的选项!',
-                    icon: 'warning'
-                })
-        },
-        domainBind(item, index, button) {
-            this.editRow = JSON.parse(JSON.stringify(item))
-            this.$root.$emit('bv::show::modal', 'modalDomainBind')
-        },
-        domainModelClear() {
-            this.domainModel = {}
-            this.domainModelIndex = -1
-            this.$validator.reset()
-        },
-        domainModelHidden() {
-            this.domainModelClear()
-            this.$root.$emit('bv::refresh::table', 'my-table')
-        },
-        newDomain() {
-            this.domainModelClear()
-            this.domainModel.tenantId = this.editRow.id
-        },
-        editDomain(item, index) {
-            this.domainModelClear()
-            this.domainModelIndex = index
-            this.domainModel = JSON.parse(JSON.stringify(item))
-        },
-        async domainBindSubmit(e) {
-            if (await this.validate('form-domainBind')) {
-                if (this.domainModelIndex > -1)
-                    this.$http
-                        .put(this.updateDomainUrl, this.domainModel)
-                        .then(res => {
-                            if (res.data.success) {
-                                let json = res.data.result
-                                this.editRow.domains[this.domainModelIndex] = json
-                                this.$validator.reset()
-                            }
-                        })
-                        .then(() => swal('操作成功!', '', 'success'))
-                else
-                    this.$http
-                        .post(this.addDomainUrl, this.domainModel)
-                        .then(res => {
-                            if (res.data.success) {
-                                let json = res.data.result
-                                this.editRow.domains.push(json)
-                                this.$validator.reset()
-                            }
-                        })
-                        .then(() => swal('操作成功!', '', 'success'))
-            } else
-                swal({
-                    title: '请填写必要的选项!',
-                    icon: 'warning'
-                })
-        },
-        domainActiveSubmit(e, item, index) {
-            this.$http
-                .post(this.activeDomainUrl, { id: item.id, isActive: item.isActive })
-                .then(x => this.domainModelClear())
-        },
-        domainRemoveSubmit(item, index) {
-            swal({
-                title: '确认吗?',
-                text: '被删除数据可能无法恢复，请您再次确认!',
-                icon: 'warning',
-                buttons: ['取消', '确认'],
-                dangerMode: true
-            }).then(async confirm => {
-                if (confirm) {
-                    this.$http.delete(this.removeDomainUrl, { params: { id: item.id } }).then(res => {
-                        if (res.data.success) {
-                            this.editRow.domains.splice(index, 1)
-                        }
-                    })
-                }
-            })
-        },
-        //编辑
-        _edit(item, index, button) {
-            this.isUpdate = true
-            this.editRow = JSON.parse(JSON.stringify(item))
-            this.$root.$emit('bv::show::modal', 'modalInfo')
-        },
-        //新增
         _new() {
             this.isUpdate = false
-            this.editRow = JSON.parse(JSON.stringify(baseRow))
+            this.newRow = JSON.parse(JSON.stringify(baseRow))
             this.$root.$emit('bv::show::modal', 'modalInfo')
         },
         _delete(item, index, button) {
@@ -591,6 +620,32 @@ export default {
                 }
             })
         },
+        /**企业新增面板 */
+        modalInfoHide() {
+            this.isUpdate = false
+            this.newRow = {}
+            this.$root.$emit('bv::hide::modal', 'modalInfo')
+        },
+
+        modalInfoShow(e) {
+            this.$refs.focusThis.focus()
+        },
+        modalOk(e) {
+            e.preventDefault()
+            this.modalSubmit()
+        },
+        async modalSubmit(e) {
+            if (await this.validate('form-modal')) {
+                await this.create(this.newRow)
+                this.load(true)
+                this.modalInfoHide()
+            } else
+                swal({
+                    title: '请填写必要的选项!',
+                    icon: 'warning'
+                })
+        },
+        // 远程数据操作
         async validate(scope) {
             let res
             await this.$validator.validateAll(scope).then(async result => {
@@ -599,24 +654,179 @@ export default {
             return res
         },
         async update(item) {
-            await this.$http.put(this.updateUrl, item).then(res => {
-                if (res.data.success) {
-                    let json = res.data.result
-                    return json
-                }
-            })
+            const res = await this.$http.put(this.updateUrl, item)
+            if (res.data.success) {
+                let json = res.data.result
+                return json
+            }
         },
         async create(item) {
-            await this.$http.post(this.createUrl, item).then(res => {
-                if (res.data.success) {
-                    let json = res.data.result
-                    return json
+            const res = await this.$http.post(this.createUrl, item)
+            if (res.data.success) {
+                let json = res.data.result
+                return json
+            }
+        },
+        syncEditRow() {
+            this.items[this.editRowIndex].name = this.editRow.name
+            this.items[this.editRowIndex].domains = this.editRow.domains
+            this.items[this.editRowIndex].templateId = this.editRow.templateId
+            this.items[this.editRowIndex].template = this.editRow.template
+            this.items[this.editRowIndex].theme = this.editRow.theme
+            this.items[this.editRowIndex].templateSnapshot = this.editRow.templateSnapshot
+            this.items[this.editRowIndex].isActive = this.editRow.isActive
+        },
+        /*
+        域名管理部分
+        */
+        domainModelOpen(item, index, button) {
+            this.isUpdate = true
+            this.editRow = JSON.parse(JSON.stringify(item))
+            this.editRowIndex = index
+
+            this.$root.$emit('bv::show::modal', 'modalDomainBind')
+        },
+        async domainModelSubmit(e) {
+            this.isUpdate = false
+            if (await this.validate('form-update')) {
+                let res = await this.update(this.editRow)
+                // this.items[this.editRowIndex] = this.editRow
+                this.editRow = res
+                this.syncEditRow()
+            } else
+                swal({
+                    title: '请填写必要的选项!',
+                    icon: 'warning'
+                })
+            this.$nextTick(() => (this.isUpdate = true))
+        },
+        domainModelHidden() {
+            this.domainModelClear()
+            this.isUpdate = false
+            this.editRow = {}
+            this.editRowIndex = -1
+        },
+        domainModelClear() {
+            this.domainModel = {}
+            this.domainModelIndex = -1
+            this.$validator.reset()
+        },
+        _domainNew() {
+            this.domainModelClear()
+            this.domainModel.tenantId = this.editRow.id
+        },
+        _domainEdit(item, index) {
+            this.domainModelClear()
+            this.domainModelIndex = index
+            this.domainModel = JSON.parse(JSON.stringify(item))
+        },
+        async domainBindSubmit(e) {
+            this.isUpdate = false
+            if (await this.validate('form-domainBind')) {
+                if (this.domainModelIndex > -1) {
+                    let res = await this.$http.put(this.updateDomainUrl, this.domainModel)
+                    if (res.data.success) {
+                        let json = res.data.result
+                        this.editRow.domains[this.domainModelIndex] = json
+                        this.syncEditRow()
+                        this.$validator.reset()
+                    }
+                } else {
+                    let res = await this.$http.post(this.addDomainUrl, this.domainModel)
+                    if (res.data.success) {
+                        let json = res.data.result
+                        this.editRow.domains.push(json)
+                        this.syncEditRow()
+                        this.$validator.reset()
+                    }
                 }
+            } else
+                swal({
+                    title: '请填写必要的选项!',
+                    icon: 'warning'
+                })
+            this.$nextTick(() => (this.isUpdate = true))
+        },
+        domainActiveSubmit(e, item, index) {
+            this.$http
+                .post(this.activeDomainUrl, { id: item.id, isActive: item.isActive })
+                .then(x => this.domainModelClear())
+        },
+        domainRemoveSubmit(item, index) {
+            this.isUpdate = false
+            swal({
+                title: '确认吗?',
+                text: '被删除数据可能无法恢复，请您再次确认!',
+                icon: 'warning',
+                buttons: ['取消', '确认'],
+                dangerMode: true
+            }).then(async confirm => {
+                if (confirm) {
+                    let res = await this.$http.delete(this.removeDomainUrl, { params: { id: item.id } })
+                    if (res.data.success) {
+                        this.editRow.domains.splice(index, 1)
+                        this.syncEditRow()
+                    }
+                }
+            })
+            this.$nextTick(() => (this.isUpdate = true))
+        },
+        /*
+        加载数据
+        */
+        load(x = false) {
+            if (x) this.currentPage = 1
+            this.isBusy = true
+            let sorts = []
+            let sort = String(this.sortBy)
+            if (sort !== null && sort !== undefined && sort !== '') {
+                sort = sort.replace(sort[0], sort[0].toUpperCase())
+                sort += ' '
+                sort += this.sortDesc ? 'DESC' : 'ASC'
+                sorts.push(sort)
+            }
+            let params = {
+                params: {
+                    Keyword: this.filter,
+                    IsActive: true,
+                    SkipCount: (this.currentPage - 1) * this.perPage,
+                    MaxResultCount: this.perPage,
+                    Sorting: sorts.toString()
+                }
+            }
+            this.$http
+                .get(this.getAllUrl, params)
+                .then(res => {
+                    if (res.data.success) {
+                        let json = res.data.result
+                        this.items = json.items.map(i => {
+                            i._showDetails = false
+                            return i
+                        })
+                        this.totalRows = json.totalCount
+                        this.isBusy = false
+                    }
+                })
+                .catch(() => {
+                    this.isBusy = false
+                })
+
+            params = {
+                params: {
+                    MaxResultCount: 100,
+                    Sorting: 'Id Asc'
+                }
+            }
+            this.$http.get(this.templateGetAllUrl, params).then(res => {
+                this.templates = res.data.result.items
+            })
+            this.$http.get(this.themeGetAllUrl, params).then(res => {
+                this.themes = res.data.result.items
             })
         }
     },
     created() {
-        var that = this
+        this.load()
     }
 }
 </script>
