@@ -353,10 +353,10 @@ export default {
                 params: { catalogType: 3 }
             })
 
-            const json = []
-            if (newsGroupsRes.data.success) json.concat(newsGroupsRes.data.result)
-            if (photoGroupsRes.data.success) json.concat(photoGroupsRes.data.result)
-            if (productGroupsRes.data.success) json.concat(productGroupsRes.data.result)
+            let json = [] 
+            if (newsGroupsRes.data.success) json = newsGroupsRes.data.result
+            if (photoGroupsRes.data.success) json = json.concat(photoGroupsRes.data.result)
+            if (productGroupsRes.data.success) json = json.concat(productGroupsRes.data.result)
 
             this.treeData = json
             this.currentPageGroupIsUpdate = !noActive
