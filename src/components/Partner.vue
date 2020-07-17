@@ -202,7 +202,7 @@
                 <b-td class="text-center">
                   <span class="news-number">{{parseInt(item.id)}}</span>
                 </b-td>
-                <b-td class="text-center">
+                <b-td class="text-center partner-logo">
                   <img :src="item.logo" />
                 </b-td>
                 <b-td>{{item.title}}</b-td>
@@ -349,13 +349,11 @@ export default {
                     key: 'number',
                     label: '顺序号',
                     sortable: true,
-                    sortDirection: 'desc',
-                    class: 'text-center'
+                    sortDirection: 'desc'
                 },
                 {
                     key: 'logo',
-                    label: 'Logo',
-                    class: 'text-center table-img'
+                    label: 'Logo'
                 },
                 { key: 'title', label: '企业全称', sortable: true, sortDirection: 'desc' },
                 { key: 'hasInfo', label: '含有简介', class: 'text-center' },

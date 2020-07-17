@@ -249,7 +249,6 @@
               <col style="width:4rem;" />
               <col style="width:4rem;" />
               <col />
-              <col style="width:6rem;" />
               <col v-if="hasGroup" style="width:8rem;" />
               <col style="width:6rem;" />
               <col style="width:12rem;" />
@@ -257,9 +256,8 @@
             <b-thead head-variant="light">
               <b-tr>
                 <b-th class="text-center">置顶</b-th>
-                <b-th class="text-center">ID</b-th>
+                <b-th class="text-center">序列号</b-th>
                 <b-th class="text-center">标题</b-th>
-                <b-th class="text-center">标签</b-th>
                 <b-th v-if="hasGroup" class="text-center">分组</b-th>
                 <b-th class="text-center">发布时间</b-th>
                 <b-th class="text-center">操作</b-th>
@@ -298,8 +296,9 @@
                 <b-td class="text-center">
                   <span class="news-number">{{parseInt(item.id)}}</span>
                 </b-td>
-                <b-td>{{item.title}}</b-td>
-                <b-td class="text-center">{{item.mark}}</b-td>
+                <b-td class="text-limit">
+                  <span >{{item.title}}</span>
+                </b-td>
                 <b-td
                   v-if="hasGroup"
                   class="text-center"

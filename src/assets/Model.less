@@ -1,0 +1,111 @@
+.group-module {
+    padding-top: 20px;
+    input,
+    textarea,
+    button {
+        font-size: 13px;
+    }
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: start;
+    .list {
+        width: 40%;
+        margin-right: 20px;
+        box-shadow: 0 0 3px #ccc;
+        height: 100%;
+        min-height: 400px;
+    }
+    .detail {
+        width: 60%;
+        box-shadow: 0 0 3px #ccc;
+        min-height: 400px;
+        position: relative;
+
+        .info-img {
+            min-width: 128px;
+            height: 128px;
+            > img {
+                max-height: none;
+                height: 100%;
+            }
+        }
+        .no-action {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 4px;
+            padding: 20px;
+            background-color: #e9ecef;
+            border: 1px solid #ccc;
+        }
+        .tips {
+            .path {
+                color: @bule;
+            }
+            .action {
+                font-style: italic;
+                color: @purple;
+            }
+        }
+    }
+}
+.group-tree {
+    ul {
+        padding-left: 0;
+        margin-top: 10px;
+    }
+    li {
+        font-size: 0.9rem;
+        overflow: hidden;
+        list-style: none;
+        overflow: hidden;
+        padding-left: 12px;
+        max-height: 32px;
+        cursor: pointer;
+        transition: max-height 0.2s ease-out;
+        margin-bottom: 10px;
+        > div {
+            padding-left: 10px;
+            border-radius: 4px;
+            i {
+                transition: all 0.2s ease-out;
+            }
+            > span {
+                display: inline-block;
+                padding: 4px 8px;
+                border-radius: 4px;
+            }
+            &:hover > span,
+            &:active > span {
+                color: @purple;
+            }
+            &.choose > span {
+                color: @purple;
+                background-color: #ccccff;
+            }
+        }
+        &.active {
+            max-height: 10000px;
+            transition: max-height 0.2s ease-in;
+            > div i {
+                transition: all 0.2s ease-in;
+                transform: rotate(90deg);
+            }
+        }
+    }
+}
+.module-icon-img {
+    padding: 0;
+    background-color: #fff;
+    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
+    min-width: 48px;
+    height: 48px;
+    text-align: center;
+    > img {
+        max-height: none;
+        height: 100%;
+    }
+}

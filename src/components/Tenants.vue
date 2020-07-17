@@ -4,7 +4,7 @@
       <i class="far fa-copy text-primary mr-1"></i>
       {{contentTitle}}
     </p>
-    <!-- Bind domain modal -->
+    <!-- 租户管理modal -->
     <b-modal
       id="modalDomainBind"
       size="lg"
@@ -13,10 +13,7 @@
       @hidden="domainModelHidden"
     >
       <smooth-scroll ref="domainModelScroll" :autoScroll="false">
-        <section
-          @click="domainModelClear"
-          class="tenant-modify-container h-100"
-        >
+        <section @click="domainModelClear" class="pl-1 h-100">
           <b-form
             @submit.stop.prevent="domainModelSubmit"
             autocomplete="off"
@@ -40,161 +37,165 @@
               ></b-form-input>
             </b-form-group>
           </b-form>
-          <h3 class="modal-insider-title">
-            模板管理
-            <i class="fas fa-ellipsis-h"></i>
-          </h3>
-          <section class="my-3 template-choose-container">
-            <div class="template-snapshot">
+          <section class="tenant-template">
+            <h3 class="modal-insider-title">
+              模板管理
+              <i class="fas fa-ellipsis-h"></i>
+            </h3>
+            <div class="tenant-template-panel">
               <div class="template-snapshot-container">
-                <img :src="getSnapUrl(editRow)" />
+                <div class="template-snapshot">
+                  <img :src="getSnapUrl(editRow)" />
+                </div>
+                <h6>{{editRow.template?editRow.template.displayName:'未选择模板'}}</h6>
+                <h6>{{editRow.theme?editRow.theme.name:'未选择主题'}}</h6>
               </div>
-              <h6>{{editRow.template?editRow.template.displayName:'未选择模板'}}</h6>
-              <h6>{{editRow.theme?editRow.theme.name:'未选择主题'}}</h6>
-            </div>
 
-            <div class="template-choose">
-              <div class="template-list">
-                <smooth-scroll :autoScroll="false">
-                  <ul>
-                    <li v-for="item in templates" :key="item.id">
-                      <div class="snapshot">
-                        <div :class="getClass(item)">
-                          <img
-                            :src="getImgUrl(item)"
+              <div class="template-list-container">
+                <div class="template-list">
+                  <smooth-scroll :autoScroll="false">
+                    <ul>
+                      <li v-for="item in templates" :key="item.id">
+                        <div class="snapshot">
+                          <div :class="getClass(item)">
+                            <img
+                              :src="getImgUrl(item)"
+                              @click="ChooseTemplate(item)"
+                            />
+                          </div>
+                          <a
+                            href="javascript:void(0)"
+                            class="display-name"
                             @click="ChooseTemplate(item)"
-                          />
+                          >{{ item.displayName }}</a>
                         </div>
-                        <a
-                          href="javascript:void(0)"
-                          class="display-name"
-                          @click="ChooseTemplate(item)"
-                        >{{ item.displayName }}</a>
-                      </div>
+                      </li>
+                    </ul>
+                  </smooth-scroll>
+                </div>
+                <div class="theme-list">
+                  <ul>
+                    <li v-for="item in themes" :key="item.id">
+                      <b-form-checkbox
+                        v-model="editRow.themeId"
+                        :value="item.id"
+                        name="flavour-3a"
+                      >
+                        <i
+                          class="fas fa-circle"
+                          :style="`color:${item.primaryColor}`"
+                        ></i>
+                        {{ item.name }}
+                      </b-form-checkbox>
                     </li>
                   </ul>
-                </smooth-scroll>
-              </div>
-              <div class="theme-list">
-                <ul>
-                  <li v-for="item in themes" :key="item.id">
-                    <b-form-checkbox
-                      v-model="editRow.themeId"
-                      :value="item.id"
-                      name="flavour-3a"
-                    >
-                      <i
-                        class="fas fa-circle"
-                        :style="`color:${item.primaryColor}`"
-                      ></i>
-                      {{ item.name }}
-                    </b-form-checkbox>
-                  </li>
-                </ul>
+                </div>
               </div>
             </div>
           </section>
-          <h3 class="modal-insider-title">
-            域名管理
-            <i class="fas fa-ellipsis-h"></i>
-          </h3>
-          <div class="domain-list" @click.stop>
-            <div class="list">
-              <p class="lead mb-3">域名列表</p>
-              <dl>
-                <dd
-                  v-for="(domain,index) in editRow.domains"
-                  :key="index"
-                  @click.stop="_domainEdit(domain,index)"
-                >
-                  <a @click.stop>
-                    <b-form-checkbox
-                      class="d-inline"
-                      switch
-                      v-model="domain.isActive"
-                      @input="domainActiveSubmit($event,domain,index)"
-                    ></b-form-checkbox>
-                  </a>
-                  <a>{{index+1}}.{{domain.name}}</a>
-                  <i
-                    class="far fa-trash-alt text-danger ml-2"
-                    @click.stop="domainRemoveSubmit(domain,index)"
-                  ></i>
-                </dd>
-                <dd class="text-success" @click.stop="_domainNew">
-                  <i class="fas fa-plus path mr-1"></i>新增
-                </dd>
-              </dl>
-            </div>
-            <div class="detail">
-              <div
-                class="no-action"
-                v-if="Object.entries(domainModel).length === 0 && domainModel.constructor === Object"
-              >选择左侧模块进行编辑</div>
-              <div v-else>
-                <p class="tips">
-                  <i class="fas fa-edit path" v-if="domainModelIndex>-1"></i>
-                  <i class="fas fa-plus path" v-else></i>
-                  <span class="path">{{domainModelIndex>-1?`编辑`:`新增`}}</span>
-                  <span
-                    class="action"
-                  >{{domainModelIndex>-1?domainModel.name:``}}</span>
-                </p>
-                <b-form
-                  @submit.stop.prevent="domainBindSubmit"
-                  autocomplete="off"
-                  data-vv-scope="form-domainBind"
-                >
-                  <p>
-                    <b-input-group size="sm" prepend="域名">
-                      <b-form-input
-                        id="p-domain"
-                        type="text"
-                        name="域名"
-                        v-model="domainModel.name"
-                        :disabled="domainModelIndex>-1"
-                        :state="!errors.has('form-domainBind.域名') "
-                        v-validate="'required'"
-                        placeholder="www.domain.com"
-                      ></b-form-input>
-                    </b-input-group>
+          <section class="tenant-domain">
+            <h3 class="modal-insider-title">
+              域名管理
+              <i class="fas fa-ellipsis-h"></i>
+            </h3>
+            <div class="tenant-domain-panel" @click.stop>
+              <div class="list">
+                <p class="lead mb-3">域名列表</p>
+                <dl>
+                  <dd
+                    v-for="(domain,index) in editRow.domains"
+                    :key="index"
+                    @click.stop="_domainEdit(domain,index)"
+                  >
+                    <a @click.stop>
+                      <b-form-checkbox
+                        class="d-inline"
+                        switch
+                        v-model="domain.isActive"
+                        @input="domainActiveSubmit($event,domain,index)"
+                      ></b-form-checkbox>
+                    </a>
+                    <a>{{index+1}}.{{domain.name}}</a>
+                    <i
+                      class="far fa-trash-alt text-danger ml-2"
+                      @click.stop="domainRemoveSubmit(domain,index)"
+                    ></i>
+                  </dd>
+                  <dd class="text-success" @click.stop="_domainNew">
+                    <i class="fas fa-plus path mr-1"></i>新增
+                  </dd>
+                </dl>
+              </div>
+              <div class="detail">
+                <div
+                  class="no-action"
+                  v-if="Object.entries(domainModel).length === 0 && domainModel.constructor === Object"
+                >选择左侧模块进行编辑</div>
+                <div v-else>
+                  <p class="tips">
+                    <i class="fas fa-edit path" v-if="domainModelIndex>-1"></i>
+                    <i class="fas fa-plus path" v-else></i>
+                    <span class="path">{{domainModelIndex>-1?`编辑`:`新增`}}</span>
+                    <span
+                      class="action"
+                    >{{domainModelIndex>-1?domainModel.name:``}}</span>
                   </p>
+                  <b-form
+                    @submit.stop.prevent="domainBindSubmit"
+                    autocomplete="off"
+                    data-vv-scope="form-domainBind"
+                  >
+                    <p>
+                      <b-input-group size="sm" prepend="域名">
+                        <b-form-input
+                          id="p-domain"
+                          type="text"
+                          name="域名"
+                          v-model="domainModel.name"
+                          :disabled="domainModelIndex>-1"
+                          :state="!errors.has('form-domainBind.域名') "
+                          v-validate="'required'"
+                          placeholder="www.domain.com"
+                        ></b-form-input>
+                      </b-input-group>
+                    </p>
 
-                  <p>
-                    <b-input-group size="sm" prepend="津ICP备">
-                      <b-form-input
-                        id="p-icp"
-                        type="text"
-                        name="津ICP"
-                        v-model="domainModel.icp"
-                        placeholder="B1-10000000号-1"
-                      ></b-form-input>
-                    </b-input-group>
-                  </p>
+                    <p>
+                      <b-input-group size="sm" prepend="津ICP备">
+                        <b-form-input
+                          id="p-icp"
+                          type="text"
+                          name="津ICP"
+                          v-model="domainModel.icp"
+                          placeholder="B1-10000000号-1"
+                        ></b-form-input>
+                      </b-input-group>
+                    </p>
 
-                  <p>
-                    <b-input-group size="sm" prepend="津公网安备" append="号">
-                      <b-form-input
-                        id="p-gongan"
-                        type="text"
-                        name="津公网安备"
-                        v-model="domainModel.gongAn"
-                        placeholder="120000000000000"
-                      ></b-form-input>
-                    </b-input-group>
-                  </p>
-                  <hr />
-                  <p class="center">
-                    <b-button type="submit" variant="primary">提交</b-button>
-                  </p>
-                </b-form>
+                    <p>
+                      <b-input-group size="sm" prepend="津公网安备" append="号">
+                        <b-form-input
+                          id="p-gongan"
+                          type="text"
+                          name="津公网安备"
+                          v-model="domainModel.gongAn"
+                          placeholder="120000000000000"
+                        ></b-form-input>
+                      </b-input-group>
+                    </p>
+                    <hr />
+                    <p class="center">
+                      <b-button type="submit" variant="primary">提交</b-button>
+                    </p>
+                  </b-form>
+                </div>
               </div>
             </div>
-          </div>
+          </section>
         </section>
       </smooth-scroll>
     </b-modal>
-    <!-- Info modal -->
+    <!-- 租户新增panel -->
     <b-modal
       id="modalInfo"
       :title="modalTitle"
@@ -374,7 +375,7 @@
                     </td>
                     <td class="text-center">{{formatTime(item.creationTime)}}</td>
 
-                    <td class="text-left company-name">{{item.name}}</td>
+                    <td class="text-left">{{item.name}}</td>
                     <td class="text-left">
                       <i
                         :class="['fas','fa-circle',item.isActive?'color-success':'color-danger']"

@@ -25,7 +25,7 @@
         </div>
       </div>
       <hr class="border-light mx-3" />
-      <section class="scroll-sidebar-container">
+      <section class="sidebar-menu-container ">
         <smooth-scroll ref="scrollSidebar" @scrollTop="leftScrollTop">
           <div class="sidebar-menu">
             <sidebar-menu

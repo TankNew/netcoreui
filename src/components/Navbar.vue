@@ -98,7 +98,7 @@
         </div>
       </template>
       <section>
-        <div class="border-list">
+        <div class="navbar-bind-panel">
           <section>
             <p class="lead">[{{module.displayName}}]的属性</p>
             <b-alert show dismissible>

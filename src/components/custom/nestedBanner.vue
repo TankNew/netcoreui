@@ -102,14 +102,15 @@ export default {
         getImgUrl(item) {
             let style = ''
             if (item.bannerImgs && item.bannerImgs.length > 0) {
-                style = `background-image:url('${`https://cms.ednet.cn` + item.bannerImgs[0].imgUrl}');`
+                style = `background:url('${`https://cms.ednet.cn` +
+                    item.bannerImgs[0].imgUrl}') fixed center / 100% auto;`
             } else if (this.parent !== null && this.parent !== undefined) {
                 if (this.parent.bannerImgs && this.parent.bannerImgs.length > 0) {
                     item.grandParentImage = this.parent.bannerImgs[0].imgUrl
-                } else if (this.parent.grandParentImage)
-                    item.grandParentImage = this.parent.grandParentImage
+                } else if (this.parent.grandParentImage) item.grandParentImage = this.parent.grandParentImage
                 if (item.grandParentImage)
-                    style = `background-image:url('${`https://cms.ednet.cn` + item.grandParentImage}');`
+                    style = `background:url('${`https://cms.ednet.cn` +
+                        item.grandParentImage}') fixed center / 100% auto;`
             }
 
             return style

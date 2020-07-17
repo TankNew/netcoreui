@@ -136,7 +136,7 @@
                         </b-button>
                       </div>
                       <b-input-group size="sm" prepend="图标SVG" class="mb-3">
-                        <div class="icon-img">
+                        <div class="module-icon-img">
                           <img :src="module.icon" />
                         </div>
                         <b-input-group-append>
@@ -240,7 +240,7 @@
                         </b-button>
                       </div>
                       <b-input-group size="sm" prepend="图标SVG" class="mb-3">
-                        <div class="icon-img">
+                        <div class="module-icon-img">
                           <img :src="module.icon" />
                         </div>
                         <b-input-group-append>
