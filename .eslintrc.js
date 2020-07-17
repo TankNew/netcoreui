@@ -20,6 +20,7 @@ module.exports = {
     plugins: ['vue'],
     // add your custom rules here
     rules: {
+        'standard/computed-property-even-spacing': 0,
         'comma-style': 0,
         'brace-style': 0,
         curly: 0,

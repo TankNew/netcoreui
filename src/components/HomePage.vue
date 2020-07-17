@@ -353,7 +353,7 @@ export default {
                 params: { catalogType: 3 }
             })
 
-            let json = [] 
+            let json = []
             if (newsGroupsRes.data.success) json = newsGroupsRes.data.result
             if (photoGroupsRes.data.success) json = json.concat(photoGroupsRes.data.result)
             if (productGroupsRes.data.success) json = json.concat(productGroupsRes.data.result)
@@ -372,7 +372,9 @@ export default {
             if (await this.validate('form-group')) {
                 if (this.value !== undefined && this.value !== null) {
                     if (this.currentPageGroupIsUpdate)
-                        this.groupsCrude[this.currentPageGroup.crudeIndex].catalogGroupId = item.id
+                        this.groupsCrude[
+                            this.currentPageGroup.crudeIndex
+                        ] = this.currentPageGroup
                     else this.groupsCrude.push(this.currentPageGroup)
                     await this.submit()
                     this.groupModalHide()
@@ -422,7 +424,7 @@ export default {
                     x.crudeIndex = index
                     return x
                 })
-                list = list.filter(x => x.catalogGroup && x.catalogGroup.catalogType === type)
+                // list = list.filter(x => x.catalogGroup && x.catalogGroup.catalogType === type)
             } else {
                 list = list.map(x => {
                     x.noActive = false
@@ -459,7 +461,7 @@ export default {
             this.blocksCrude = this.homePage.blocks
             this.groupsCrude = this.homePage.groups
             this.blocks = this.mapSign(this.blocksCrude)
-            this.groups = this.mapSign(this.groupsCrude)
+            this.groups = this.mapSign(this.groupsCrude, 1)
         }
     },
     created() {

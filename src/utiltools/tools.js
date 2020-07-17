@@ -9,7 +9,7 @@ const tokenUrl = '/api/TokenAuth'
 
 //转换日期
 const date = function(dateObject) {
-    if (dateObject.length > 0) {
+    if (dateObject && dateObject.length > 0) {
         if (dateObject.indexOf('T') === -1) dateObject = dateObject.replace(/-/g, '/')
         let d = new Date(dateObject)
         let day = d.getDate()
@@ -24,7 +24,7 @@ const date = function(dateObject) {
         let date = year + '-' + month + '-' + day
         return date
     }
-    return 'null'
+    return ''
 }
 //过滤空格
 var trimspace = function(vStr) {

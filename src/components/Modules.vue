@@ -112,7 +112,7 @@
                       </span>
                     </p>
                     <b-form @submit.stop.prevent="onSubmit" autocomplete="off">
-                      <div v-if="!isUpdate" class="mb-3">
+                      <div v-if="!isUpdate&&parent===null" class="mb-3">
                         <b-button
                           variant="outline-info"
                           :class="module.catalogType==1?'active':''"
@@ -450,11 +450,15 @@ export default {
         },
 
         add(parent, isPage) {
+            console.log(parent)
             let basicPage = { parentId: null, displayName: '', catalogType: null, cover: '', info: '' }
             if (!isPage) {
                 basicPage.catalogType = 1
             }
-            if (parent) basicPage.parentId = parent.id
+            if (parent) {
+                basicPage.parentId = parent.id
+                basicPage.catalogType = parent.catalogType
+            }
             this.editMode = true
             this.isPage = isPage
             this.parent = parent
