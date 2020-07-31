@@ -129,8 +129,8 @@ export default {
         },
         async changeTenant() {
             if (!this.changedTenancyName) {
-                this.displayTenancyName = 'tjyzhy'
-                this.changedTenancyName = 'tjyzhy'
+                this.displayTenancyName = 'tempa'
+                this.changedTenancyName = 'tempa'
                 let tenant = await this.$store.dispatch({
                     type: 'isTenantAvailable',
                     data: { tenancyName: this.changedTenancyName }
