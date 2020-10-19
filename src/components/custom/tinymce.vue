@@ -251,7 +251,7 @@ export default {
                     tinymce.activeEditor.insertContent('<img src="' + fileUrl + '" style="max-width:100%;">')
                 } else if (videotype.indexOf(fileType) > -1)
                     tinymce.activeEditor.insertContent(
-                        '<video><source src="' + fileUrl + '">your browser does not support the video tag</video>'
+                        '<video autoplay="autoplay"><source src="' + fileUrl + '">your browser does not support the video tag</video>'
                     )
                 else if (pdftype.indexOf(fileType) > -1)
                     tinymce.activeEditor.insertContent('<a href="' + fileUrl + '">' + fileName + '</a>')

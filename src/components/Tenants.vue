@@ -615,7 +615,7 @@ export default {
                 if (confirm) {
                     this.$http.delete(this.deleteUrl, { params: { id: item.id } }).then(res => {
                         if (res.data.success) {
-                            this.$root.$emit('bv::refresh::table', 'my-table')
+                            this.load()
                         }
                     })
                 }

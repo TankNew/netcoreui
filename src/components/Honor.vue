@@ -519,7 +519,7 @@ export default {
                 if (confirm) {
                     this.$http.delete(this.deleteUrl, { params: { id: item.id } }).then(res => {
                         if (res.data.success) {
-                            this.$root.$emit('bv::refresh::table', 'my-table')
+                            this.load()
                         }
                     })
                 }
@@ -555,13 +555,13 @@ export default {
                     await this.$http.post(this.createUrl, this.editRow).then(res => {
                         if (res.data.success) {
                             let json = res.data.result
-                            this.$root.$emit('bv::refresh::table', 'my-table')
+                            this.load()
                         }
                     })
                 } else {
                     await this.$http.put(this.updateUrl, this.editRow).then(res => {
                         if (res.data.success) {
-                            this.$root.$emit('bv::refresh::table', 'my-table')
+                            this.load()
                         }
                     })
                 }
