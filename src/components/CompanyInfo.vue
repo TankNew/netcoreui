@@ -1,27 +1,53 @@
 <template>
   <section class="container-fluid">
+    <b-modal id="company-domian-modal" size="lg" ok-only title="网址二维码生成">
+      <section class="company-domain">
+        <div class="company-domain-panel" @click.stop>
+          <div class="list">
+            <p class="lead mb-3">域名列表</p>
+            <dl>
+              <dd v-for="(domain, index) in companyInfo.urls" :key="index">
+                <a>{{ index + 1 }}.{{ domain }}</a>
+                <b-button variant="outline-primary" @click.prevent.stop="generateQRCode(domain)">生成二维码</b-button>
+              </dd>
+            </dl>
+          </div>
+          <div v-show="showCode" class="detail">
+            <h5>{{ coderDomain }}</h5>
+            <div class="code">
+              <img :src="'data:image/png;base64,' + qrCode" />
+            </div>
+          </div>
+        </div>
+      </section>
+    </b-modal>
     <form @submit.stop.prevent="handleSubmit" autocomplete="off">
       <div class="contact-info">
         <b-card :title="contentTitle" class="mb-3 contact-info-card">
           <p class="card-text">
             <i class="far fa-address-card text-primary mr-1"></i>
             Company Info
+            <b-button style="float: right" variant="primary" size="sm" @click="openDomainModal">生成网址二维码</b-button>
           </p>
+
           <b-input-group size="sm" prepend="企业名称" class="mb-3">
             <b-form-input
               v-model="companyInfo.appName"
               name="企业名称"
-              :state="!errors.has('企业名称') "
+              :state="!errors.has('企业名称')"
               v-validate="'required'"
             ></b-form-input>
           </b-input-group>
-          <b-input-group size="sm" prepend="关键词" class="mb-3">
+          <b-input-group size="sm" prepend="SEO关键词" class="mb-3">
             <b-form-textarea
               v-model="companyInfo.seoKeyWords"
-              :rows="6"
+              :rows="3"
               size="sm"
               placeholder="多个关键词请用逗号隔开"
             ></b-form-textarea>
+          </b-input-group>
+          <b-input-group size="sm" prepend="SEO描述" class="mb-3">
+            <b-form-textarea v-model="companyInfo.description" :rows="3" size="sm"></b-form-textarea>
           </b-input-group>
           <b-input-group size="sm" prepend="网站LOGO" class="mb-3">
             <div class="info-img">
@@ -48,7 +74,7 @@
             <b-form-input
               v-model="companyInfo.logoText"
               name="Logo文本"
-              :state="!errors.has('Logo文本') "
+              :state="!errors.has('Logo文本')"
             ></b-form-input>
           </b-input-group>
           <b-input-group size="sm" prepend="网站ICO" class="mb-3">
@@ -93,12 +119,13 @@
               </b-btn>
             </b-input-group-append>
           </b-input-group>
+
           <b-input-group size="sm" prepend="联系人" class="mb-3">
             <b-form-input
               v-model="companyInfo.contacter"
               v-validate="'title'"
               name="联系人"
-              :state="hasError(companyInfo.contacter,'联系人')"
+              :state="hasError(companyInfo.contacter, '联系人')"
             ></b-form-input>
           </b-input-group>
           <b-input-group size="sm" prepend="Email" class="mb-3">
@@ -106,35 +133,35 @@
               v-model="companyInfo.email"
               v-validate="'email'"
               name="Email"
-              :state="hasError(companyInfo.email,'Email')"
+              :state="hasError(companyInfo.email, 'Email')"
             ></b-form-input>
           </b-input-group>
           <b-input-group size="sm" prepend="地址" class="mb-3">
             <b-form-input
               v-model="companyInfo.appAddress"
               name="地址"
-              :state="hasError(companyInfo.appAddress,'地址')"
+              :state="hasError(companyInfo.appAddress, '地址')"
             ></b-form-input>
           </b-input-group>
           <b-input-group size="sm" prepend="电话" class="mb-3">
             <b-form-input
               v-model="companyInfo.tel"
               name="电话"
-              :state="hasError(companyInfo.tel,'电话')"
+              :state="hasError(companyInfo.tel, '电话')"
             ></b-form-input>
           </b-input-group>
           <b-input-group size="sm" prepend="传真" class="mb-3">
             <b-form-input
               v-model="companyInfo.fax"
               name="传真"
-              :state="hasError(companyInfo.fax,'传真')"
+              :state="hasError(companyInfo.fax, '传真')"
             ></b-form-input>
           </b-input-group>
           <b-input-group size="sm" prepend="邮编" class="mb-3">
             <b-form-input
               v-model="companyInfo.zipCode"
               name="邮编"
-              :state="hasError(companyInfo.zipCode,'邮编')"
+              :state="hasError(companyInfo.zipCode, '邮编')"
             ></b-form-input>
           </b-input-group>
           <p class="card-text">
@@ -165,98 +192,113 @@ import swal from 'sweetalert'
 import tinymce from '@/components/custom/tinymce'
 import VueBase64FileUpload from 'vue-base64-file-upload'
 export default {
-    data() {
-        return {
-            companyInfo: {},
-            editorWidths: [640, 800, 900, 1000, 1200]
-        }
-    },
-    props: {
-        contentTitle: String,
-        scorllTopLength: Number
-    },
-    components: {
-        VueBase64FileUpload,
-        tinymce
-    },
-    computed: {
-        editModeWidth() {
-            return abp.page.width
-        }
-    },
-    methods: {
-        //改变编辑器宽度
-        putEditModeWidth(val) {
-            var that = this
-            this.$refs.tinymceNews.destroy()
-            that.editModeWidth = val
-            setTimeout(() => {
-                this.$refs.tinymceNews.init()
-            }, 20)
-            //刷新滚动轴
-            that.refreshScroll()
-        },
-        onFile(file) {},
-        onLoad(dataUri) {
-            this.companyInfo.logo = dataUri
-        },
-        onLoadIcon(dataUri) {
-            this.companyInfo.icon = dataUri
-        },
-        onLoadWX(dataUri) {
-            this.companyInfo.weixinBarCode = dataUri
-        },
-        onSizeExceeded(size) {
-            swal({
-                title: '请上传200K以内的图片',
-                icon: 'error'
-            })
-        },
-        hasError(val, name) {
-            if (val) return val.length ? !this.errors.has(name) : null
-            else return null
-        },
-        handleSubmit() {
-            this.companyInfo.content = this.$refs.tinymceNews.getVal()
-            this.$validator.validateAll().then(async result => {
-                if (result) {
-                    this.$http
-                        .put('/api/services/app/CompanyInfo/Update', this.companyInfo)
-                        .then(() => swal('操作成功!', '', 'success'))
-                }
-            })
-        },
-        //刷新滚动轴
-        refreshScroll() {
-            this.$emit('refreshScroll')
-        },
-        reloadScroll() {
-            this.$emit('reloadScroll')
-        },
-        load() {
-            this.$http.get('/api/services/app/CompanyInfo/GetOrCreate').then(res => {
-                var json = res.data.result
-                this.companyInfo = JSON.parse(JSON.stringify(json))
-            })
-        }
-    },
-    created() {
-        this.load()
-    },
-    mounted() {
-        // 开发调试
-        this.$nextTick(() => {
-            this.$refs.tinymceNews.init()
-        })
-    },
-    beforeDestroy: function() {
-        this.$refs.tinymceNews.destroy()
+  data() {
+    return {
+      companyInfo: {},
+      editorWidths: [640, 800, 900, 1000, 1200],
+      qrCode: '',
+      showCode: false,
+      coderDomain: ''
     }
+  },
+  props: {
+    contentTitle: String,
+    scorllTopLength: Number
+  },
+  components: {
+    VueBase64FileUpload,
+    tinymce
+  },
+  computed: {
+    editModeWidth() {
+      return abp.page.width
+    }
+  },
+  methods: {
+    //改变编辑器宽度
+    putEditModeWidth(val) {
+      var that = this
+      this.$refs.tinymceNews.destroy()
+      that.editModeWidth = val
+      setTimeout(() => {
+        this.$refs.tinymceNews.init()
+      }, 20)
+      //刷新滚动轴
+      that.refreshScroll()
+    },
+    onFile(file) {},
+    onLoad(dataUri) {
+      this.companyInfo.logo = dataUri
+    },
+    onLoadIcon(dataUri) {
+      this.companyInfo.icon = dataUri
+    },
+    onLoadWX(dataUri) {
+      this.companyInfo.weixinBarCode = dataUri
+    },
+    onSizeExceeded(size) {
+      swal({
+        title: '请上传200K以内的图片',
+        icon: 'error'
+      })
+    },
+    hasError(val, name) {
+      if (val) return val.length ? !this.errors.has(name) : null
+      else return null
+    },
+    handleSubmit() {
+      this.companyInfo.content = this.$refs.tinymceNews.getVal()
+      this.$validator.validateAll().then(async result => {
+        if (result) {
+          this.$http
+            .put('/api/services/app/CompanyInfo/Update', this.companyInfo)
+            .then(() => swal('操作成功!', '', 'success'))
+        }
+      })
+    },
+    //刷新滚动轴
+    refreshScroll() {
+      this.$emit('refreshScroll')
+    },
+    reloadScroll() {
+      this.$emit('reloadScroll')
+    },
+    async generateQRCode(url) {
+      this.coderDomain = 'https://' + url
+      await this.$http
+        .get('/api/services/app/CompanyInfo/GetUrlQRCode', { params: { url: this.coderDomain } })
+        .then(res => {
+          this.qrCode = res.data.result
+        })
+      this.showCode = true
+    },
+    openDomainModal() {
+      this.$root.$emit('bv::show::modal', 'company-domian-modal')
+    },
+    load() {
+      this.$http.get('/api/services/app/CompanyInfo/GetOrCreate').then(res => {
+        var json = res.data.result
+        this.companyInfo = JSON.parse(JSON.stringify(json))
+      })
+    }
+  },
+  created() {
+    this.load()
+  },
+  mounted() {
+    // 开发调试
+    this.$nextTick(() => {
+      this.$refs.tinymceNews.init()
+    })
+  },
+  beforeDestroy: function () {
+    this.$refs.tinymceNews.destroy()
+  }
 }
 </script>
 <style lang="less" scoped>
 .input-group-text {
-    width: 100px;
-    justify-content: center;
+  width: 100px;
+  justify-content: center;
 }
 </style>
