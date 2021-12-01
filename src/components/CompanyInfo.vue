@@ -21,13 +21,16 @@
         </div>
       </section>
     </b-modal>
+    <file :fileShow="fileShow" :fileCallBack="fileCallBack" @fileClose="fileClose"></file>
     <form @submit.stop.prevent="handleSubmit" autocomplete="off">
       <div class="contact-info">
         <b-card :title="contentTitle" class="mb-3 contact-info-card">
           <p class="card-text">
             <i class="far fa-address-card text-primary mr-1"></i>
             Company Info
-            <b-button style="float: right" variant="primary" size="sm" @click="openDomainModal">生成网址二维码</b-button>
+            <b-button style="float: right" variant="primary" size="sm" @click="openDomainModal"
+              >生成网址二维码</b-button
+            >
           </p>
 
           <b-input-group size="sm" prepend="企业名称" class="mb-3">
@@ -54,20 +57,7 @@
               <img :src="companyInfo.logo" />
             </div>
             <b-input-group-append>
-              <b-btn size="sm" variant="primary">
-                选择
-                <vue-base64-file-upload
-                  class="v1"
-                  accept="image/png, image/jpeg"
-                  image-class="v1-image"
-                  input-class="v1-file"
-                  :max-size="0.2"
-                  :disable-preview="true"
-                  @size-exceeded="onSizeExceeded"
-                  @file="onFile"
-                  @load="onLoad"
-                />
-              </b-btn>
+              <b-btn size="sm" variant="primary" @click="logoOpen"> 选择 </b-btn>
             </b-input-group-append>
           </b-input-group>
           <b-input-group size="sm" prepend="Logo文本" class="mb-3">
@@ -82,19 +72,7 @@
               <img :src="companyInfo.icon" />
             </div>
             <b-input-group-append>
-              <b-btn size="sm" variant="primary">
-                选择
-                <vue-base64-file-upload
-                  class="v1"
-                  accept="image/x-icon"
-                  image-class="v1-image"
-                  input-class="v1-file"
-                  :max-size="0.01"
-                  :disable-preview="true"
-                  @size-exceeded="onSizeExceeded"
-                  @file="onFile"
-                  @load="onLoadIcon"
-                />
+             <b-btn size="sm" variant="primary" @click="iconOpen"> 选择 </b-btn>
               </b-btn>
             </b-input-group-append>
           </b-input-group>
@@ -103,20 +81,7 @@
               <img :src="companyInfo.weixinBarCode" />
             </div>
             <b-input-group-append>
-              <b-btn size="sm" variant="primary">
-                选择
-                <vue-base64-file-upload
-                  class="v1"
-                  accept="image/png, image/jpeg"
-                  image-class="v1-image"
-                  input-class="v1-file"
-                  :max-size="0.2"
-                  :disable-preview="true"
-                  @size-exceeded="onSizeExceeded"
-                  @file="onFile"
-                  @load="onLoadWX"
-                />
-              </b-btn>
+              <b-btn size="sm" variant="primary" @click="codeOpen"> 选择 </b-btn>
             </b-input-group-append>
           </b-input-group>
 
@@ -190,10 +155,13 @@
 <script>
 import swal from 'sweetalert'
 import tinymce from '@/components/custom/tinymce'
+import file from '@/components/custom/tankFiler'
 import VueBase64FileUpload from 'vue-base64-file-upload'
 export default {
   data() {
     return {
+      fileShow: false,
+      fileCallBack: function (x) {},
       companyInfo: {},
       editorWidths: [640, 800, 900, 1000, 1200],
       qrCode: '',
@@ -207,6 +175,7 @@ export default {
   },
   components: {
     VueBase64FileUpload,
+    file,
     tinymce
   },
   computed: {
@@ -225,6 +194,30 @@ export default {
       }, 20)
       //刷新滚动轴
       that.refreshScroll()
+    },
+    logoOpen() {
+      this.fileShow = true
+      this.fileCallBack = this.logoSet
+    },
+    logoSet(fileUrl) {
+      this.companyInfo.logo = fileUrl
+    },
+    iconOpen() {
+      this.fileShow = true
+      this.fileCallBack = this.iconSet
+    },
+    iconSet(fileUrl) {
+      this.companyInfo.icon = fileUrl
+    },
+    codeOpen() {
+      this.fileShow = true
+      this.fileCallBack = this.codeSet
+    },
+    codeSet(fileUrl) {
+      this.companyInfo.weixinBarCode = fileUrl
+    },
+    fileClose() {
+      this.fileShow = false
     },
     onFile(file) {},
     onLoad(dataUri) {
