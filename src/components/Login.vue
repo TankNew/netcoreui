@@ -135,6 +135,7 @@ export default {
                     type: 'isTenantAvailable',
                     data: { tenancyName: this.changedTenancyName }
                 })
+                // console.log(tenant)
                 switch (tenant.state) {
                     case 1:
                         abp.multiTenancy.setTenantIdCookie(tenant.tenantId)

@@ -64,6 +64,21 @@
             <option slot="first" :value="null">无</option>
           </b-form-select>
         </b-form-group>
+
+        <b-form-group
+          label="Tags"
+          label-for="tags"
+          description="标签用“,”隔开."
+        >
+          <b-form-input
+            id="title"
+            type="text"
+            v-model="form.tags"
+            name="Tags"
+            placeholder="当前文章行业建议"
+          ></b-form-input>
+        </b-form-group>
+
         <div v-if="hasAttach" class="news-img-with-info">
           <label>图片组</label>
           <draggable
@@ -834,6 +849,8 @@ export default {
         },
         async onSubmit(evt) {
             evt.preventDefault()
+            // console.log(this.form)
+            // return
             if (await this.validate('form-update')) {
                 this.form.content = this.$refs.tinymceNews.getVal()
                 this.editRow = JSON.parse(JSON.stringify(this.form))

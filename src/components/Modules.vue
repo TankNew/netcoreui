@@ -100,16 +100,20 @@
                 <div class="detail p-3">
                   <div class="no-action" v-if="!editMode">选择左侧模块进行编辑</div>
                   <div v-else>
-                    <p class="tips">
-                      <i class="fas fa-edit path" v-if="isUpdate"></i>
-                      <i class="fas fa-plus path" v-else></i>
-                      <span class="path">
-                        <span>{{isUpdate?`编辑`:`新增`}}</span>
-                        <span
-                          class="action"
-                        >{{isUpdate?module.displayName:parent?parent.displayName:``}}</span>
-                        {{!isUpdate?'子模块':''}}
-                      </span>
+                    <p class="tips" style="display: flex;justify-content: space-between;flex-wrap: wrap;">
+                        <span>
+                            <i class="fas fa-edit path" v-if="isUpdate"></i>
+                            <i class="fas fa-plus path" v-else></i>
+                            <span class="path">
+                              <span>{{isUpdate?`编辑`:`新增`}}</span>
+                              <span
+                                class="action"
+                              >{{isUpdate?module.displayName:parent?parent.displayName:``}}</span>
+                              {{!isUpdate?'子模块':''}}
+                            </span>
+                        </span>
+                        <span style="color: #7e57c2;"
+                        >模块ID：{{typeof(module.id) === 'number' ? module.id : '无'}}</span>
                     </p>
                     <b-form @submit.stop.prevent="onSubmit" autocomplete="off">
                       <div v-if="!isUpdate&&parent===null" class="mb-3">
