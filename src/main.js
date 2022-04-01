@@ -86,7 +86,7 @@ store.commit('setUser', getUerFromLocalStorage())
             'Abp.Localization.LanguageDefineByBrower'
         )
 
-        console.log(abp)
+        // console.log(abp)
         new Vue({
             el: '#app',
             router,
