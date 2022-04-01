@@ -59,23 +59,23 @@
           ></b-form-input>
         </b-form-group>
 
-        <b-form-group id="InputGroup3" label="标签" label-for="mark">
+        <b-form-group id="InputGroup3" label="类型" label-for="mark">
           <b-form-select id="mark" :options="marks" v-model="form.mark">
             <option slot="first" :value="null">无</option>
           </b-form-select>
         </b-form-group>
 
         <b-form-group
-          label="Tags"
+          label="标签"
           label-for="tags"
           description="标签用“,”隔开."
         >
           <b-form-input
             id="title"
             type="text"
-            v-model="form.tags"
-            name="Tags"
-            placeholder="当前文章行业建议"
+            v-model="form.tagsStr"
+            name="标签"
+            placeholder="行业建议"
           ></b-form-input>
         </b-form-group>
 
@@ -273,6 +273,8 @@
                 <b-th class="text-center">置顶</b-th>
                 <b-th class="text-center">序列号</b-th>
                 <b-th class="text-center">标题</b-th>
+                <b-th v-if="hasGroup" class="text-center">标签</b-th>
+                <b-th v-if="hasGroup" class="text-center">评价</b-th>
                 <b-th v-if="hasGroup" class="text-center">分组</b-th>
                 <b-th class="text-center">发布时间</b-th>
                 <b-th class="text-center">操作</b-th>
@@ -314,6 +316,8 @@
                 <b-td class="text-limit">
                   <span >{{item.title}}</span>
                 </b-td>
+                <b-td v-if="hasGroup" class="text-center">{{arrtostr(item.tags)}}</b-td>
+                <b-td v-if="hasGroup" class="text-center">{{item.star}}</b-td>
                 <b-td
                   v-if="hasGroup"
                   class="text-center"
@@ -639,6 +643,9 @@ export default {
         formatTime(val) {
             return tools.date(val)
         },
+        arrtostr(val) {
+            return val.join(',')
+        },
         pageChange(val) {
             this.currentPage = val
             this.load()
@@ -726,6 +733,9 @@ export default {
             this.isUpdate = true
             this.editRow = item
             this.form = JSON.parse(JSON.stringify(item))
+            if (this.form.tags && this.form.tags.length > 0) {
+              this.form.tagsStr = this.form.tags.join(',')
+            }
             this.editMode = true
         },
         //新增
@@ -837,6 +847,9 @@ export default {
             evt.preventDefault()
             /* Reset our form values */
             this.form = JSON.parse(JSON.stringify(this.editRow))
+            if (this.form.tags && this.form.tags.length > 0) {
+              this.form.tagsStr = this.form.tags.join(',')
+            }
             /* 重置或者清除浏览器的验证状态 */
             this.$refs.tinymceNews.destroy()
             this.formShow = false
@@ -853,6 +866,7 @@ export default {
             // return
             if (await this.validate('form-update')) {
                 this.form.content = this.$refs.tinymceNews.getVal()
+                this.form.tags = this.form.tagsStr.split(',')
                 this.editRow = JSON.parse(JSON.stringify(this.form))
                 this.editRow.catalogGroupId = this.dataGroup
 
