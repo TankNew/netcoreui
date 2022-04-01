@@ -273,8 +273,7 @@
                 <b-th class="text-center">置顶</b-th>
                 <b-th class="text-center">序列号</b-th>
                 <b-th class="text-center">标题</b-th>
-                <b-th v-if="hasGroup" class="text-center">标签</b-th>
-                <b-th v-if="hasGroup" class="text-center">评价</b-th>
+                <b-th v-if="hasGroup" class="text-center">评分</b-th>
                 <b-th v-if="hasGroup" class="text-center">分组</b-th>
                 <b-th class="text-center">发布时间</b-th>
                 <b-th class="text-center">操作</b-th>
@@ -316,7 +315,6 @@
                 <b-td class="text-limit">
                   <span >{{item.title}}</span>
                 </b-td>
-                <b-td v-if="hasGroup" class="text-center">{{arrtostr(item.tags)}}</b-td>
                 <b-td v-if="hasGroup" class="text-center">{{item.star}}</b-td>
                 <b-td
                   v-if="hasGroup"
@@ -550,6 +548,12 @@ export default {
                 },
                 { key: 'mark', label: '标签', class: 'text-center' },
                 { key: 'title', label: '标题', sortable: true, sortDirection: 'desc' },
+                // {
+                //     key: 'star',
+                //     label: '评分',
+                //     sortable: true,
+                //     class: 'text-center'
+                // },
                 {
                     key: 'creationTime',
                     label: '发布时间',
@@ -642,9 +646,6 @@ export default {
         },
         formatTime(val) {
             return tools.date(val)
-        },
-        arrtostr(val) {
-            return val.join(',')
         },
         pageChange(val) {
             this.currentPage = val
