@@ -68,14 +68,14 @@
         <b-form-group
           label="标签"
           label-for="tags"
-          description="标签1,标签2,标签3"
+          description="多个标签用英文逗号”,“隔开"
         >
           <b-form-input
             id="title"
             type="text"
             v-model="form.tagsStr"
             name="标签"
-            placeholder="行业建议"
+            placeholder="标签1,标签2,标签3"
           ></b-form-input>
         </b-form-group>
 
