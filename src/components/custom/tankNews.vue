@@ -68,7 +68,7 @@
         <b-form-group
           label="标签"
           label-for="tags"
-          description="标签用“,”隔开."
+          description="标签1,标签2,标签3"
         >
           <b-form-input
             id="title"
