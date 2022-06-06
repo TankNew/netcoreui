@@ -360,6 +360,18 @@ export default {
             let that = this
             await that.$http.get('/api/services/app/Session/GetCurrentUserMenu').then(res => {
                 that.menu = res.data.result
+                // that.menu.items.push({
+                //   customData: '00001.0008',
+                //   displayName: '动态特性',
+                //   icon: 'fas fa-users-cog',
+                //   isEnabled: true,
+                //   isVisible: true,
+                //   items: [],
+                //   name: 'DynamicProperty',
+                //   order: 0,
+                //   target: null,
+                //   url: '/Home/DynamicProperty'
+                // })
                 that.path = that.$route.fullPath
                 that.contentTitle = that.L(that.$route.meta.title)
                 that.getFromUrl(that.menu)

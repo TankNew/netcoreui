@@ -426,7 +426,7 @@ export default {
             perPage: 10,
             totalRows: 0,
             pageOptions: [5, 10, 20, 50, 100],
-            sortBy: 'number',
+            sortBy: 'id',
             sortDesc: true,
             sortDirection: 'desc',
             keyWord: null,
@@ -540,7 +540,7 @@ export default {
                     class: 'text-center'
                 },
                 {
-                    key: 'number',
+                    key: 'id',
                     label: '顺序号',
                     sortable: true,
                     sortDirection: 'desc',
@@ -734,6 +734,7 @@ export default {
             this.isUpdate = true
             this.editRow = item
             this.form = JSON.parse(JSON.stringify(item))
+            this.form.tagsStr = ''
             if (this.form.tags && this.form.tags.length > 0) {
               this.form.tagsStr = this.form.tags.join(',')
             }
@@ -745,6 +746,7 @@ export default {
             this.editRow = {}
             this.form = JSON.parse(JSON.stringify(baseFrom))
             this.form.pictureWithInfos = []
+            this.form.tagsStr = ''
             this.editMode = true
         },
         _delete(item, index, button) {
@@ -848,6 +850,7 @@ export default {
             evt.preventDefault()
             /* Reset our form values */
             this.form = JSON.parse(JSON.stringify(this.editRow))
+            this.form.tagsStr = ''
             if (this.form.tags && this.form.tags.length > 0) {
               this.form.tagsStr = this.form.tags.join(',')
             }
@@ -867,7 +870,8 @@ export default {
             // return
             if (await this.validate('form-update')) {
                 this.form.content = this.$refs.tinymceNews.getVal()
-                this.form.tags = this.form.tagsStr.split(',')
+                this.form.tags = this.form.tagsStr !== '' ? this.form.tagsStr.split(',') : []
+                delete this.form.tagsStr
                 this.editRow = JSON.parse(JSON.stringify(this.form))
                 this.editRow.catalogGroupId = this.dataGroup
 

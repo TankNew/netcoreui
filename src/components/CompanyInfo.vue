@@ -72,8 +72,7 @@
               <img :src="companyInfo.icon" />
             </div>
             <b-input-group-append>
-             <b-btn size="sm" variant="primary" @click="iconOpen"> 选择 </b-btn>
-              </b-btn>
+              <b-btn size="sm" variant="primary" @click="iconOpen"> 选择 </b-btn>
             </b-input-group-append>
           </b-input-group>
           <b-input-group size="sm" prepend="微信二维码" class="mb-3">
@@ -108,6 +107,16 @@
               :state="hasError(companyInfo.appAddress, '地址')"
             ></b-form-input>
           </b-input-group>
+          
+          <b-input-group size="sm" prepend="地址图片" class="mb-3">
+            <div class="info-img">
+              <img :src="companyInfo.mapImage" />
+            </div>
+            <b-input-group-append>
+              <b-btn size="sm" variant="primary" @click="mapImageOpen"> 选择 </b-btn>
+            </b-input-group-append>
+          </b-input-group>
+
           <b-input-group size="sm" prepend="电话" class="mb-3">
             <b-form-input
               v-model="companyInfo.tel"
@@ -215,6 +224,13 @@ export default {
     },
     codeSet(fileUrl) {
       this.companyInfo.weixinBarCode = fileUrl
+    },
+    mapImageOpen() {
+      this.fileShow = true
+      this.fileCallBack = this.mapImageSet
+    },
+    mapImageSet(fileUrl) {
+      this.companyInfo.mapImage = fileUrl
     },
     fileClose() {
       this.fileShow = false

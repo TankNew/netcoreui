@@ -68,12 +68,17 @@ export const router = new Router({
                     meta: { title: 'Hello' },
                     component: () => import('@/components/Hello')
                 },
-
                 {
                     path: 'honor',
                     name: 'honor',
                     meta: { title: 'Honor', permission: 'Pages.Content' },
                     component: () => import('@/components/Honor')
+                },
+                {
+                    path: 'DynamicEntity',
+                    name: 'DynamicEntity',
+                    meta: { title: 'DynamicEntity', permission: 'Pages.Content' },
+                    component: () => import('@/components/DynamicEntity')
                 },
                 {
                     path: 'partner',
@@ -87,7 +92,6 @@ export const router = new Router({
                     name: 'organization',
                     component: () => import('@/components/Organization')
                 },
-
                 {
                     path: 'homepage',
                     name: 'homepage',

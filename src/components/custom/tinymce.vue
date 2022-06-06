@@ -15,7 +15,7 @@
     overflow-x: auto;
     box-shadow: 0 0 3px #999;
 }
-#editorToolbar {
+.editorToolbar {
     position: absolute;
     top: -70px;
     left: 0;
@@ -28,7 +28,7 @@
     class="editor-container"
     ref="editorContainer"
   >
-    <div ref="editorToolbar" id="editorToolbar"></div>
+    <div ref="editorToolbar" :id="'editorToolbar' + id" class="editorToolbar"></div>
     <file
       :fileShow="fileShow"
       :fileCallBack="fileCallBack"
@@ -122,7 +122,7 @@ export default {
                     })
                 },
                 inline: true,
-                fixed_toolbar_container: '#editorToolbar',
+                fixed_toolbar_container: '#editorToolbar' + this.id,
                 //theme: 'modern',
                 //skin: 'lightgray',
                 language: 'zh_CN',

@@ -26,6 +26,37 @@ const date = function(dateObject) {
     }
     return ''
 }
+//转换日期
+const datetime = function(dateObject) {
+    if (dateObject && dateObject.length > 0) {
+        if (dateObject.indexOf('T') === -1) dateObject = dateObject.replace(/-/g, '/')
+        let d = new Date(dateObject)
+        let s = d.getSeconds()
+        let m = d.getMinutes()
+        let h = d.getHours()
+        let day = d.getDate()
+        let month = d.getMonth() + 1
+        let year = d.getFullYear()
+        if (s < 10) {
+            s = '0' + s
+        }
+        if (m < 10) {
+            m = '0' + m
+        }
+        if (h < 10) {
+            h = '0' + h
+        }
+        if (day < 10) {
+            day = '0' + day
+        }
+        if (month < 10) {
+            month = '0' + month
+        }
+        let date = year + '-' + month + '-' + day + '  ' + h + ':' + m + ':' + s
+        return date
+    }
+    return ''
+}
 //过滤空格
 var trimspace = function(vStr) {
     return vStr.replace(/(^\s+)|(\s+$)/g, '')
@@ -337,6 +368,7 @@ export default {
     fileDelete: fileDelete,
     tokenUrl: tokenUrl,
     date: date,
+    datetime: datetime,
     trimspace: trimspace,
     getUrlParam: getUrlParam,
     countpage: countpage,

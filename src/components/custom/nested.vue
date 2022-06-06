@@ -15,7 +15,16 @@
       <a
         :style="hasbind&&!element.isActive?'background-color:#efefef':''"
         @contextmenu.prevent="!hasbind||(hasbind&&element.navbarType!==5)?ctxMenuOpen($event,element,index,currentLayer):''"
+        @click.stop="choiceChildren(element)"
       >
+        <i v-if="folderView&&element.children.length"
+            class="fas arrow"
+            :class="!folderOpen[index] ? 'fa-angle-down' : 'fa-angle-right'"
+            @click.left.stop="changeFolder(index)"></i>
+        <i v-if="folderView"
+            class="fas folder"
+            :class="!folderOpen[index]&&element.children.length ? 'fa-folder-open' : 'fa-folder'"
+            :style="element.children.length ? '' : 'margin-left: 30px;'"></i>
         <span>{{`${element.displayName}`}}</span>
         <span v-if="hasbind">
           <small v-if="element.navbarType===0">菜单</small>
@@ -37,6 +46,7 @@
       </a>
       <div class="o-line-down" v-if="element.children.length>0"></div>
       <nested-draggable
+        v-show="folderView ? !folderOpen[index] : true"
         v-if="element.children.length>0"
         :dragging="dragging"
         :dragUrl="dragUrl"
@@ -44,8 +54,10 @@
         :parentId="element.id"
         :currentLayer="getCurrentLayer"
         :hasbind="hasbind"
+        :folderView="folderView"
         @onDrag="onDrag"
         @ctxMenuOpen="ctxMenuOpen"
+        @choiceChildren="choiceChildren"
       />
       <div class="clear"></div>
     </li>
@@ -57,7 +69,9 @@ import draggable from 'vuedraggable'
 export default {
     name: 'nested-draggable',
     data() {
-        return {}
+        return {
+            folderOpen: []
+        }
     },
     props: {
         children: {
@@ -81,6 +95,10 @@ export default {
             default: 0
         },
         hasbind: {
+            type: Boolean,
+            default: false
+        },
+        folderView: {
             type: Boolean,
             default: false
         }
@@ -130,6 +148,17 @@ export default {
                 await this.dragUpdate()
                 this.dragUpdate = null
             }
+        },
+
+        changeFolder(index) {
+            this.folderOpen[index] = !this.folderOpen[index]
+            let t = this.folderOpen
+            this.folderOpen = []
+            this.folderOpen = t
+        },
+        choiceChildren(item) {
+            if (this.folderView)
+                this.$emit('choiceChildren', item)
         }
     }
 }

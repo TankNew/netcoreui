@@ -41,7 +41,7 @@
 
                 <div class="mb-3 center" v-if="hasCover">
                     <div class="news-cover">
-                    <img :src="getCover()" @click="coverOpen" />
+                        <img :src="getCover()" @click="coverOpen" />
                     </div>
                 </div>
                 <file v-if="hasCover"
@@ -85,18 +85,7 @@
                         v-validate="'required'"
                     ></b-form-input>
                 </b-form-group>
-                <b-form-group label="工作年限(年):" label-for="p-workYears">
-                    <b-form-input
-                        ref="focusThis"
-                        id="p-workYears"
-                        type="number"
-                        v-model="form.workYears"
-                        name="工作年限"
-                        placeholder="工作年限"
-                        min="0"
-                    ></b-form-input>
-                </b-form-group>
-                <b-form-group id="InputGroup3" label="类型" label-for="mark">
+                <b-form-group id="InputGroup3" label="工作性质" label-for="mark">
                     <b-form-select id="mark" :options="marks" v-model="form.workNature"
                         value-field='id'
                         text-field='name'>
@@ -114,7 +103,7 @@
                         :state="!errors.has('form-update.企业全称') "
                     ></b-form-input>
                 </b-form-group>
-                <b-form-group label="工作描述:" label-for="p-description">
+                <!-- <b-form-group label="工作描述:" label-for="p-description">
                     <b-form-input
                         ref="focusThis"
                         id="p-description"
@@ -125,17 +114,53 @@
                         :state="!errors.has('form-update.工作描述')"
                         v-validate="'required'"
                     ></b-form-input>
+                </b-form-group> -->
+                <b-form-group label="工作描述:" label-for="detail0">
+                    <tinymce
+                        id="detail0"
+                        ref="tinymceNews0"
+                        @refreshScroll="refreshScroll"
+                        @reloadScroll="reloadScroll"
+                        :initial="form.description"
+                        :editorWidth="editModeWidth"
+                        :scollMinTop="452"
+                        :scorllTopLength="scorllTopLength"
+                    ></tinymce>
+                </b-form-group>
+                <b-form-group label="人数需求:" label-for="p-requireMembers"
+                    description="0代表不限">
+                    <b-form-input
+                        ref="focusThis"
+                        id="p-requireMembers"
+                        type="number"
+                        v-model="form.requireMembers"
+                        name="工作年限"
+                        placeholder="工作年限"
+                        min="0"
+                    ></b-form-input>
+                </b-form-group>
+                <b-form-group label="经验需求(年):" label-for="p-requireWorkYears"
+                    description="0代表不限">
+                    <b-form-input
+                        ref="focusThis"
+                        id="p-requireWorkYears"
+                        type="number"
+                        v-model="form.requireWorkYears"
+                        name="工作年限"
+                        placeholder="工作年限"
+                        min="0"
+                    ></b-form-input>
                 </b-form-group>
 
-                <b-form-group label="是否注明需求:" label-for="p-hasRequireMent">
+                <!-- <b-form-group label="是否注明需求:" label-for="p-hasRequireMent">
                     <b-form-checkbox
                         id="p-hasRequireMent"
                         switch
                         @change="form.hasRequireMent=!form.hasRequireMent"
                         v-model="form.hasRequireMent"
                     >启用</b-form-checkbox>
-                </b-form-group>
-                <b-form-group label="正文" label-for="detail" v-show="form.hasRequireMent">
+                </b-form-group> -->
+                <b-form-group label="需求描述:" label-for="detail">
                     <tinymce
                         id="detail"
                         ref="tinymceNews"
@@ -218,8 +243,9 @@
                                 <b-th class="text-center">序列号</b-th>
                                 <b-th class="text-center">图标</b-th>
                                 <b-th class="text-center">职位名称</b-th>
+                                <b-th class="text-center">经验需求(年)</b-th>
+                                <b-th class="text-center">人数需求</b-th>
                                 <b-th class="text-center">工作性质</b-th>
-                                <b-th class="text-center">工作年限(年)</b-th>
                                 <b-th class="text-center">发布时间</b-th>
                                 <b-th class="text-center">操作</b-th>
                             </b-tr>
@@ -258,18 +284,21 @@
                                     <span class="news-number">{{parseInt(item.id)}}</span>
                                 </b-td>
                                 <b-td class="text-center partner-logo"
-                                    style="width: 11%;">
-                                    <img :src="item.icon" />
+                                    style="width: 8%;">
+                                    <img :src="item.icon" 
+                                        style="max-width: 48px;max-height: 48px;"/>
                                 </b-td>
                                 <b-td class="text-center">{{item.name}}</b-td>
                                 <b-td class="text-center"
-                                    style="width: 11%;">{{marks[item.workNature].name}}</b-td>
+                                    style="width: 11%;">{{item.requireWorkYears == 0 ? '不限' : item.requireWorkYears + '年'}}</b-td>
                                 <b-td class="text-center"
-                                    style="width: 12%;">{{parseInt(item.workYears)}}</b-td>
+                                    style="width: 9%;">{{item.requireMembers == 0 ? '不限' : item.requireMembers + '人'}}</b-td>
                                 <b-td class="text-center"
-                                    style="width: 12%;">{{formatTime(item.creationTime)}}</b-td>
+                                    style="width: 9%;">{{marks[item.workNature].name}}</b-td>
                                 <b-td class="text-center"
-                                    style="width: 15%;">
+                                    style="width: 10%;">{{formatTime(item.creationTime)}}</b-td>
+                                <b-td class="text-center"
+                                    style="width: 14%;">
                                     <b-button
                                         size="sm"
                                         @click.stop="_edit(item, item.index, $event.target)"
@@ -286,7 +315,7 @@
                         </draggable>
                         <b-tfoot>
                             <b-tr>
-                                <b-td colspan="8" variant="light" class="text-left">
+                                <b-td colspan="9" variant="light" class="text-left">
                                 Total Rows:
                                     <b>{{totalRows}}</b>
                                 </b-td>
@@ -301,7 +330,8 @@
                     :per-page="perPage"
                     v-model="currentPage"
                     @change="pageChange"
-                    class="my-0"/>
+                    class="my-0"
+                />
             </div>
         </section>
     </section>
@@ -315,18 +345,16 @@ import tinymce from '@/components/custom/tinymce'
 import draggable from 'vuedraggable'
 
 const baseFrom = {
-    // logo: '',
     icon: '',
     cover: '',
-    // title: '',
     name: '',
-    // url: '',
-    workYears: 0,
     workNature: 0,
-    mark: null,
     workLocation: '',
     description: '',
-    hasRequireMent: false,
+    requireMembers: 0,
+    requireWorkYears: 0,
+    mark: null,
+    // hasRequireMent: false,
     requireMent: '',
 
     isTop: false,
@@ -395,10 +423,13 @@ export default {
                 this.formShow = true
                 that.$nextTick(() => {
                     this.$refs.tinymceNews.init()
+                    this.$refs.tinymceNews0.init()
                     this.$refs.tinymceNews.setVal(this.form.requireMent)
+                    this.$refs.tinymceNews0.setVal(this.form.description)
                 })
             } else {
                 this.$refs.tinymceNews.destroy()
+                this.$refs.tinymceNews0.destroy()
                 this.formShow = false
             }
 
@@ -430,7 +461,9 @@ export default {
                     sortDirection: 'desc',
                     class: 'text-center'
                 },
-                { key: 'name', label: '职位名称', sortable: true, sortDirection: 'desc' }
+                { key: 'name', label: '职位名称', sortable: true, sortDirection: 'desc' },
+                { key: 'requireWorkYears', label: '经验需求', sortable: true, sortDirection: 'desc' },
+                { key: 'requireMembers', label: '人数需求', sortable: true, sortDirection: 'desc' }
                 // { key: 'hasRequireMent', label: '注明需求', class: 'text-center' },
                 // { key: 'actions', label: '操作', class: 'text-center' }
             ]
@@ -535,9 +568,11 @@ export default {
         putEditModeWidth(val) {
             var that = this
             this.$refs.tinymceNews.destroy()
+            this.$refs.tinymceNews0.destroy()
             that.editModeWidth = val
             setTimeout(() => {
                 this.$refs.tinymceNews.init()
+                this.$refs.tinymceNews0.init()
             }, 20)
             //刷新滚动轴
             that.refreshScroll()
@@ -591,11 +626,13 @@ export default {
             this.form = JSON.parse(JSON.stringify(this.editRow))
             /* 重置或者清除浏览器的验证状态 */
             this.$refs.tinymceNews.destroy()
+            this.$refs.tinymceNews0.destroy()
             this.formShow = false
             this.$nextTick(() => {
                 this.formShow = true
                 setTimeout(() => {
                     this.$refs.tinymceNews.init()
+                    this.$refs.tinymceNews0.init()
                 }, 20)
             })
         },
@@ -603,6 +640,7 @@ export default {
             evt.preventDefault()
             if (await this.validate('form-update')) {
                 this.form.requireMent = this.$refs.tinymceNews.getVal()
+                this.form.description = this.$refs.tinymceNews0.getVal()
                 // this.form.workNature
                 this.editRow = JSON.parse(JSON.stringify(this.form))
                 if (!this.isUpdate) {
@@ -674,6 +712,7 @@ export default {
 
     beforeDestroy: function() {
         if (this.editMode) this.$refs.tinymceNews.destroy()
+        if (this.editMode) this.$refs.tinymceNews0.destroy()
     }
 }
 </script>

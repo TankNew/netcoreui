@@ -1,0 +1,153 @@
+.dhy-container {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.dhy-container .permissions-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 850px;
+  height: 80%;
+  box-shadow: 0 1px 10px 3px #9c9c9c;
+  background-color: #fff;
+  border-radius: 6px;
+}
+.dhy-container .permissions-container .head {
+  padding: 20px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.dhy-container .permissions-container .head .title {
+  font-weight: bold;
+  font-size: 16px;
+}
+.dhy-container .permissions-container .head i {
+  color: #999;
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 50%;
+  background-color: #fff;
+  width: 25px;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+}
+.dhy-container .permissions-container .head i:hover {
+  background-color: #eee;
+}
+.dhy-container .permissions-container ul.scrollbar {
+  height: calc(100% - 135px);
+  padding: 2px 20px;
+  border-top: 1px solid #eff2f5;
+  border-bottom: 1px solid #eff2f5;
+  position: relative;
+}
+.dhy-container .permissions-container ul.scrollbar li {
+  padding: 8px 5px;
+  border-top: 0.5px solid #ddd;
+  background-color: #fff;
+  transition: all 0.2s;
+}
+.dhy-container .permissions-container ul.scrollbar li:first-child {
+  border-top: none;
+}
+.dhy-container .permissions-container ul.scrollbar li:hover {
+  background-color: #f6f6f6;
+}
+.dhy-container .permissions-container ul.scrollbar .permissions-item {
+  display: flex;
+  align-items: center;
+}
+.dhy-container .permissions-container ul.scrollbar .permissions-item .checkbox {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #757575;
+  border-radius: 3px;
+  background-color: #fff;
+  position: relative;
+  cursor: pointer;
+}
+.dhy-container .permissions-container ul.scrollbar .permissions-item .checkbox.checkbox-action {
+  background-color: #007bff;
+}
+.dhy-container .permissions-container ul.scrollbar .permissions-item .checkbox.checkbox-action::after {
+  content: '';
+  position: absolute;
+  background-color: transparent;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  width: 10px;
+  height: 5px;
+  transform: rotate(-45deg);
+  top: 2.2px;
+  left: 1.2px;
+}
+.dhy-container .permissions-container ul.scrollbar .permissions-item .select {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #757575;
+  border-radius: 50%;
+  background-color: #fff;
+  position: relative;
+  cursor: pointer;
+}
+.dhy-container .permissions-container ul.scrollbar .permissions-item .select.select-action::after {
+  content: '';
+  position: absolute;
+  background-color: transparent;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #007bff;
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+}
+.dhy-container .permissions-container ul.scrollbar .permissions-item .displayName {
+  display: inline-block;
+  padding-left: 15px;
+  font-size: 14px;
+  color: #333;
+}
+.dhy-container .permissions-container ul.scrollbar li.loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #0003;
+}
+.dhy-container .permissions-container .pages {
+  border-bottom: 1px solid #eff2f5;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px 30px;
+}
+.dhy-container .permissions-container .pages .perPage {
+  padding: 0 25px;
+}
+.dhy-container .permissions-container .pages .total {
+  font-size: 15px;
+  color: rgba(0, 0, 0, 0.6);
+}
+.dhy-container .permissions-container .foot {
+  padding: 15px 30px;
+}
