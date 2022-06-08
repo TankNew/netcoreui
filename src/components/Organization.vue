@@ -60,6 +60,7 @@
               v-for="(item,index) in navArr"
               :key="index">
               <div class="name"
+                v-if="item.viewDisplay"
                 :class="navChoice === item.name ? 'name-action' : ''"
                 @click.stop="changeNavChoice(item.name)">{{item.displayName}}</div>
             </li>
@@ -77,7 +78,7 @@
             <div class="thead">
               <div class="tr">
                 <div class="th">删除</div>
-                <div class="th">用户名</div>
+                <div class="th">全名</div>
                 <div class="th">电子邮箱</div>
               </div>
             </div>
@@ -92,7 +93,7 @@
                   ><i class="fas fa-times"></i></div>
                 </div>
                 <div class="td">
-                  <div class="name">{{item.userName}}</div>
+                  <div class="name">{{item.fullName}}</div>
                 </div>
                 <div class="td">
                   <div class="description">{{item.emailAddress}}</div>
@@ -405,6 +406,7 @@ export default {
             navArr: [
               {
                 name: 'User',
+                viewDisplay: true,
                 displayName: '组织成员',
                 abbreviation: '成员',
                 methods: 'OrganizationUsers',
@@ -432,6 +434,7 @@ export default {
                 AllDataArr: []
               }, {
                 name: 'Role',
+                viewDisplay: false,
                 displayName: '角色',
                 abbreviation: '角色',
                 methods: 'OrganizationRoles',

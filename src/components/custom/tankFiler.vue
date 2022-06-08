@@ -324,7 +324,7 @@ export default {
         //图片获取链接
         getImgUrl(val) {
             var that = this
-            return AppConsts.remoteServiceBaseUrl + '/' + that.RootPath + val
+            return AppConsts.remoteServiceBaseUrl + '/' + that.RootPath + decodeURIComponent(val)
         },
         //获取文件名后缀
         getFileExpansion(file) {
@@ -392,7 +392,7 @@ export default {
             } else {
                 //that.$emit('MceSetFile', AppConsts.remoteServiceBaseUrl + '/' + that.currentFile.url)
 
-                that.fileCallBack(AppConsts.remoteServiceBaseUrl + '/' + that.RootPath + that.currentFile.url)
+                that.fileCallBack(AppConsts.remoteServiceBaseUrl + '/' + that.RootPath + decodeURIComponent(that.currentFile.url))
                 that.close()
             }
         },

@@ -76,6 +76,16 @@
                     v-validate="'email'"
                 ></b-form-input>
             </b-form-group>
+            <b-form-group label="电话:" label-for="p-phoneNumber">
+                <b-form-input
+                    ref="focusThis"
+                    id="p-phoneNumber"
+                    type="text"
+                    v-model="form.phoneNumber"
+                    name="PhoneNumber"
+                    placeholder="电话号码"
+                ></b-form-input>
+            </b-form-group>
             <div v-for="(item,index) in form.properties"
                 :key="index">
                 <b-form-group :label="item.propertyName + ':'" :label-for="item.propertyName"
@@ -367,6 +377,7 @@ const baseFrom = {
     // hasInfo: false,
     introduction: '',
 
+    phoneNumber: '',
     userName: '',
     name: '',
     surname: '',
