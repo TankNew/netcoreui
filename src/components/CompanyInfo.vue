@@ -8,7 +8,9 @@
             <dl>
               <dd v-for="(domain, index) in companyInfo.urls" :key="index">
                 <a>{{ index + 1 }}.{{ domain }}</a>
-                <b-button variant="outline-primary" @click.prevent.stop="generateQRCode(domain)">生成二维码</b-button>
+                <b-button variant="outline-primary" @click.prevent.stop="generateQRCode(domain)"
+                  >生成二维码</b-button
+                >
               </dd>
             </dl>
           </div>
@@ -24,23 +26,80 @@
     <file :fileShow="fileShow" :fileCallBack="fileCallBack" @fileClose="fileClose"></file>
     <form @submit.stop.prevent="handleSubmit" autocomplete="off">
       <div class="contact-info">
-        <b-card :title="contentTitle" class="mb-3 contact-info-card">
+        <b-card class="mb-3 contact-info-card">
           <p class="card-text">
-            <i class="far fa-address-card text-primary mr-1"></i>
-            Company Info
+            <i class="fas fa-chalkboard text-primary mr-1"></i>
+            {{ contentTitle }}
             <b-button style="float: right" variant="primary" size="sm" @click="openDomainModal"
               >生成网址二维码</b-button
             >
           </p>
+          <hr />
 
-          <b-input-group size="sm" prepend="企业名称" class="mb-3">
+          <b-input-group size="sm" prepend="网站名称" class="mb-3">
             <b-form-input
-              v-model="companyInfo.appName"
-              name="企业名称"
-              :state="!errors.has('企业名称')"
-              v-validate="'required'"
+              v-model="companyInfo.logoText"
+              name="Logo文本"
+              :state="!errors.has('Logo文本')"
             ></b-form-input>
           </b-input-group>
+          <div class="info-images">
+            <b-input-group size="sm" prepend="网站LOGO" class="mb-3">
+              <div class="info-img">
+                <img :src="companyInfo.logo" />
+              </div>
+              <b-input-group-append>
+                <b-btn size="sm" variant="primary" @click="logoOpen"> 选择 </b-btn>
+              </b-input-group-append>
+            </b-input-group>
+
+            <b-input-group size="sm" prepend="反色LOGO" class="mb-3">
+              <div class="info-img">
+                <img :src="companyInfo.reverseLogo" />
+              </div>
+              <b-input-group-append>
+                <b-btn size="sm" variant="primary" @click="reverseLogoOpen"> 选择 </b-btn>
+              </b-input-group-append>
+            </b-input-group>
+            <b-input-group size="sm" prepend="网站ICO" class="mb-3">
+              <div class="info-img">
+                <img :src="companyInfo.icon" />
+              </div>
+              <b-input-group-append>
+                <b-btn size="sm" variant="primary" @click="iconOpen"> 选择 </b-btn>
+              </b-input-group-append>
+            </b-input-group>
+            <b-input-group size="sm" prepend="微信二维码" class="mb-3">
+              <div class="info-img">
+                <img :src="companyInfo.weixinBarCode" />
+              </div>
+              <b-input-group-append>
+                <b-btn size="sm" variant="primary" @click="codeOpen"> 选择 </b-btn>
+              </b-input-group-append>
+            </b-input-group>
+            <b-input-group size="sm" prepend="底部广告" class="mb-3">
+              <div class="info-img">
+                <img :src="companyInfo.footerAdImage" />
+              </div>
+              <b-input-group-append>
+                <b-btn size="sm" variant="primary" @click="footerAdImageOpen"> 选择 </b-btn>
+              </b-input-group-append>
+            </b-input-group>
+            <b-input-group size="sm" prepend="底部背景" class="mb-3">
+              <div class="info-img">
+                <img :src="companyInfo.footerBackgroudImage" />
+              </div>
+              <b-input-group-append>
+                <b-btn size="sm" variant="primary" @click="footerBackgroudImageOpen"> 选择 </b-btn>
+              </b-input-group-append>
+            </b-input-group>
+          </div>
+          <br />
+          <p class="card-text">
+            <i class="fas fa-search text-primary mr-1"></i>
+            SEO设置
+          </p>
+          <hr />
           <b-input-group size="sm" prepend="SEO关键词" class="mb-3">
             <b-form-textarea
               v-model="companyInfo.seoKeyWords"
@@ -50,41 +109,26 @@
             ></b-form-textarea>
           </b-input-group>
           <b-input-group size="sm" prepend="SEO描述" class="mb-3">
-            <b-form-textarea v-model="companyInfo.description" :rows="3" size="sm"></b-form-textarea>
+            <b-form-textarea
+              v-model="companyInfo.description"
+              :rows="3"
+              size="sm"
+            ></b-form-textarea>
           </b-input-group>
-          <b-input-group size="sm" prepend="网站LOGO" class="mb-3">
-            <div class="info-img">
-              <img :src="companyInfo.logo" />
-            </div>
-            <b-input-group-append>
-              <b-btn size="sm" variant="primary" @click="logoOpen"> 选择 </b-btn>
-            </b-input-group-append>
-          </b-input-group>
-          <b-input-group size="sm" prepend="Logo文本" class="mb-3">
+          <br />
+          <p class="card-text">
+            <i class="far fa-address-card text-primary mr-1"></i>
+            联系方式
+          </p>
+          <hr />
+          <b-input-group size="sm" prepend="企业名称" class="mb-3">
             <b-form-input
-              v-model="companyInfo.logoText"
-              name="Logo文本"
-              :state="!errors.has('Logo文本')"
+              v-model="companyInfo.appName"
+              name="企业名称"
+              :state="!errors.has('企业名称')"
+              v-validate="'required'"
             ></b-form-input>
           </b-input-group>
-          <b-input-group size="sm" prepend="网站ICO" class="mb-3">
-            <div class="info-img">
-              <img :src="companyInfo.icon" />
-            </div>
-            <b-input-group-append>
-             <b-btn size="sm" variant="primary" @click="iconOpen"> 选择 </b-btn>
-              </b-btn>
-            </b-input-group-append>
-          </b-input-group>
-          <b-input-group size="sm" prepend="微信二维码" class="mb-3">
-            <div class="info-img">
-              <img :src="companyInfo.weixinBarCode" />
-            </div>
-            <b-input-group-append>
-              <b-btn size="sm" variant="primary" @click="codeOpen"> 选择 </b-btn>
-            </b-input-group-append>
-          </b-input-group>
-
           <b-input-group size="sm" prepend="联系人" class="mb-3">
             <b-form-input
               v-model="companyInfo.contacter"
@@ -129,8 +173,9 @@
               :state="hasError(companyInfo.zipCode, '邮编')"
             ></b-form-input>
           </b-input-group>
+          <br />
           <p class="card-text">
-            <i class="fas fa-info-circle text-primary mr-1"></i>
+            <i class="fas fa-newspaper text-primary mr-1"></i>
             简介
           </p>
           <tinymce
@@ -202,6 +247,13 @@ export default {
     logoSet(fileUrl) {
       this.companyInfo.logo = fileUrl
     },
+    reverseLogoOpen() {
+      this.fileShow = true
+      this.fileCallBack = this.reverseLogoSet
+    },
+    reverseLogoSet(fileUrl) {
+      this.companyInfo.reverseLogo = fileUrl
+    },
     iconOpen() {
       this.fileShow = true
       this.fileCallBack = this.iconSet
@@ -215,6 +267,20 @@ export default {
     },
     codeSet(fileUrl) {
       this.companyInfo.weixinBarCode = fileUrl
+    },
+    footerAdImageOpen() {
+      this.fileShow = true
+      this.fileCallBack = this.footerAdImageSet
+    },
+    footerAdImageSet(fileUrl) {
+      this.companyInfo.footerAdImage = fileUrl
+    },
+    footerBackgroudImageOpen() {
+      this.fileShow = true
+      this.fileCallBack = this.footerBackgroudImageSet
+    },
+    footerBackgroudImageSet(fileUrl) {
+      this.companyInfo.footerBackgroudImage = fileUrl
     },
     fileClose() {
       this.fileShow = false
@@ -294,4 +360,5 @@ export default {
   width: 100px;
   justify-content: center;
 }
+
 </style>
