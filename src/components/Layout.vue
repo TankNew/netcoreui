@@ -11,11 +11,7 @@
       </h5>
       <div class="sidebar-header">
         <div class="user-pic">
-          <img
-            class="img-responsive img-rounded w-100"
-            :src="UserModel.UserHead"
-            alt
-          />
+          <img class="img-responsive img-rounded w-100" :src="UserModel.UserHead" alt />
         </div>
         <div class="user-info">
           <span class="user-name p-1">
@@ -25,7 +21,7 @@
         </div>
       </div>
       <hr class="border-light mx-3" />
-      <section class="sidebar-menu-container ">
+      <section class="sidebar-menu-container">
         <smooth-scroll ref="scrollSidebar" @scrollTop="leftScrollTop">
           <div class="sidebar-menu">
             <sidebar-menu
@@ -41,22 +37,22 @@
       </section>
     </div>
     <!--主体内容设置-->
-    <div :class="['content',isCollapsed ? 'shrink' : '']">
+    <div :class="['content', isCollapsed ? 'shrink' : '']">
       <b-navbar
         toggleable="md"
         type="dark"
         variant="info"
-        style="background-color:#6699CC !important;"
+        style="background-color: #6699cc !important"
       >
         <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
-        <b-navbar-brand tag="h1">{{tenantTitle}}</b-navbar-brand>
+        <b-navbar-brand tag="h1">{{ tenantTitle }}</b-navbar-brand>
         <b-collapse is-nav id="nav_collapse">
           <!-- Right aligned nav items -->
           <b-navbar-nav class="ml-auto">
             <b-nav-item-dropdown right offset="25">
               <template slot="button-content">
                 <i class="fab fa-creative-commons mx-2"></i>
-                {{this.L('Language')}}
+                {{ this.L('Language') }}
               </template>
               <b-dropdown-item
                 v-for="(language, index) in languages"
@@ -71,16 +67,14 @@
               <!-- Using button-content slot -->
               <template slot="button-content">
                 <i class="fas fa-users-cog mx-2"></i>
-                {{this.L('Users')}}
+                {{ this.L('Users') }}
               </template>
-              <b-dropdown-item
-                href="javascript:void(0)"
-                @click="editUserProfile"
-              >{{this.L('ChangePassword')}}</b-dropdown-item>
-              <b-dropdown-item
-                href="javascript:void(0)"
-                @click="logout"
-              >{{ this.L('Logout') }}</b-dropdown-item>
+              <b-dropdown-item href="javascript:void(0)" @click="editUserProfile">{{
+                this.L('ChangePassword')
+              }}</b-dropdown-item>
+              <b-dropdown-item href="javascript:void(0)" @click="logout">{{
+                this.L('Logout')
+              }}</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
         </b-collapse>
@@ -121,33 +115,25 @@
           autocomplete="off"
           data-vv-scope="form-changePassword"
         >
-          <b-form-group
-            label="原密码:"
-            label-for="p-currentPassword"
-            description="原密码."
-          >
+          <b-form-group label="原密码:" label-for="p-currentPassword" description="原密码.">
             <b-form-input
               ref="focusThis"
               id="p-currentPassword"
               type="password"
               v-model="currentPassword"
               name="原密码"
-              :state="!errors.has('form-changePassword.原密码') "
+              :state="!errors.has('form-changePassword.原密码')"
               v-validate="'required'"
               placeholder="原密码"
             ></b-form-input>
           </b-form-group>
-          <b-form-group
-            label="新密码"
-            label-for="p-newPassword"
-            description="新密码."
-          >
+          <b-form-group label="新密码" label-for="p-newPassword" description="新密码.">
             <b-form-input
               id="p-newPassword"
               type="password"
               v-model="newPassword"
               name="新密码"
-              :state="!errors.has('form-changePassword.新密码') "
+              :state="!errors.has('form-changePassword.新密码')"
               v-validate="'required'"
               placeholder="新密码"
             ></b-form-input>
@@ -172,258 +158,259 @@ import jwtDecode from 'jwt-decode'
 import { unsetToken } from '../utiltools/auth'
 import sidebarMenu from './custom/sidebarMenu'
 export default {
-    name: 'layout',
-    data() {
-        return {
-            UserModel: {},
-            currentPassword: null,
-            newPassword: null,
-            loadState: false, // 加载状态
-            scorllTopLength: 0,
-            path: '/',
-            menu: {},
-            menuIndex: '',
-            contentTitle: '',
-            isCollapsed: false,
-            breadcrumb: [],
-            clientHeight: document.body.clientHeight,
-            tenant: undefined
-        }
-    },
-    watch: {
-        $route(val) {
-            var that = this
-            //获取当前router完整路径
-            that.path = val.fullPath
-            that.breadcrumbFromat()
-            that.pathToMenu(that.menu)
-            that.loadState = true
-            that.reloadScroll()
-        },
-        // 监视窗口大小变化
-        clientHeight(val) {
-            this.refreshScroll()
-        }
-    },
-    components: {
-        sidebarMenu: sidebarMenu,
-        smoothScroll: smoothScroll
-    },
-    computed: {
-        modalTitle() {
-            return '更改密码'
-        },
-        appName() {
-            return AppConsts.appName
-        },
-        appVersion() {
-            return AppConsts.appVersion
-        },
-        tenantTitle() {
-            if (this.tenant) return `${this.tenant.name} / ${this.tenant.tenancyName}`
-            else if (this.tenant === null) return `当前处于主机模式`
-        },
-        currentLanguage() {
-            return abp.localization.currentLanguage
-        },
-        languages() {
-            return abp.localization.languages.filter(val => {
-                return !val.isDisabled
-            })
-        }
-    },
-    methods: {
-        breadcrumbFromat() {
-            this.breadcrumb = [
-                {
-                    text: 'Home',
-                    to: { path: '/' }
-                }
-            ]
-        },
-        breadcrumbInsert(displayName, isActive = false) {
-            this.breadcrumb.push({ text: displayName, active: isActive })
-        },
-        getFromUrl(menu) {
-            var that = this
-            menu.items.forEach((m, index) => {
-                if (m.url && m.url.toLowerCase() === that.path.toLowerCase()) {
-                    that.menuIndex = m.customData
-                } else if (m.items && m.items.length > 0) {
-                    that.getFromUrl(m)
-                }
-            })
-        },
-        //初加载同步菜单
-        pathToMenu(menu) {
-            var that = this
-            menu.items.forEach((m, index) => {
-                if (m.url && m.url.toLowerCase() === that.path.toLowerCase()) {
-                    that.menuIndex = m.customData
-                    that.contentTitle = m.displayName
-
-                    that.breadcrumbInsert(m.displayName, true)
-                } else if (m.items && m.items.length > 0) {
-                    if (that.menuIndex.indexOf(m.customData) > -1) that.breadcrumbInsert(m.displayName)
-                    that.pathToMenu(m)
-                }
-            })
-        },
-        //侧导航
-        menuClick(item, customData) {
-            this.menuIndex = customData
-            if (!item.items.length > 0 || item.url) {
-                this.$router.push({ path: item.url })
-            }
-        },
-        //隐藏侧导航
-        leftBarChange() {
-            this.isCollapsed = !this.isCollapsed
-        },
-        // 更改语言
-        changeLanguage(val) {
-            // await this.$store.dispatch({
-            //     type: 'changeLanguage',
-            //     data: { languageName: val }
-            // })
-            abp.utils.setCookieValue(
-                abp.localization.cookieName,
-                val,
-                new Date(new Date().getTime() + 5 * 365 * 86400000), //5 year
-                abp.appPath
-            )
-            window.location.href = '/home'
-        },
-
-        // 更改密码
-        editUserProfile() {
-            this.$root.$emit('bv::show::modal', 'modalChangePassword')
-        },
-        modalInfoHide() {
-            this.currentPassword = null
-            this.newPassword = null
-        },
-
-        modalInfoShow(e) {
-            this.$refs.focusThis.focus()
-        },
-        modalOk(e) {
-            e.preventDefault()
-            this.changePassword()
-        },
-        async changePassword() {
-            if (await this.validate('form-changePassword')) {
-                await this.$store.dispatch({
-                    type: 'changePassword',
-                    data: {
-                        currentPassword: this.currentPassword,
-                        newPassword: this.newPassword
-                    }
-                })
-                this.modalInfoHide()
-                location.reload()
-            } else {
-                swal({
-                    title: '请填写必要的选项!',
-                    icon: 'warning'
-                })
-            }
-        },
-        //安全退出
-        logout() {
-            unsetToken()
-            location.replace('/login')
-        },
-        // 返回顶部
-        topClick() {
-            this.$refs.content.ScrollToTop()
-        },
-        refreshScroll() {
-            this.$refs.content.refresh()
-            this.$refs.scrollSidebar.refresh()
-        },
-        reloadScroll() {
-            // if (this.loadState) {
-            this.$refs.content.reload()
-            this.$refs.scrollSidebar.reload()
-            this.loadState = false
-            // }
-        },
-        // 调整工具栏位置
-        scrollTop(val) {
-            this.scorllTopLength = val
-        },
-        leftScrollTop(val) {
-            //  val是左侧当前滚动距离顶部的值
-        },
-        async getMenu() {
-            let that = this
-            await that.$http.get('/api/services/app/Session/GetCurrentUserMenu').then(res => {
-                that.menu = res.data.result
-                that.path = that.$route.fullPath
-                that.contentTitle = that.L(that.$route.meta.title)
-                that.getFromUrl(that.menu)
-                that.breadcrumbFromat()
-                that.pathToMenu(that.menu)
-            })
-        },
-        async getSessionInfo() {
-            await this.$http.get('/api/services/app/Session/GetCurrentLoginInformations').then(res => {
-                if (res.data.success) {
-                    let json = res.data.result
-                    window.abp.session.application = json.application
-                    window.abp.session.tenant = json.tenant
-                    window.abp.session.user = json.user
-                    this.tenant = json.tenant
-                }
-            })
-        },
-        async validate(scope) {
-            let res
-            await this.$validator.validateAll(scope).then(async result => {
-                res = result
-            })
-            return res
-        },
-        // 预加载
-        async load() {
-            await this.getMenu()
-            await this.getSessionInfo()
-        }
-    },
-    async created() {
-        let that = this
-        let currentUser = that.$store.getters.currentUser
-        that.UserModel.UserName = currentUser.unique_name
-        that.UserModel.UserHead = '/static/imgs/128.png'
-        that.UserModel.UserRole = currentUser.roles
-        that.load()
-    },
-    mounted() {
-        var that = this
-        window.onresize = () => {
-            return (() => {
-                that.clientHeight = document.body.clientHeight
-            })()
-        }
+  name: 'layout',
+  data() {
+    return {
+      UserModel: {},
+      currentPassword: null,
+      newPassword: null,
+      loadState: false, // 加载状态
+      scorllTopLength: 0,
+      path: '/',
+      menu: {},
+      menuIndex: '',
+      contentTitle: '',
+      isCollapsed: false,
+      breadcrumb: [],
+      clientHeight: document.body.clientHeight,
+      tenant: undefined
     }
+  },
+  watch: {
+    $route(val) {
+      var that = this
+      //获取当前router完整路径
+      that.path = val.fullPath
+      that.breadcrumbFromat()
+      that.pathToMenu(that.menu)
+      that.loadState = true
+      that.reloadScroll()
+    },
+    // 监视窗口大小变化
+    clientHeight(val) {
+      this.refreshScroll()
+    }
+  },
+  components: {
+    sidebarMenu: sidebarMenu,
+    smoothScroll: smoothScroll
+  },
+  computed: {
+    modalTitle() {
+      return '更改密码'
+    },
+    appName() {
+      return AppConsts.appName
+    },
+    appVersion() {
+      return AppConsts.appVersion
+    },
+    tenantTitle() {
+      if (this.tenant) return `${this.tenant.name} / ${this.tenant.tenancyName}`
+      else if (this.tenant === null) return `当前处于主机模式`
+    },
+    currentLanguage() {
+      return abp.localization.currentLanguage
+    },
+    languages() {
+      return abp.localization.languages.filter(val => {
+        return !val.isDisabled
+      })
+    }
+  },
+  methods: {
+    breadcrumbFromat() {
+      this.breadcrumb = [
+        {
+          text: 'Home',
+          to: { path: '/' }
+        }
+      ]
+    },
+    breadcrumbInsert(displayName, isActive = false) {
+      this.breadcrumb.push({ text: displayName, active: isActive })
+    },
+    getFromUrl(menu) {
+      var that = this
+      menu.items.forEach((m, index) => {
+        if (m.url && m.url.toLowerCase() === that.path.toLowerCase()) {
+          that.menuIndex = m.customData
+        } else if (m.items && m.items.length > 0) {
+          that.getFromUrl(m)
+        }
+      })
+    },
+    //初加载同步菜单
+    pathToMenu(menu) {
+      var that = this
+      menu.items.forEach((m, index) => {
+        if (m.url && m.url.toLowerCase() === that.path.toLowerCase()) {
+          that.menuIndex = m.customData
+          that.contentTitle = m.displayName
+
+          that.breadcrumbInsert(m.displayName, true)
+        } else if (m.items && m.items.length > 0) {
+          if (that.menuIndex.indexOf(m.customData) > -1) that.breadcrumbInsert(m.displayName)
+          that.pathToMenu(m)
+        }
+      })
+    },
+    //侧导航
+    menuClick(item, customData) {
+      this.menuIndex = customData
+      if (!item.items.length > 0 || item.url) {
+        this.$router.push({ path: item.url })
+      }
+    },
+    //隐藏侧导航
+    leftBarChange() {
+      this.isCollapsed = !this.isCollapsed
+    },
+    // 更改语言
+    changeLanguage(val) {
+      // await this.$store.dispatch({
+      //     type: 'changeLanguage',
+      //     data: { languageName: val }
+      // })
+      abp.utils.setCookieValue(
+        abp.localization.cookieName,
+        val,
+        new Date(new Date().getTime() + 5 * 365 * 86400000), //5 year
+        abp.appPath
+      )
+      window.location.href = '/home'
+    },
+
+    // 更改密码
+    editUserProfile() {
+      this.$root.$emit('bv::show::modal', 'modalChangePassword')
+    },
+    modalInfoHide() {
+      this.currentPassword = null
+      this.newPassword = null
+    },
+
+    modalInfoShow(e) {
+      this.$refs.focusThis.focus()
+    },
+    modalOk(e) {
+      e.preventDefault()
+      this.changePassword()
+    },
+    async changePassword() {
+      if (await this.validate('form-changePassword')) {
+        await this.$store.dispatch({
+          type: 'changePassword',
+          data: {
+            currentPassword: this.currentPassword,
+            newPassword: this.newPassword
+          }
+        })
+        this.modalInfoHide()
+        location.reload()
+      } else {
+        swal({
+          title: '请填写必要的选项!',
+          icon: 'warning'
+        })
+      }
+    },
+    //安全退出
+    logout() {
+      unsetToken()
+      location.replace('/login')
+    },
+    // 返回顶部
+    topClick() {
+      this.$refs.content.ScrollToTop()
+    },
+    refreshScroll() {
+      this.$refs.content.refresh()
+      this.$refs.scrollSidebar.refresh()
+    },
+    reloadScroll() {
+      // if (this.loadState) {
+      this.$refs.content.reload()
+      this.$refs.scrollSidebar.reload()
+      this.loadState = false
+      // }
+    },
+    // 调整工具栏位置
+    scrollTop(val) {
+      this.scorllTopLength = val
+    },
+    leftScrollTop(val) {
+      //  val是左侧当前滚动距离顶部的值
+    },
+    async getMenu() {
+      let that = this
+      await that.$http.get('/api/services/app/Session/GetCurrentUserMenu').then(res => {
+        that.menu = res.data.result
+        that.path = that.$route.fullPath
+        that.contentTitle = that.L(that.$route.meta.title)
+        that.getFromUrl(that.menu)
+        that.breadcrumbFromat()
+        that.pathToMenu(that.menu)
+      })
+    },
+    async getSessionInfo() {
+      await this.$http.get('/api/services/app/Session/GetCurrentLoginInformations').then(res => {
+        if (res.data.success) {
+          let json = res.data.result
+          window.abp.session.application = json.application
+          window.abp.session.tenant = json.tenant
+          window.abp.session.user = json.user
+          this.tenant = json.tenant
+        }
+      })
+    },
+    async validate(scope) {
+      let res
+      await this.$validator.validateAll(scope).then(async result => {
+        res = result
+      })
+      return res
+    },
+    // 预加载
+    async load() {
+      await this.getMenu()
+      await this.getSessionInfo()
+    }
+  },
+  async created() {
+    let that = this
+    let currentUser = that.$store.getters.currentUser
+    that.UserModel.UserName = currentUser.unique_name
+    that.UserModel.UserHead = '/static/imgs/128.png'
+    that.UserModel.UserRole = currentUser.roles
+    that.load()
+  },
+  mounted() {
+    var that = this
+    window.onresize = () => {
+      return (() => {
+        that.clientHeight = document.body.clientHeight
+      })()
+    }
+  }
 }
 </script>
 <style lang="less" scoped>
 .breadcrumb,
 .breadcrumb a,
 .breadcrumb .active {
-    font-size: 14px;
+  font-size: 14px;
 }
 .topButton {
-    left: auto;
-    bottom: 50px;
-    right: 50px;
-    font-size: 50px;
-    border: 4px solid rgba(0, 123, 255, 0.5);
-    line-height: 1;
-    border-radius: 50%;
-    padding: 4px;
-    opacity: 0.7;
+  left: auto;
+  bottom: 50px;
+  right: 50px;
+  font-size: 50px;
+  border: 4px solid rgba(0, 123, 255, 0.5);
+  line-height: 1;
+  border-radius: 50%;
+  padding: 4px;
+  opacity: 0.7;
 }
+
 </style>

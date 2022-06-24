@@ -10,7 +10,7 @@
           <h5>{{ UserModel.UserName }}</h5>
         </div>
         <div class="form-group" v-if="!hasUser">
-          <label for="inputEmail3" class="control-label">{{this.L('UserName')}}</label>
+          <label for="inputEmail3" class="control-label">{{ this.L('UserName') }}</label>
           <div>
             <input
               type="text"
@@ -24,7 +24,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="inputPassword3" class="control-label">{{this.L('Password')}}</label>
+          <label for="inputPassword3" class="control-label">{{ this.L('Password') }}</label>
           <div>
             <input
               type="password"
@@ -39,9 +39,7 @@
         </div>
         <div class="form-group text-right">
           <div class="checkbox">
-            <label>
-              <input type="checkbox" v-model="rememberPassword" /> Remember me
-            </label>
+            <label> <input type="checkbox" v-model="rememberPassword" /> Remember me </label>
           </div>
         </div>
         <div class="form-group text-center" v-if="hasUser">
@@ -54,25 +52,24 @@
       </form>
       <div class="text-center">
         <dl>
-          <dd
-            class="d-inline mr-2"
-            v-for="(language, index) in languages"
-            :key="index"
-          >
+          <dd class="d-inline mr-2" v-for="(language, index) in languages" :key="index">
             <a
               @click="changeLanguage(language.name)"
-              :class="[ 'btn', 'btn-sm' ,'btn-outline-primary',  language.displayName == currentLanguage.displayName ? 'active' : '' ]"
+              :class="[
+                'btn',
+                'btn-sm',
+                'btn-outline-primary',
+                language.displayName == currentLanguage.displayName ? 'active' : ''
+              ]"
             >
-              <i :class="['fas', language.icon]" />
+              <i :class="['fas', language.icon]"></i>
             </a>
           </dd>
         </dl>
         <p v-if="loadTest">
           <a class="btn btn-outline-secondary" @click="changeTenant">
             <span>调试按钮</span>
-            <span
-              v-if="displayTenancyName"
-            >MultiTenancySide： {{ displayTenancyName }}</span>
+            <span v-if="displayTenancyName">MultiTenancySide： {{ displayTenancyName }}</span>
             <span v-else>MultiTenancySide：主机</span>
           </a>
         </p>
@@ -87,183 +84,183 @@ import swal from 'sweetalert'
 import Ajax from '../utiltools/ajax'
 import Loading from './custom/loading'
 export default {
-    data() {
-        return {
-            isLoading: false,
-            UserModel: {
-                UserName: '',
-                UserPass: '',
-                UserHead: ''
-            },
-            hasUser: false,
-            rememberPassword: false,
-            changedTenancyName: '',
-            displayTenancyName: ''
-        }
+  data() {
+    return {
+      isLoading: false,
+      UserModel: {
+        UserName: '',
+        UserPass: '',
+        UserHead: ''
+      },
+      hasUser: false,
+      rememberPassword: false,
+      changedTenancyName: '',
+      displayTenancyName: ''
+    }
+  },
+  components: {
+    Loading: Loading
+  },
+  computed: {
+    loadTest() {
+      return process.env.NODE_ENV !== 'production'
     },
-    components: {
-        Loading: Loading
+    languages() {
+      return abp.localization.languages.filter(val => {
+        return !val.isDisabled
+      })
     },
-    computed: {
-        loadTest() {
-            return process.env.NODE_ENV !== 'production'
-        },
-        languages() {
-            return abp.localization.languages.filter(val => {
-                return !val.isDisabled
-            })
-        },
-        currentLanguage() {
-            return abp.localization.currentLanguage
-        }
+    currentLanguage() {
+      return abp.localization.currentLanguage
+    }
+  },
+  methods: {
+    changeLanguage(languageName) {
+      abp.utils.setCookieValue(
+        abp.localization.cookieName,
+        languageName,
+        new Date(new Date().getTime() + 5 * 365 * 86400000), //5 year
+        abp.appPath
+      )
+      location.reload()
     },
-    methods: {
-        changeLanguage(languageName) {
-            abp.utils.setCookieValue(
-                abp.localization.cookieName,
-                languageName,
-                new Date(new Date().getTime() + 5 * 365 * 86400000), //5 year
-                abp.appPath
-            )
-            location.reload()
-        },
-        async changeTenant() {
-            if (!this.changedTenancyName) {
-                this.displayTenancyName = 'tempa'
-                this.changedTenancyName = 'tempa'
-                let tenant = await this.$store.dispatch({
-                    type: 'isTenantAvailable',
-                    data: { tenancyName: this.changedTenancyName }
-                })
-                switch (tenant.state) {
-                    case 1:
-                        abp.multiTenancy.setTenantIdCookie(tenant.tenantId)
-                        // location.reload()
-                        break
-                    case 2:
-                        console.error({ title: this.L('Error'), content: this.L('TenantIsNotActive') })
-                        break
-                    case 3:
-                        console.error({
-                            title: this.L('Error'),
-                            content: this.L('ThereIsNoTenantDefinedWithName{0}', undefined, this.changedTenancyName)
-                        })
-                        break
-                }
-            } else {
-                this.displayTenancyName = ''
-                this.changedTenancyName = ''
-                abp.multiTenancy.setTenantIdCookie(undefined)
-                location.reload()
-            }
-        },
-        logout() {
-            unsetToken()
-            this.hasUser = false
-        },
-        login() {
-            var that = this
-            var Rurl = that.$route.query.Rurl
-            that.isLoading = true
-            that.$validator
-                .validateAll()
-                .then(async result => {
-                    that.isLoading = false
-                    if (result) {
-                        await userLogin({
-                            userNameOrEmailAddress: that.UserModel.UserName,
-                            password: that.UserModel.UserPass,
-                            rememberClient: that.rememberPassword,
-                            Rurl: Rurl
-                        })
-                        setTimeout(() => {
-                            that.UserModel.UserPass = ''
-                        }, 50)
-                    }
-                })
-                .catch(failure => {
-                    console.log(failure)
-                })
-        }
-    },
-    created() {
-        // if (abp.session.tenantId)
-        Ajax.get('/api/services/app/Session/GetCurrentLoginInformations').then(res => {
-            let session = res.data.result
-            if (session.tenant !== null) {
-                this.changedTenancyName = session.tenant.tenancyName
-                this.displayTenancyName = session.tenant.name
-            }
-            if (!session.user) this.logout()
+    async changeTenant() {
+      if (!this.changedTenancyName) {
+        this.displayTenancyName = 'tempa'
+        this.changedTenancyName = 'tempa'
+        let tenant = await this.$store.dispatch({
+          type: 'isTenantAvailable',
+          data: { tenancyName: this.changedTenancyName }
         })
-        if (this.$store.getters.isAuthenticated) {
-            this.hasUser = true
-            let currentUser = this.$store.getters.currentUser
-            this.UserModel.UserName = currentUser.unique_name
-            this.UserModel.UserHead = 'static/imgs/128.png'
+        switch (tenant.state) {
+          case 1:
+            abp.multiTenancy.setTenantIdCookie(tenant.tenantId)
+            // location.reload()
+            break
+          case 2:
+            console.error({ title: this.L('Error'), content: this.L('TenantIsNotActive') })
+            break
+          case 3:
+            console.error({
+              title: this.L('Error'),
+              content: this.L('ThereIsNoTenantDefinedWithName{0}', undefined, this.changedTenancyName)
+            })
+            break
         }
+      } else {
+        this.displayTenancyName = ''
+        this.changedTenancyName = ''
+        abp.multiTenancy.setTenantIdCookie(undefined)
+        location.reload()
+      }
     },
-    mounted() {}
+    logout() {
+      unsetToken()
+      this.hasUser = false
+    },
+    login() {
+      var that = this
+      var Rurl = that.$route.query.Rurl
+      that.isLoading = true
+      that.$validator
+        .validateAll()
+        .then(async result => {
+          that.isLoading = false
+          if (result) {
+            await userLogin({
+              userNameOrEmailAddress: that.UserModel.UserName,
+              password: that.UserModel.UserPass,
+              rememberClient: that.rememberPassword,
+              Rurl: Rurl
+            })
+            setTimeout(() => {
+              that.UserModel.UserPass = ''
+            }, 50)
+          }
+        })
+        .catch(failure => {
+          console.log(failure)
+        })
+    }
+  },
+  created() {
+    // if (abp.session.tenantId)
+    Ajax.get('/api/services/app/Session/GetCurrentLoginInformations').then(res => {
+      let session = res.data.result
+      if (session.tenant !== null) {
+        this.changedTenancyName = session.tenant.tenancyName
+        this.displayTenancyName = session.tenant.name
+      }
+      if (!session.user) this.logout()
+    })
+    if (this.$store.getters.isAuthenticated) {
+      this.hasUser = true
+      let currentUser = this.$store.getters.currentUser
+      this.UserModel.UserName = currentUser.unique_name
+      this.UserModel.UserHead = 'static/imgs/128.png'
+    }
+  },
+  mounted() {}
 }
 </script>
 <style scoped>
 .form-control.is-invalid {
-    box-shadow: 0 0 0.8rem 0.2rem rgba(220, 53, 69, 0.35);
+  box-shadow: 0 0 0.8rem 0.2rem rgba(220, 53, 69, 0.35);
 }
 
 hr {
-    border: none;
-    border-bottom: 1px solid #fff;
+  border: none;
+  border-bottom: 1px solid #fff;
 }
 
 .error {
-    margin-top: 10px;
-    display: inline-block;
+  margin-top: 10px;
+  display: inline-block;
 }
 
 .control-label {
-    font-size: 16px;
+  font-size: 16px;
 }
 
 .login-logo {
-    display: block;
-    width: 120px;
-    margin-bottom: 20px;
+  display: block;
+  width: 120px;
+  margin-bottom: 20px;
 }
 
 .login-panel {
-    color: #fff;
-    padding: 40px;
-    width: 480px;
-    max-height: 600px;
-    position: fixed;
-    background: rgba(0, 0, 0, 0.3);
-    left: 50%;
-    top: 40%;
-    border-radius: 8px;
-    z-index: 2;
-    box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.7);
-    -webkit-transform: translate(-50%, -50%);
-    -moz-transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%);
-    -o-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
+  color: #fff;
+  padding: 40px;
+  width: 480px;
+  max-height: 600px;
+  position: fixed;
+  background: rgba(0, 0, 0, 0.3);
+  left: 50%;
+  top: 40%;
+  border-radius: 8px;
+  z-index: 2;
+  box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.7);
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }
 
 .login-bg {
-    height: 100%;
-    background-color: #ffffff;
-    background-image: url('../assets/img/overlay.png'), -moz-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
-        url('../assets/img/bg.jpg');
-    background-image: url('../assets/img/overlay.png'),
-        -webkit-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff), url('../assets/img/bg.jpg');
-    background-image: url('../assets/img/overlay.png'), -ms-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
-        url('../assets/img/bg.jpg');
-    background-image: url('../assets/img/overlay1.png'), linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
-        url('../assets/img/bg.jpg');
-    background-repeat: repeat, no-repeat, no-repeat;
-    background-size: 100px 100px, cover, cover;
-    background-position: top left, center center, bottom center;
-    background-attachment: fixed, fixed, fixed;
+  height: 100%;
+  background-color: #ffffff;
+  background-image: url('../assets/img/overlay.png'), -moz-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
+    url('../assets/img/bg.jpg');
+  background-image: url('../assets/img/overlay.png'),
+    -webkit-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff), url('../assets/img/bg.jpg');
+  background-image: url('../assets/img/overlay.png'), -ms-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
+    url('../assets/img/bg.jpg');
+  background-image: url('../assets/img/overlay1.png'), linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
+    url('../assets/img/bg.jpg');
+  background-repeat: repeat, no-repeat, no-repeat;
+  background-size: 100px 100px, cover, cover;
+  background-position: top left, center center, bottom center;
+  background-attachment: fixed, fixed, fixed;
 }
 </style>

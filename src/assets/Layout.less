@@ -19,170 +19,180 @@
 
 // 布局设定
 .main {
-    display: flex;
-    height: 100%;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    border: 1px solid #999;
-    background: #f5f7f9;
+  display: flex;
+  height: 100%;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  border: 1px solid #999;
+  background: #f5f7f9;
 
-    .content {
-        width: calc(100% - 240px);
-        height: 100%;
-        flex-shrink: 1;
-        flex-grow: 1;
-        position: relative;
-        z-index: 100;
-        &.shrink {
-            width: calc(100% - 60px);
-        }
-        .content-body {
-            margin: 20px;
-            width: calc(100% - 40px);
-            max-width: 1140px;
-            height: calc(100% - 104px);
-            background-color: #fff;
-            box-shadow: 0 1px 5px #ccc;
-            border-radius: 6px;
-            padding-bottom: 10px;
-            position: relative;
-        }
+  .content {
+    width: calc(100% - 240px);
+    height: 100%;
+    flex-shrink: 1;
+    flex-grow: 1;
+    position: relative;
+    z-index: 100;
+    &.shrink {
+      width: calc(100% - 60px);
     }
+    .content-body {
+      margin: 20px;
+      width: calc(100% - 40px);
+      max-width: 1140px;
+      height: calc(100% - 104px);
+      background-color: #fff;
+      box-shadow: 0 1px 5px #ccc;
+      border-radius: 6px;
+      padding-bottom: 10px;
+      position: relative;
+    }
+  }
 }
 
 .vdpComponent > input {
-    font-size: 16px;
-    padding: 4px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 .ghost {
-    opacity: 0.5;
-    background: #c8ebfb;
+  opacity: 0.5;
+  background: #c8ebfb;
 }
 .label {
-    display: block;
-    padding: 0.2em 0.6em 0.2em 0.6em;
-    font-size: 75%;
-    font-weight: 700;
-    line-height: 1;
-    color: #fff;
-    text-align: center;
-    white-space: nowrap;
-    border-radius: 0.25em;
-    &.label-success {
-        background-color: #5cb85c !important;
-    }
-    &.label-danger {
-        background-color: #d9534f !important;
-    }
+  display: block;
+  padding: 0.2em 0.6em 0.2em 0.6em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  border-radius: 0.25em;
+  &.label-success {
+    background-color: #5cb85c !important;
+  }
+  &.label-danger {
+    background-color: #d9534f !important;
+  }
 }
 .v1 {
-    width: 46px;
-    height: 64px;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    opacity: 0;
+  width: 46px;
+  height: 64px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  opacity: 0;
 
-    .v1-image {
-        display: none;
-    }
-    .v1-file {
-        height: 64px;
-    }
+  .v1-image {
+    display: none;
+  }
+  .v1-file {
+    height: 64px;
+  }
 }
 .modal-lg {
-    max-width: 1000px;
-    height: 80%;
-    .modal-content {
-        height: 100%;
-    }
-    .modal-body {
-        height: calc(100% - 120px);
-    }
-    .scroll-container {
-        height: 100%;
-    }
+  max-width: 1000px;
+  height: 80%;
+  .modal-content {
+    height: 100%;
+  }
+  .modal-body {
+    height: calc(100% - 120px);
+  }
+  .scroll-container {
+    height: 100%;
+  }
 }
 .mce-container {
-    box-sizing: border-box !important;
+  box-sizing: border-box !important;
 }
 .scroll-container {
-    width: 100%;
-    height: calc(100% - 60px);
+  width: 100%;
+  height: calc(100% - 60px);
 }
 .attach-btn {
-    display: inline-block;
-    vertical-align: middle;
-    padding: 0 20px;
+  display: inline-block;
+  vertical-align: middle;
+  padding: 0 20px;
 }
 .attach {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: middle;
+  margin: 0;
+  padding-left: 20px;
+  & > li {
+    margin: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #ccc;
     display: inline-block;
-    overflow: hidden;
-    vertical-align: middle;
-    margin: 0;
-    padding-left: 20px;
-    & > li {
-        margin: 10px;
-        padding-bottom: 5px;
-        border-bottom: 1px solid #ccc;
-        display: inline-block;
-        i {
-            margin-left: 5px;
-            font-size: 18px;
-            cursor: pointer;
-        }
+    i {
+      margin-left: 5px;
+      font-size: 18px;
+      cursor: pointer;
     }
+  }
 }
 .ctx-menu {
-    min-width: 120px;
-    letter-spacing: 0;
-    li {
-        padding: 8px 20px;
-        text-align: left;
-        font-size: 13px;
-        cursor: pointer;
+  min-width: 120px;
+  letter-spacing: 0;
+  li {
+    padding: 8px 20px;
+    text-align: left;
+    font-size: 13px;
+    cursor: pointer;
 
-        > i {
-            margin-right: 6px;
-            display: inline-block;
-        }
+    > i {
+      margin-right: 6px;
+      display: inline-block;
+    }
 
-        &:hover {
-            color: #fff;
-            background-color: #0094ff;
-        }
+    &:hover {
+      color: #fff;
+      background-color: #0094ff;
     }
-    > .disabled {
-        color: #999;
-    }
+  }
+  > .disabled {
+    color: #999;
+  }
 }
 .info-img-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    > * {
-        height: 64px;
-    }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  > * {
+    height: 64px;
+  }
+}
+.info-images {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  > .input-group {
+    width: 33%;
+    min-width: 220px;
+    margin: 0.5rem 0;
+  }
 }
 .info-img {
-    padding: 0;
-    background-color: #fff;
-    border-top: 1px solid #dee2e6;
-    border-bottom: 1px solid #dee2e6;
-    min-width: 64px;
-    height: 64px;
-    text-align: center;
-    & > img {
-        max-height: 64px;
-    }
+  padding: 0;
+  background-color: #fff;
+  border-top: 1px solid #dee2e6;
+  border-bottom: 1px solid #dee2e6;
+  min-width: 64px;
+  height: 64px;
+  text-align: center;
+  & > img {
+    max-height: 64px;
+  }
 }
 .partner-logo {
-    img {
-        max-width: 64px;
-        max-height: 64px;
-    }
+  img {
+    max-width: 64px;
+    max-height: 64px;
+  }
 }
