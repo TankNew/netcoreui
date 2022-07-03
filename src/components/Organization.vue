@@ -118,7 +118,7 @@ export default {
                 dangerMode: true
             }).then(async willDelete => {
                 if (willDelete) {
-                    await this.$http
+                    await this.$axios
                         .delete('/api/services/app/Organization/Delete', {
                             params: { organizationId: this.currentOrganization.id }
                         })
@@ -145,11 +145,11 @@ export default {
             this.$validator.validateAll().then(async result => {
                 if (result) {
                     if (!this.editMode) {
-                        await this.$http.post('/api/services/app/Organization/Create', this.module).then(res => {
+                        await this.$axios.post('/api/services/app/Organization/Create', this.module).then(res => {
                             if (res.data.success) this.load()
                         })
                     } else {
-                        await this.$http.put('/api/services/app/Organization/Update', this.module).then(res => {
+                        await this.$axios.put('/api/services/app/Organization/Update', this.module).then(res => {
                             if (res.data.success) this.load()
                         })
                     }
@@ -158,7 +158,7 @@ export default {
             })
         },
         load() {
-            this.$http.get('/api/services/app/Organization/GetAll', { params: { organizationId: null } }).then(res => {
+            this.$axios.get('/api/services/app/Organization/GetAll', { params: { organizationId: null } }).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.organizationList = json

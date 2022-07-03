@@ -78,11 +78,9 @@
   </div>
 </template>
 <script>
-import { userLogin } from '../utiltools/lock'
-import { unsetToken } from '../utiltools/auth'
-import swal from 'sweetalert'
 import Ajax from '../utiltools/ajax'
 import Loading from './custom/loading'
+import { mapActions } from 'vuex'
 export default {
   data() {
     return {
@@ -115,6 +113,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions({ userLogin: 'userLogin', userLogout: 'logout' }),
     changeLanguage(languageName) {
       abp.utils.setCookieValue(
         abp.localization.cookieName,
@@ -143,7 +142,11 @@ export default {
           case 3:
             console.error({
               title: this.L('Error'),
-              content: this.L('ThereIsNoTenantDefinedWithName{0}', undefined, this.changedTenancyName)
+              content: this.L(
+                'ThereIsNoTenantDefinedWithName{0}',
+                undefined,
+                this.changedTenancyName
+              )
             })
             break
         }
@@ -155,7 +158,7 @@ export default {
       }
     },
     logout() {
-      unsetToken()
+      this.userLogout()
       this.hasUser = false
     },
     login() {
@@ -167,7 +170,7 @@ export default {
         .then(async result => {
           that.isLoading = false
           if (result) {
-            await userLogin({
+            await this.userLogin({
               userNameOrEmailAddress: that.UserModel.UserName,
               password: that.UserModel.UserPass,
               rememberClient: that.rememberPassword,
@@ -250,14 +253,14 @@ hr {
 .login-bg {
   height: 100%;
   background-color: #ffffff;
-  background-image: url('../assets/img/overlay.png'), -moz-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
-    url('../assets/img/bg.jpg');
+  background-image: url('../assets/img/overlay.png'),
+    -moz-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff), url('../assets/img/bg.jpg');
   background-image: url('../assets/img/overlay.png'),
     -webkit-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff), url('../assets/img/bg.jpg');
-  background-image: url('../assets/img/overlay.png'), -ms-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
-    url('../assets/img/bg.jpg');
-  background-image: url('../assets/img/overlay1.png'), linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
-    url('../assets/img/bg.jpg');
+  background-image: url('../assets/img/overlay.png'),
+    -ms-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff), url('../assets/img/bg.jpg');
+  background-image: url('../assets/img/overlay1.png'),
+    linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff), url('../assets/img/bg.jpg');
   background-repeat: repeat, no-repeat, no-repeat;
   background-size: 100px 100px, cover, cover;
   background-position: top left, center center, bottom center;

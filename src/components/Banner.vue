@@ -333,7 +333,7 @@ export default {
         },
         async saveImgToPage() {
             if (await this.validateImg()) {
-                this.$http.post('/api/services/app/Navbar/BindBannerImgToNavbar', this.currentPage).then(res => {
+                this.$axios.post('/api/services/app/Navbar/BindBannerImgToNavbar', this.currentPage).then(res => {
                     if (res.data.success) {
                         let json = res.data.result
                         this.currentPage = json
@@ -382,7 +382,7 @@ export default {
             }).then(async confirm => {
                 if (confirm) {
                     item.bannerImgs = []
-                    this.$http.post('/api/services/app/Navbar/BindBannerImgToNavbar', item).then(res => {
+                    this.$axios.post('/api/services/app/Navbar/BindBannerImgToNavbar', item).then(res => {
                         if (res.data.success) {
                             let json = res.data.result
                             this.loadNavbar()
@@ -401,7 +401,7 @@ export default {
             this.sliding = false
         },
         async loadNavbar() {
-            await this.$http.get('/api/services/app/Navbar/GetAll', { params: { Id: null } }).then(res => {
+            await this.$axios.get('/api/services/app/Navbar/GetAll', { params: { Id: null } }).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.pages = json

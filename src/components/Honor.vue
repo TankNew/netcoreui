@@ -282,7 +282,7 @@ export default {
             editRow: {},
             editRowIndex: null,
             form: { startDate: '', endDate: '' },
-            formShow: true,
+            formShow: false,
             /* table设置 start*/
             items: [],
             dragging: false,
@@ -388,7 +388,7 @@ export default {
                 above: to.number < draged.number
             }
             this.dragging = true
-            await this.$http.post(this.dragUrl, json).then(res => {
+            await this.$axios.post(this.dragUrl, json).then(res => {
                 this.items[e.moved.newIndex].number = res.data.result.number
                 this.dragging = false
                 this.dragUpdate = null
@@ -444,7 +444,7 @@ export default {
         load() {
             this.isBusy = true
             let sorts = ['IsTop DESC']
-            let sort = String(this.sortBy)
+            let sort = this.sortBy
             if (sort !== null && sort !== undefined && sort !== '') {
                 sort = sort.replace(sort[0], sort[0].toUpperCase())
                 sort += ' '
@@ -460,7 +460,7 @@ export default {
                     Sorting: sorts.toString()
                 }
             }
-            this.$http
+            this.$axios
                 .get(this.getAllUrl, params)
                 .then(res => {
                     if (res.data.success) {
@@ -517,7 +517,7 @@ export default {
                 dangerMode: true
             }).then(async confirm => {
                 if (confirm) {
-                    this.$http.delete(this.deleteUrl, { params: { id: item.id } }).then(res => {
+                    this.$axios.delete(this.deleteUrl, { params: { id: item.id } }).then(res => {
                         if (res.data.success) {
                             this.load()
                         }
@@ -552,14 +552,14 @@ export default {
                 this.form.miniCover = this.form.cover
                 this.editRow = JSON.parse(JSON.stringify(this.form))
                 if (!this.isUpdate) {
-                    await this.$http.post(this.createUrl, this.editRow).then(res => {
+                    await this.$axios.post(this.createUrl, this.editRow).then(res => {
                         if (res.data.success) {
                             let json = res.data.result
                             this.load()
                         }
                     })
                 } else {
-                    await this.$http.put(this.updateUrl, this.editRow).then(res => {
+                    await this.$axios.put(this.updateUrl, this.editRow).then(res => {
                         if (res.data.success) {
                             this.load()
                         }
@@ -581,7 +581,7 @@ export default {
             return res
         },
         async update(item) {
-            await this.$http.put(this.updateUrl, item).then(res => {
+            await this.$axios.put(this.updateUrl, item).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     return json
@@ -589,7 +589,7 @@ export default {
             })
         },
         async create(item) {
-            await this.$http.post(this.createUrl, item).then(res => {
+            await this.$axios.post(this.createUrl, item).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     return json

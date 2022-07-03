@@ -81,12 +81,12 @@ export default {
             this.page.content = this.$refs.tinymceNews.getVal()
             this.$validator.validateAll().then(async result => {
                 if (result) {
-                    this.$http.put(this.updateUrl, this.page).then(() => swal('操作成功!', '', 'success'))
+                    this.$axios.put(this.updateUrl, this.page).then(() => swal('操作成功!', '', 'success'))
                 }
             })
         },
         load() {
-            this.$http.get(this.getUrl, { params: { id: this.id } }).then(res => {
+            this.$axios.get(this.getUrl, { params: { id: this.id } }).then(res => {
                 var json = res.data.result
                 this.page = json
             })

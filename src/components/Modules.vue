@@ -87,8 +87,8 @@
                   <div class="no-action" v-if="!editMode">选择左侧模块进行编辑</div>
                   <div v-else>
                     <p class="tips">
-                      <i class="fas fa-edit path" v-if="isUpdate"></i>
-                      <i class="fas fa-plus path" v-else></i>
+                      <i class="fas fa-edit" v-if="isUpdate"></i>
+                      <i class="fas fa-plus" v-else></i>
                       <span class="path">
                         <span>{{ isUpdate ? `编辑` : `新增` }}</span>
                         <span class="action">{{
@@ -96,6 +96,7 @@
                         }}</span>
                         {{ !isUpdate ? '子模块' : '' }}
                       </span>
+                      <b-badge variant="secondary">{{ `id:${module.id}` }}</b-badge>
                     </p>
                     <b-form @submit.stop.prevent="onSubmit" autocomplete="off">
                       <div v-if="!isUpdate && parent === null" class="mb-3">
@@ -211,8 +212,8 @@
                   <div class="no-action" v-if="!editMode">选择左侧模块进行编辑</div>
                   <div v-else>
                     <p class="tips">
-                      <i class="fas fa-edit path" v-if="isUpdate"></i>
-                      <i class="fas fa-plus path" v-else></i>
+                      <i class="fas fa-edit" v-if="isUpdate"></i>
+                      <i class="fas fa-plus" v-else></i>
                       <span class="path">
                         <span>{{ isUpdate ? `编辑` : `新增` }}</span>
                         <span class="action">{{
@@ -220,6 +221,7 @@
                         }}</span>
                         {{ !isUpdate ? '子模块' : '' }}
                       </span>
+                      <b-badge variant="secondary">{{ `id:${module.id}` }}</b-badge>
                     </p>
                     <b-form @submit.stop.prevent="onSubmit" autocomplete="off">
                       <div v-if="!isUpdate" class="mb-3">
@@ -404,7 +406,7 @@ export default {
       evt.preventDefault()
       if (!this.isUpdate) {
         if (this.isPage)
-          await this.$http.post('/api/services/app/Page/Create', this.module).then(res => {
+          await this.$axios.post('/api/services/app/Page/Create', this.module).then(res => {
             if (res.data.success) {
               let json = res.data.result
               if (this.parent != null) this.parent.children.push(json)
@@ -412,7 +414,7 @@ export default {
             }
           })
         else
-          await this.$http.post('/api/services/app/CatalogGroup/Create', this.module).then(res => {
+          await this.$axios.post('/api/services/app/CatalogGroup/Create', this.module).then(res => {
             if (res.data.success) {
               let json = res.data.result
               if (this.parent != null) this.parent.children.push(json)
@@ -421,7 +423,7 @@ export default {
           })
       } else {
         if (this.isPage)
-          await this.$http.put('/api/services/app/Page/Update', this.module).then(res => {
+          await this.$axios.put('/api/services/app/Page/Update', this.module).then(res => {
             if (res.data.success) {
               this.editRow.displayName = this.module.displayName
               this.editRow.nickName = this.module.nickName
@@ -431,7 +433,7 @@ export default {
             }
           })
         else
-          await this.$http.put('/api/services/app/CatalogGroup/Update', this.module).then(res => {
+          await this.$axios.put('/api/services/app/CatalogGroup/Update', this.module).then(res => {
             if (res.data.success) {
               this.editRow.displayName = this.module.displayName
               this.editRow.nickName = this.module.nickName
@@ -465,7 +467,6 @@ export default {
       this.editMode = true
       this.isUpdate = true
       this.editRow = val
-      console.log(val)
       this.module = JSON.parse(JSON.stringify(val))
     },
     del(item, index, isPage, menuArray = []) {
@@ -479,14 +480,14 @@ export default {
         if (confirm) {
           var params = { params: { id: item.id } }
           if (isPage)
-            this.$http.delete('/api/services/app/Page/Delete', params).then(res => {
+            this.$axios.delete('/api/services/app/Page/Delete', params).then(res => {
               if (res.data.success) {
                 menuArray.splice(index, 1)
                 this.$emit('getMenu')
               }
             })
           else
-            this.$http.delete('/api/services/app/CatalogGroup/Delete', params).then(res => {
+            this.$axios.delete('/api/services/app/CatalogGroup/Delete', params).then(res => {
               if (res.data.success) {
                 menuArray.splice(index, 1)
                 this.$emit('getMenu')
@@ -496,20 +497,20 @@ export default {
       })
     },
     async load() {
-      await this.$http.get('/api/services/app/WebModule/GetAll').then(res => {
+      await this.$axios.get('/api/services/app/WebModule/GetAll').then(res => {
         if (res.data.success) {
           let json = res.data.result
           this.webModules = json
         }
       })
-      await this.$http.get('/api/services/app/CatalogGroup/GetAll').then(res => {
+      await this.$axios.get('/api/services/app/CatalogGroup/GetAll').then(res => {
         if (res.data.success) {
           let json = res.data.result
           this.catalogGroups = json
         }
       })
 
-      await this.$http.get('/api/services/app/Page/GetAll').then(res => {
+      await this.$axios.get('/api/services/app/Page/GetAll').then(res => {
         if (res.data.success) {
           let json = res.data.result
           this.pages = json.items

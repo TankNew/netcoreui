@@ -9,9 +9,11 @@ const AppConsts = {
   authorization: {
     encrptedAuthTokenName: 'enc_auth_token'
   },
-  appName: 'EDE.CMS',
   appBaseUrl: 'http://localhost:8080',
+  remoteServiceBaseUrl: url,
+  appName: 'EDE.CMS',
   appVersion: 'V5.2.0',
-  remoteServiceBaseUrl: url
+  clientId: 'EdnetPanel',
+  clientSecret: '123qwe!'
 }
 export default AppConsts

@@ -23,6 +23,7 @@
     "portal-vue": "^2.1.6",
     "smooth-scrollbar": "^8.5.1",
     "sweetalert": "^2.1.2",
+    "uuid": "^8.3.2",
     "vee-validate": "^2.1.1",
     "vue": "^2.6.10",
     "vue-base64-file-upload": "^1.0.4",

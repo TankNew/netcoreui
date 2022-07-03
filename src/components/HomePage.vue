@@ -324,13 +324,13 @@ export default {
 
     /* 新闻类管理 */
     async openGroupModal(item, index, noActive) {
-      const newsGroupsRes = await this.$http.get('/api/services/app/CatalogGroup/GetAll', {
+      const newsGroupsRes = await this.$axios.get('/api/services/app/CatalogGroup/GetAll', {
         params: { catalogType: 1 }
       })
-      const photoGroupsRes = await this.$http.get('/api/services/app/CatalogGroup/GetAll', {
+      const photoGroupsRes = await this.$axios.get('/api/services/app/CatalogGroup/GetAll', {
         params: { catalogType: 2 }
       })
-      const productGroupsRes = await this.$http.get('/api/services/app/CatalogGroup/GetAll', {
+      const productGroupsRes = await this.$axios.get('/api/services/app/CatalogGroup/GetAll', {
         params: { catalogType: 3 }
       })
 
@@ -387,7 +387,7 @@ export default {
     async submit() {
       this.isLoading = true
 
-      await this.$http.put('/api/services/app/HomePage/Update', this.homePage).then(res => {
+      await this.$axios.put('/api/services/app/HomePage/Update', this.homePage).then(res => {
         if (res.data.success) {
           let json = res.data.result
           this.homePage = json
@@ -428,7 +428,7 @@ export default {
     },
     load() {
       this.isLoading = true
-      this.$http.get('/api/services/app/HomePage/GetOrCreate').then(res => {
+      this.$axios.get('/api/services/app/HomePage/GetOrCreate').then(res => {
         if (res.data.success) {
           let json = res.data.result
           this.homePage = json

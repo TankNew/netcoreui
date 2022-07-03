@@ -266,7 +266,7 @@ export default {
             this.$refs.modal.show()
         },
         async expandNavbar() {
-            const res = await this.$http.get('/api/services/app/CatalogGroup/GetAll', {
+            const res = await this.$axios.get('/api/services/app/CatalogGroup/GetAll', {
                 params: { id: this.currentNavbar.catalogGroupId }
             })
             if (res.data.success) {
@@ -302,7 +302,7 @@ export default {
                                 url: preUrl + x.id
                             })
                     })
-                    this.$http.post('/api/services/app/Navbar/MassCreate', navbars).then(res => {
+                    this.$axios.post('/api/services/app/Navbar/MassCreate', navbars).then(res => {
                         if (res.data.success) this.load()
                     })
                 }
@@ -323,7 +323,7 @@ export default {
                 dangerMode: true
             }).then(async willDelete => {
                 if (willDelete) {
-                    await this.$http
+                    await this.$axios
                         .delete('/api/services/app/Navbar/Delete', { params: { id: this.currentNavbar.id } })
                         .then(res => {
                             if (res.data.success) this.load()
@@ -395,7 +395,7 @@ export default {
             this.update()
         },
         async update() {
-            await this.$http.put('/api/services/app/Navbar/Update', this.module).then(res => {
+            await this.$axios.put('/api/services/app/Navbar/Update', this.module).then(res => {
                 if (res.data.success) {
                     this.currentNavbar = res.data.result
                     this.module = JSON.parse(JSON.stringify(this.currentNavbar))
@@ -405,7 +405,7 @@ export default {
         },
         async switchActive(item) {
             item.isActive = !item.isActive
-            await this.$http.post('/api/services/app/Navbar/Active', item).then(res => {
+            await this.$axios.post('/api/services/app/Navbar/Active', item).then(res => {
                 if (res.data.success) this.setLoopChildren(this.navbarList, item)
             })
         },
@@ -416,7 +416,7 @@ export default {
             this.$validator.validateAll().then(async result => {
                 if (result) {
                     if (!this.editMode) {
-                        await this.$http.post('/api/services/app/Navbar/Create', this.module).then(res => {
+                        await this.$axios.post('/api/services/app/Navbar/Create', this.module).then(res => {
                             if (res.data.success) this.load()
                         })
                     } else this.update()
@@ -426,20 +426,20 @@ export default {
             })
         },
         loadAll() {
-            this.$http.get('/api/services/app/WebModule/GetAll').then(res => {
+            this.$axios.get('/api/services/app/WebModule/GetAll').then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.webStaticModules = json
                 }
             })
-            this.$http.get('/api/services/app/CatalogGroup/GetAll').then(res => {
+            this.$axios.get('/api/services/app/CatalogGroup/GetAll').then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.webCustomModules = json
                 }
             })
 
-            this.$http.get('/api/services/app/Page/GetAll').then(res => {
+            this.$axios.get('/api/services/app/Page/GetAll').then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.webPageModules = json.items
@@ -447,7 +447,7 @@ export default {
             })
         },
         async load() {
-            await this.$http.get('/api/services/app/Navbar/GetAll', { params: { Id: null } }).then(res => {
+            await this.$axios.get('/api/services/app/Navbar/GetAll', { params: { Id: null } }).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.navbarList = json

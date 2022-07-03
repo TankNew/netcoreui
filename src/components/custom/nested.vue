@@ -116,7 +116,7 @@ export default {
             }
             let draggwaitting = new Promise((resolve, reject) => {
                 this.dragUpdate = async () => {
-                    await this.$http.post(this.dragUrl, json).then(res => {
+                    await this.$axios.post(this.dragUrl, json).then(res => {
                         this.children[e.draggedContext.futureIndex].number = res.data.result.number
                         this.onDrag(false)
                         resolve()

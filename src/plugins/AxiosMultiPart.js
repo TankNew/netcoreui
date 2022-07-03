@@ -28,8 +28,8 @@ function onRrefreshed(token) {
 AxiosMulti.interceptors.request.use(
     config => {
         //添加token
-        if (store.getters.token.AccessToken) {
-            config.headers.Authorization = 'bearer ' + store.getters.token.AccessToken
+        if (store.getters.token) {
+            config.headers.Authorization = 'bearer ' + store.getters.token
             var s = (store.state.Users.currentUser.ExpiresIn - tools.myTime.CurTime()) / 60
             if (s < 5) {
                 if (!window.isRefresh) {
@@ -125,7 +125,7 @@ AxiosMulti.interceptors.response.use(
 
 const AxiosMultiProperty = {
     install(Vue) {
-        Object.defineProperty(Vue.prototype, '$httpmulti', { value: AxiosMulti })
+        Object.defineProperty(Vue.prototype, '$axiosmulti', { value: AxiosMulti })
     }
 }
 

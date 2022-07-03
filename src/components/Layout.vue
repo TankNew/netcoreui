@@ -150,13 +150,10 @@
   </section>
 </template>
 <script>
-import tools from 'tools'
-import Ajax from '../utiltools/ajax'
 import AppConsts from '../utiltools/appconst'
 import smoothScroll from './custom/smoothScroll'
-import jwtDecode from 'jwt-decode'
-import { unsetToken } from '../utiltools/auth'
 import sidebarMenu from './custom/sidebarMenu'
+import { mapActions } from 'vuex'
 export default {
   name: 'layout',
   data() {
@@ -219,6 +216,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions({ userLogout: 'logout' }),
     breadcrumbFromat() {
       this.breadcrumb = [
         {
@@ -317,7 +315,7 @@ export default {
     },
     //安全退出
     logout() {
-      unsetToken()
+      this.userLogout()
       location.replace('/login')
     },
     // 返回顶部
@@ -344,7 +342,7 @@ export default {
     },
     async getMenu() {
       let that = this
-      await that.$http.get('/api/services/app/Session/GetCurrentUserMenu').then(res => {
+      await that.$axios.get('/api/services/app/Session/GetCurrentUserMenu').then(res => {
         that.menu = res.data.result
         that.path = that.$route.fullPath
         that.contentTitle = that.L(that.$route.meta.title)
@@ -354,7 +352,7 @@ export default {
       })
     },
     async getSessionInfo() {
-      await this.$http.get('/api/services/app/Session/GetCurrentLoginInformations').then(res => {
+      await this.$axios.get('/api/services/app/Session/GetCurrentLoginInformations').then(res => {
         if (res.data.success) {
           let json = res.data.result
           window.abp.session.application = json.application
@@ -412,5 +410,4 @@ export default {
   padding: 4px;
   opacity: 0.7;
 }
-
 </style>

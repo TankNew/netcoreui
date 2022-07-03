@@ -113,7 +113,7 @@ export default {
             this.$emit('getMenu')
         },
         async getGroupInfo() {
-            await this.$http.get(this.dataGroupUrl, { params: { id: this.dataGroupId } }).then(res => {
+            await this.$axios.get(this.dataGroupUrl, { params: { id: this.dataGroupId } }).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     this.dataGroup = json
@@ -122,7 +122,7 @@ export default {
             })
         },
         async getSubGroups() {
-            await this.$http.get(this.dataGroupListUrl, { params: { id: this.dataGroupId } }).then(res => {
+            await this.$axios.get(this.dataGroupListUrl, { params: { id: this.dataGroupId } }).then(res => {
                 if (res.data.success) {
                     let json = res.data.result
                     if (json.length > 0) this.disableCreate = true

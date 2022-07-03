@@ -43,13 +43,25 @@
               :state="!errors.has('Logo文本')"
             ></b-form-input>
           </b-input-group>
-          <div class="info-images">
+          <div class="info-images start">
+            <b-input-group size="sm" prepend="网站ICO" class="mb-3">
+              <div class="info-img">
+                <img :src="companyInfo.icon" />
+              </div>
+              <b-input-group-append>
+                <b-btn size="sm" variant="primary" @click="fileOpen(companyInfo, 'icon')">
+                  选择
+                </b-btn>
+              </b-input-group-append>
+            </b-input-group>
             <b-input-group size="sm" prepend="网站LOGO" class="mb-3">
               <div class="info-img">
                 <img :src="companyInfo.logo" />
               </div>
               <b-input-group-append>
-                <b-btn size="sm" variant="primary" @click="logoOpen"> 选择 </b-btn>
+                <b-btn size="sm" variant="primary" @click="fileOpen(companyInfo, 'logo')">
+                  选择
+                </b-btn>
               </b-input-group-append>
             </b-input-group>
 
@@ -58,23 +70,20 @@
                 <img :src="companyInfo.reverseLogo" />
               </div>
               <b-input-group-append>
-                <b-btn size="sm" variant="primary" @click="reverseLogoOpen"> 选择 </b-btn>
+                <b-btn size="sm" variant="primary" @click="fileOpen(companyInfo, 'reverseLogo')">
+                  选择
+                </b-btn>
               </b-input-group-append>
             </b-input-group>
-            <b-input-group size="sm" prepend="网站ICO" class="mb-3">
-              <div class="info-img">
-                <img :src="companyInfo.icon" />
-              </div>
-              <b-input-group-append>
-                <b-btn size="sm" variant="primary" @click="iconOpen"> 选择 </b-btn>
-              </b-input-group-append>
-            </b-input-group>
+
             <b-input-group size="sm" prepend="微信二维码" class="mb-3">
               <div class="info-img">
                 <img :src="companyInfo.weixinBarCode" />
               </div>
               <b-input-group-append>
-                <b-btn size="sm" variant="primary" @click="codeOpen"> 选择 </b-btn>
+                <b-btn size="sm" variant="primary" @click="fileOpen(companyInfo, 'weixinBarCode')">
+                  选择
+                </b-btn>
               </b-input-group-append>
             </b-input-group>
             <b-input-group size="sm" prepend="底部广告" class="mb-3">
@@ -82,7 +91,9 @@
                 <img :src="companyInfo.footerAdImage" />
               </div>
               <b-input-group-append>
-                <b-btn size="sm" variant="primary" @click="footerAdImageOpen"> 选择 </b-btn>
+                <b-btn size="sm" variant="primary" @click="fileOpen(companyInfo, 'footerAdImage')">
+                  选择
+                </b-btn>
               </b-input-group-append>
             </b-input-group>
             <b-input-group size="sm" prepend="底部背景" class="mb-3">
@@ -90,7 +101,13 @@
                 <img :src="companyInfo.footerBackgroudImage" />
               </div>
               <b-input-group-append>
-                <b-btn size="sm" variant="primary" @click="footerBackgroudImageOpen"> 选择 </b-btn>
+                <b-btn
+                  size="sm"
+                  variant="primary"
+                  @click="fileOpen(companyInfo, 'footerBackgroudImage')"
+                >
+                  选择
+                </b-btn>
               </b-input-group-append>
             </b-input-group>
           </div>
@@ -240,67 +257,17 @@ export default {
       //刷新滚动轴
       that.refreshScroll()
     },
-    logoOpen() {
+ 
+    fileOpen(target, propertyName) {
       this.fileShow = true
-      this.fileCallBack = this.logoSet
-    },
-    logoSet(fileUrl) {
-      this.companyInfo.logo = fileUrl
-    },
-    reverseLogoOpen() {
-      this.fileShow = true
-      this.fileCallBack = this.reverseLogoSet
-    },
-    reverseLogoSet(fileUrl) {
-      this.companyInfo.reverseLogo = fileUrl
-    },
-    iconOpen() {
-      this.fileShow = true
-      this.fileCallBack = this.iconSet
-    },
-    iconSet(fileUrl) {
-      this.companyInfo.icon = fileUrl
-    },
-    codeOpen() {
-      this.fileShow = true
-      this.fileCallBack = this.codeSet
-    },
-    codeSet(fileUrl) {
-      this.companyInfo.weixinBarCode = fileUrl
-    },
-    footerAdImageOpen() {
-      this.fileShow = true
-      this.fileCallBack = this.footerAdImageSet
-    },
-    footerAdImageSet(fileUrl) {
-      this.companyInfo.footerAdImage = fileUrl
-    },
-    footerBackgroudImageOpen() {
-      this.fileShow = true
-      this.fileCallBack = this.footerBackgroudImageSet
-    },
-    footerBackgroudImageSet(fileUrl) {
-      this.companyInfo.footerBackgroudImage = fileUrl
+      this.fileCallBack = fileUrl => {
+        target[propertyName] = fileUrl
+      }
     },
     fileClose() {
       this.fileShow = false
     },
-    onFile(file) {},
-    onLoad(dataUri) {
-      this.companyInfo.logo = dataUri
-    },
-    onLoadIcon(dataUri) {
-      this.companyInfo.icon = dataUri
-    },
-    onLoadWX(dataUri) {
-      this.companyInfo.weixinBarCode = dataUri
-    },
-    onSizeExceeded(size) {
-      swal({
-        title: '请上传200K以内的图片',
-        icon: 'error'
-      })
-    },
+
     hasError(val, name) {
       if (val) return val.length ? !this.errors.has(name) : null
       else return null
@@ -309,7 +276,7 @@ export default {
       this.companyInfo.content = this.$refs.tinymceNews.getVal()
       this.$validator.validateAll().then(async result => {
         if (result) {
-          this.$http
+          this.$axios
             .put('/api/services/app/CompanyInfo/Update', this.companyInfo)
             .then(() => swal('操作成功!', '', 'success'))
         }
@@ -324,7 +291,7 @@ export default {
     },
     async generateQRCode(url) {
       this.coderDomain = 'https://' + url
-      await this.$http
+      await this.$axios
         .get('/api/services/app/CompanyInfo/GetUrlQRCode', { params: { url: this.coderDomain } })
         .then(res => {
           this.qrCode = res.data.result
@@ -335,7 +302,7 @@ export default {
       this.$root.$emit('bv::show::modal', 'company-domian-modal')
     },
     load() {
-      this.$http.get('/api/services/app/CompanyInfo/GetOrCreate').then(res => {
+      this.$axios.get('/api/services/app/CompanyInfo/GetOrCreate').then(res => {
         var json = res.data.result
         this.companyInfo = JSON.parse(JSON.stringify(json))
       })
@@ -354,11 +321,4 @@ export default {
     this.$refs.tinymceNews.destroy()
   }
 }
-</script>
-<style lang="less" scoped>
-.input-group-text {
-  width: 100px;
-  justify-content: center;
-}
-
-</style>
+</script> 

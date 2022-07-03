@@ -613,7 +613,7 @@ export default {
                 dangerMode: true
             }).then(async confirm => {
                 if (confirm) {
-                    this.$http.delete(this.deleteUrl, { params: { id: item.id } }).then(res => {
+                    this.$axios.delete(this.deleteUrl, { params: { id: item.id } }).then(res => {
                         if (res.data.success) {
                             this.load()
                         }
@@ -655,14 +655,14 @@ export default {
             return res
         },
         async update(item) {
-            const res = await this.$http.put(this.updateUrl, item)
+            const res = await this.$axios.put(this.updateUrl, item)
             if (res.data.success) {
                 let json = res.data.result
                 return json
             }
         },
         async create(item) {
-            const res = await this.$http.post(this.createUrl, item)
+            const res = await this.$axios.post(this.createUrl, item)
             if (res.data.success) {
                 let json = res.data.result
                 return json
@@ -726,7 +726,7 @@ export default {
             this.isUpdate = false
             if (await this.validate('form-domainBind')) {
                 if (this.domainModelIndex > -1) {
-                    let res = await this.$http.put(this.updateDomainUrl, this.domainModel)
+                    let res = await this.$axios.put(this.updateDomainUrl, this.domainModel)
                     if (res.data.success) {
                         let json = res.data.result
                         this.editRow.domains[this.domainModelIndex] = json
@@ -734,7 +734,7 @@ export default {
                         this.$validator.reset()
                     }
                 } else {
-                    let res = await this.$http.post(this.addDomainUrl, this.domainModel)
+                    let res = await this.$axios.post(this.addDomainUrl, this.domainModel)
                     if (res.data.success) {
                         let json = res.data.result
                         this.editRow.domains.push(json)
@@ -750,7 +750,7 @@ export default {
             this.$nextTick(() => (this.isUpdate = true))
         },
         domainActiveSubmit(e, item, index) {
-            this.$http
+            this.$axios
                 .post(this.activeDomainUrl, { id: item.id, isActive: item.isActive })
                 .then(x => this.domainModelClear())
         },
@@ -764,7 +764,7 @@ export default {
                 dangerMode: true
             }).then(async confirm => {
                 if (confirm) {
-                    let res = await this.$http.delete(this.removeDomainUrl, { params: { id: item.id } })
+                    let res = await this.$axios.delete(this.removeDomainUrl, { params: { id: item.id } })
                     if (res.data.success) {
                         this.editRow.domains.splice(index, 1)
                         this.syncEditRow()
@@ -780,7 +780,7 @@ export default {
             if (x) this.currentPage = 1
             this.isBusy = true
             let sorts = []
-            let sort = String(this.sortBy)
+            let sort = this.sortBy
             if (sort !== null && sort !== undefined && sort !== '') {
                 sort = sort.replace(sort[0], sort[0].toUpperCase())
                 sort += ' '
@@ -796,7 +796,7 @@ export default {
                     Sorting: sorts.toString()
                 }
             }
-            this.$http
+            this.$axios
                 .get(this.getAllUrl, params)
                 .then(res => {
                     if (res.data.success) {
@@ -819,10 +819,10 @@ export default {
                     Sorting: 'Id Asc'
                 }
             }
-            this.$http.get(this.templateGetAllUrl, params).then(res => {
+            this.$axios.get(this.templateGetAllUrl, params).then(res => {
                 this.templates = res.data.result.items
             })
-            this.$http.get(this.themeGetAllUrl, params).then(res => {
+            this.$axios.get(this.themeGetAllUrl, params).then(res => {
                 this.themes = res.data.result.items
             })
         }
