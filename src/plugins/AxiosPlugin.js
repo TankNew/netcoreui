@@ -28,9 +28,9 @@ Axios.interceptors.request.use(
   config => {
     store.commit('readToken')
 
-    config.headers.common[window.abp.localization.cookieName] = window.abp.utils.getCookieValue(
-      abp.localization.cookieName
-    )
+    config.headers.common[
+      window.abp.localization.cookieName
+    ] = window.abp.utils.getCookieValue(abp.localization.cookieName)
     config.headers.common[
       window.abp.multiTenancy.tenantIdCookieName
     ] = window.abp.multiTenancy.getTenantIdCookie()
@@ -41,7 +41,10 @@ Axios.interceptors.request.use(
       config.headers.common['RefreshToken'] = store.getters.refreshToken
 
     // 如果无access_token 或者 由客户端提前过期，并且存在刷新token
-    if ((!store.getters.token || store.getters.isTokenExpired) && store.getters.refreshToken) {
+    if (
+      (!store.getters.token || store.getters.isTokenExpired) &&
+      store.getters.refreshToken
+    ) {
       if (!window.isRefresh) {
         window.isRefresh = true
 
@@ -101,26 +104,30 @@ Axios.interceptors.response.use(
         text: error.response.data.error.details,
         icon: 'error'
       })
-      console.error(error.response)
     } else if (
       !!error.response &&
       !!error.response.data.error &&
       !!error.response.data.error.message
     ) {
       swal({
-        title: `${window.abp.localization.localize('Error')}:Code${error.response.status}`,
+        title: `${window.abp.localization.localize('Error')}: ${
+          error.response.status
+        }`,
         text: error.response.data.error.message,
         icon: 'error'
       })
-      console.error(error.response)
-    } else if (!error.response) {
-      // Something happened in setting up the request that triggered an Error
+    } else if (error.request) {
       swal({
-        title: `${window.abp.localization.localize('UnknownError')}`,
+        title: error.request.status,
+        text: error.request.statusText,
         icon: 'error'
       })
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.log('Error', error.message)
+      console.log(error.config)
     }
-    console.error('Error', error)
+    console.error(`$axios error`)
     return Promise.reject(error)
   }
 )

@@ -64,8 +64,12 @@
               <b-tr v-for="(item, index) in items" :key="index">
                 <b-td class="px-3"
                   >{{ item.name }}
-                  <b-badge v-show="item.isStatic" variant="primary">系统</b-badge>
-                  <b-badge v-show="item.isDefault" variant="secondary">默认</b-badge>
+                  <b-badge v-show="item.isStatic" variant="primary"
+                    >系统</b-badge
+                  >
+                  <b-badge v-show="item.isDefault" variant="secondary"
+                    >默认</b-badge
+                  >
                 </b-td>
                 <b-td class="text-center">
                   <b-button
@@ -120,8 +124,12 @@
         <!-- Emulate built in modal header close button action -->
         <h6>编辑角色：{{ form.role.name }}</h6>
       </template>
-      <b-form @submit.stop.prevent="blockSubmit" autocomplete="off" data-vv-scope="form-modal">
-        <b-tabs content-class="m-3" small>
+      <b-form
+        @submit.stop.prevent="blockSubmit"
+        autocomplete="off"
+        data-vv-scope="form-modal"
+      >
+        <b-tabs content-class="m-3">
           <b-tab title="角色名称" active>
             <b-form-group id="fieldset-1" label="角色名称" label-for="input-1">
               <b-form-input
@@ -137,7 +145,11 @@
               ></b-form-input>
             </b-form-group>
 
-            <b-form-checkbox v-model="form.role.isDefault" name="check-button" switch>
+            <b-form-checkbox
+              v-model="form.role.isDefault"
+              name="check-button"
+              switch
+            >
               默认<small>(新角色将默认拥有此角色)</small>
             </b-form-checkbox>
 
@@ -283,7 +295,8 @@ export default {
       var data = await this.getRoleForEditAsync({ params: { id: item.id } })
       if (data.success) {
         if (data.result.role) this.form.role = data.result.role
-        if (data.result.permissions) this.form.permissions = data.result.permissions
+        if (data.result.permissions)
+          this.form.permissions = data.result.permissions
         if (data.result.grantedPermissionNames)
           this.form.grantedPermissionNames = data.result.grantedPermissionNames
 

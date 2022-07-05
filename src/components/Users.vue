@@ -297,7 +297,7 @@ export default {
     },
     //新增
     async _new() {
-      this.$refs.userPanel.blockModalOpen(false)
+      this.$refs.userPanel.blockModalOpen(null, false)
     },
     async _delete(item, index, button) {
       swal({

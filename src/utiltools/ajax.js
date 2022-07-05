@@ -1,6 +1,8 @@
 import axios from 'axios'
 import appconst from './appconst'
 import swal from 'sweetalert'
+import store from '../store'
+
 const ajax = axios.create({
   baseURL: appconst.remoteServiceBaseUrl,
   timeout: 30000,
@@ -10,18 +12,21 @@ const ajax = axios.create({
 ajax.interceptors.request.use(
   config => {
     if (window.abp.auth.getToken()) {
-      config.headers.common['Authorization'] = 'Bearer ' + window.abp.auth.getToken()
+      config.headers.common['Authorization'] =
+        'Bearer ' + window.abp.auth.getToken()
     }
 
     if (window.abp.auth.getRefreshToken()) {
       config.headers.common['RefreshToken'] = window.abp.auth.getRefreshToken()
     }
 
-    config.headers.common['.AspNetCore.Culture'] = window.abp.utils.getCookieValue(
+    config.headers.common[
       '.AspNetCore.Culture'
-    )
-
-    config.headers.common['Abp.TenantId'] = window.abp.multiTenancy.getTenantIdCookie()
+    ] = window.abp.utils.getCookieValue('.AspNetCore.Culture')
+    // 首先从token解析，然后从URL，然后是header，然后是cookie
+    config.headers.common[
+      'Abp.TenantId'
+    ] = window.abp.multiTenancy.getTenantIdCookie()
 
     return config
   },
@@ -51,11 +56,13 @@ ajax.interceptors.response.use(
       !!error.response.data.error.message
     ) {
       swal({
-        title: `${window.abp.localization.localize('Error')}:Code${error.response.data.error.status}`,
+        title: `${window.abp.localization.localize('Error')}: ${
+          error.response.data.error.status
+        }`,
         text: error.response.data.error.message,
         icon: 'error'
       }).then(res => {
-        window.abp.auth.clearToken()
+        store.commit('unsetToken')
         location.replace('/login')
       })
     } else if (!error.response) {
@@ -64,7 +71,7 @@ ajax.interceptors.response.use(
         icon: 'error'
       })
     }
-    console.error('Error', error)
+    console.error(error)
     return Promise.reject(error)
   }
 )

@@ -23,7 +23,9 @@ import './plugins/vee-validate'
 
 import './assets/Layout.less'
 import 'famfamfam-flags/dist/sprite/famfamfam-flags.css'
+import DisableAutocomplete from 'vue-disable-autocomplete'
 
+Vue.use(DisableAutocomplete)
 Vue.use(Vuex)
 Vue.use(PortalVue)
 Vue.use(BootstrapVue)
@@ -43,27 +45,30 @@ if (!abp.utils.getCookieValue(abp.localization.cookieName)) {
 }
 
 if (!window.localStorage) {
-  alert('This browser do not supports localStorage. Please change browser to ie 9.0 at least .')
+  alert(
+    'This browser do not supports localStorage. Please change browser to ie 9.0 at least .'
+  )
 }
 
 store.commit('readToken')
 ;(async () => {
   /* 保留main刷新token的原因： 是为了下面获取 abp.auth.grantedPermissions*/
   if (!store.getters.token || store.getters.isTokenExpired) {
-    if (!store.getters.refreshToken) next({ path: '/login' })
+    if (!store.getters.refreshToken) router.push({ path: '/login' })
     // 如果refresh的action失败，ajax应该将页面重定向到/login
     else
       await store.dispatch('refreshToken').then(function(response) {
         var json = response.data
         if (json.success === true) {
           store.commit('setToken', json.result)
-        } else next({ path: '/login' })
+        } else router.push({ path: '/login' })
       })
   }
 
   await Ajax.get('/AbpUserConfiguration/GetAll').then(data => {
     window.abp = tools.extend(true, window.abp, data.data.result)
-    window.abp.localization.defaultSourceName = appconst.localization.defaultLocalizationSourceName
+    window.abp.localization.defaultSourceName =
+      appconst.localization.defaultLocalizationSourceName
     window.abp.banner = {
       HomePageWidth: abp.setting.getInt('App.Banner.HomePageWidth'),
       HomePageHeight: abp.setting.getInt('App.Banner.HomePageHeight'),

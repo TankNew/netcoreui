@@ -10,11 +10,16 @@
           <h5>{{ UserModel.UserName }}</h5>
         </div>
         <div class="form-group" v-if="!hasUser">
-          <label for="inputEmail3" class="control-label">{{ this.L('UserName') }}</label>
+          <label for="inputEmail3" class="control-label">{{
+            this.L('UserName')
+          }}</label>
           <div>
             <input
               type="text"
-              :class="['form-control', errors.has('用户名') ? 'is-invalid' : '']"
+              :class="[
+                'form-control',
+                errors.has('用户名') ? 'is-invalid' : ''
+              ]"
               id="inputEmail3"
               name="用户名"
               placeholder="用户名"
@@ -24,7 +29,9 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="inputPassword3" class="control-label">{{ this.L('Password') }}</label>
+          <label for="inputPassword3" class="control-label">{{
+            this.L('Password')
+          }}</label>
           <div>
             <input
               type="password"
@@ -39,7 +46,9 @@
         </div>
         <div class="form-group text-right">
           <div class="checkbox">
-            <label> <input type="checkbox" v-model="rememberPassword" /> Remember me </label>
+            <label>
+              <input type="checkbox" v-model="rememberPassword" /> Remember me
+            </label>
           </div>
         </div>
         <div class="form-group text-center" v-if="hasUser">
@@ -52,14 +61,20 @@
       </form>
       <div class="text-center">
         <dl>
-          <dd class="d-inline mr-2" v-for="(language, index) in languages" :key="index">
+          <dd
+            class="d-inline mr-2"
+            v-for="(language, index) in languages"
+            :key="index"
+          >
             <a
               @click="changeLanguage(language.name)"
               :class="[
                 'btn',
                 'btn-sm',
                 'btn-outline-primary',
-                language.displayName == currentLanguage.displayName ? 'active' : ''
+                language.displayName == currentLanguage.displayName
+                  ? 'active'
+                  : ''
               ]"
             >
               <i :class="['fas', language.icon]"></i>
@@ -69,7 +84,9 @@
         <p v-if="loadTest">
           <a class="btn btn-outline-secondary" @click="changeTenant">
             <span>调试按钮</span>
-            <span v-if="displayTenancyName">MultiTenancySide： {{ displayTenancyName }}</span>
+            <span v-if="displayTenancyName"
+              >MultiTenancySide： {{ displayTenancyName }}</span
+            >
             <span v-else>MultiTenancySide：主机</span>
           </a>
         </p>
@@ -137,7 +154,10 @@ export default {
             // location.reload()
             break
           case 2:
-            console.error({ title: this.L('Error'), content: this.L('TenantIsNotActive') })
+            console.error({
+              title: this.L('Error'),
+              content: this.L('TenantIsNotActive')
+            })
             break
           case 3:
             console.error({
@@ -188,14 +208,16 @@ export default {
   },
   created() {
     // if (abp.session.tenantId)
-    Ajax.get('/api/services/app/Session/GetCurrentLoginInformations').then(res => {
-      let session = res.data.result
-      if (session.tenant !== null) {
-        this.changedTenancyName = session.tenant.tenancyName
-        this.displayTenancyName = session.tenant.name
+    Ajax.get('/api/services/app/Session/GetCurrentLoginInformations').then(
+      res => {
+        let session = res.data.result
+        if (session.tenant !== null) {
+          this.changedTenancyName = session.tenant.tenancyName
+          this.displayTenancyName = session.tenant.name
+        }
+        if (!session.user) this.logout()
       }
-      if (!session.user) this.logout()
-    })
+    )
     if (this.$store.getters.isAuthenticated) {
       this.hasUser = true
       let currentUser = this.$store.getters.currentUser
@@ -207,6 +229,9 @@ export default {
 }
 </script>
 <style scoped>
+.form-horizontal {
+  background-color: unset !important;
+}
 .form-control.is-invalid {
   box-shadow: 0 0 0.8rem 0.2rem rgba(220, 53, 69, 0.35);
 }
@@ -254,13 +279,17 @@ hr {
   height: 100%;
   background-color: #ffffff;
   background-image: url('../assets/img/overlay.png'),
-    -moz-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff), url('../assets/img/bg.jpg');
+    -moz-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
+    url('../assets/img/bg.jpg');
   background-image: url('../assets/img/overlay.png'),
-    -webkit-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff), url('../assets/img/bg.jpg');
+    -webkit-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
+    url('../assets/img/bg.jpg');
   background-image: url('../assets/img/overlay.png'),
-    -ms-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff), url('../assets/img/bg.jpg');
+    -ms-linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
+    url('../assets/img/bg.jpg');
   background-image: url('../assets/img/overlay1.png'),
-    linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff), url('../assets/img/bg.jpg');
+    linear-gradient(60deg, rgba(233, 100, 31, 0.5) 5%, #409eff),
+    url('../assets/img/bg.jpg');
   background-repeat: repeat, no-repeat, no-repeat;
   background-size: 100px 100px, cover, cover;
   background-position: top left, center center, bottom center;

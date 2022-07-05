@@ -26,7 +26,10 @@ export default {
 
       if (state.token) {
         state.currentUser = jwtDecode(val.accessToken)
-        window.localStorage.setItem('currentUser', JSON.stringify(state.currentUser))
+        window.localStorage.setItem(
+          'currentUser',
+          JSON.stringify(state.currentUser)
+        )
       }
     },
 
@@ -40,7 +43,9 @@ export default {
       }
 
       const json = window.localStorage.currentUser
-      state.currentUser = tools.isJsonString(json) ? JSON.parse(json) : undefined
+      state.currentUser = tools.isJsonString(json)
+        ? JSON.parse(json)
+        : undefined
     },
 
     unsetToken(state) {
@@ -50,6 +55,11 @@ export default {
 
       window.abp.auth.clearToken()
       window.abp.auth.clearRefreshToken()
+      window.abp.utils.deleteCookie(
+        appconst.authorization.encrptedAuthTokenName,
+        window.abp.appPath
+      )
+
       window.localStorage.removeItem('currentUser')
     }
   },
@@ -72,23 +82,38 @@ export default {
       if (state.currentUser) {
         console.log((state.currentUser.exp - tools.myTime.CurTime()) / 60)
       }
-      return !!state.currentUser && (state.currentUser.exp - tools.myTime.CurTime()) / 60 < 1
+      return (
+        !!state.currentUser &&
+        (state.currentUser.exp - tools.myTime.CurTime()) / 60 < 1
+      )
     }
   },
   actions: {
     async isTenantAvailable(context, payload) {
-      let res = await ajax.post('/api/services/app/Account/IsTenantAvailable', payload.data)
+      let res = await ajax.post(
+        '/api/services/app/Account/IsTenantAvailable',
+        payload.data
+      )
       return res.data.result
     },
     async changePassword(context, payload) {
-      let res = await Axios.post('/api/services/app/User/ChangePassword', payload.data)
+      let res = await Axios.post(
+        '/api/services/app/User/ChangePassword',
+        payload.data
+      )
       return res.data.result
     },
     async changeLanguage(context, payload) {
-      let res = await Axios.post('/api/services/app/User/ChangeLanguage', payload.data)
+      let res = await Axios.post(
+        '/api/services/app/User/ChangeLanguage',
+        payload.data
+      )
       return res.data.result
     },
-    async userLogin(context, { userNameOrEmailAddress, password, rememberClient, Rurl = '/home' }) {
+    async userLogin(
+      context,
+      { userNameOrEmailAddress, password, rememberClient, Rurl = '/home' }
+    ) {
       var postData = {
         userNameOrEmailAddress: userNameOrEmailAddress,
         password: password,
@@ -112,7 +137,9 @@ export default {
     async refreshToken(context) {
       let url =
         tools.tokenUrl +
-        `/RefreshToken?clientId=${appconst.clientId}&clientSecret=${appconst.clientSecret}`
+        `/RefreshToken?clientId=${appconst.clientId}&clientSecret=${
+          appconst.clientSecret
+        }`
 
       let response = await ajax.post(url)
       return response

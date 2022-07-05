@@ -14,7 +14,7 @@
   >
     <template v-slot:modal-header="{ close }">
       <!-- Emulate built in modal header close button action -->
-      <h6>编辑用户：{{ form.userName }}</h6>
+      <h6>{{ editModeTitle }}：{{ form.userName }}</h6>
     </template>
     <file
       :fileShow="fileShow"
@@ -25,9 +25,10 @@
     <b-form
       @submit.stop.prevent="blockSubmit"
       autocomplete="off"
+      role="presentation"
       data-vv-scope="form-modal"
     >
-      <b-tabs content-class="m-3" small>
+      <b-tabs content-class="m-3">
         <b-tab title="基础属性" active>
           <div class="user-basic">
             <div class="user-head">
@@ -90,7 +91,6 @@
           <b-form-group
             label="用户名*"
             label-size="sm"
-            label-for="input-1"
             :description="
               form.roleNames.includes(`ADMIN`)
                 ? '管理用户，不能修改用户名.'
@@ -98,54 +98,42 @@
             "
           >
             <b-form-input
-              id="input-1"
               size="sm"
-              name="用户名"
-              placeholder="用户名"
+              name="initname"
+              autocomplete="off"
               v-model="form.userName"
               v-validate="'required'"
-              :state="!errors.has('form-modal.用户名')"
+              :state="!errors.has('form-modal.initname')"
               :disabled="form.roleNames.includes(`ADMIN`)"
               trim
             ></b-form-input>
           </b-form-group>
 
-          <b-form-group
-            label="密码:"
-            label-size="sm"
-            label-class=""
-            label-for="p-currentPassword"
-          >
+          <b-form-group label="密码:" label-size="sm" label-class="">
             <b-form-input
               size="sm"
-              ref="password"
-              id="p-currentPassword"
+              ref="initword"
+              name="initword"
+              autocomplete="off"
               type="password"
               v-model="form.password"
-              name="密码"
               v-validate="{
                 required: !isUpdate,
                 min: 6,
                 max: 35
               }"
-              :state="!errors.has('form-modal.密码')"
-              placeholder="密码"
+              :state="!errors.has('form-modal.initword')"
             ></b-form-input>
           </b-form-group>
-          <b-form-group
-            label="密码（核对）"
-            label-size="sm"
-            label-for="p-newPassword"
-          >
+          <b-form-group label="密码（核对）" label-size="sm">
             <b-form-input
-              id="p-newPassword"
               size="sm"
+              name="密码（核对）"
               type="password"
               v-model="form.confirmPassword"
-              name="密码（核对）"
               v-validate="{
                 required: !isUpdate,
-                confirmed: `password`
+                confirmed: `initword`
               }"
               :state="!errors.has('form-modal.密码（核对）')"
               placeholder="密码（核对）"
@@ -218,6 +206,10 @@
           ></UserProperty>
         </b-tab>
 
+        <b-tab title="详细介绍">
+          <tinymce ref="tinymceNews" :initial="form.introduction"></tinymce>
+        </b-tab>
+
         <b-tab title="角色">
           <b-form-group v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
@@ -231,9 +223,6 @@
               stacked
             ></b-form-checkbox-group>
           </b-form-group>
-        </b-tab>
-        <b-tab title="详细介绍">
-          <tinymce ref="tinymceNews" :initial="form.introduction"></tinymce>
         </b-tab>
       </b-tabs>
     </b-form>
@@ -252,8 +241,8 @@ const baseFrom = {
   introduction: '',
   isActive: true,
   isLockoutEnabled: true,
-  password: '',
-  confirmPassword: '',
+  password: null,
+  confirmPassword: null,
   roleNames: [],
   properties: []
 }
@@ -276,7 +265,7 @@ export default {
   },
   computed: {
     editModeTitle() {
-      return this.isUpdate ? '编辑' : '新增'
+      return this.isUpdate ? '编辑用户' : '新增'
     },
     options() {
       return this.roles.map(x => {
@@ -330,6 +319,40 @@ export default {
         // modal 必须添加 no-enforce-focus
         this.$refs.tinymceNews.init(false)
         this.$refs.tinymceNews.setVal(this.form.introduction)
+      })
+    },
+
+    // 重新加载当前用户数据
+    async _reloadUser() {
+      // 如果当前处于编辑状态
+      if (this.isUpdate) {
+        var userData = await this.getUserAsync({
+          params: { id: this.editRow.id }
+        })
+        if (userData.success) {
+          this.editRow = userData.result
+          this.form = JSON.parse(JSON.stringify(userData.result))
+          this.form.password = null
+          this.form.confirmPassword = null
+        } else {
+          swal('发生错误!', data.error, 'error')
+        }
+      }
+      // 如果当前处于新增用户状态
+      else {
+        var desData = await this.getAllPropertyAsync()
+        if (desData.success) {
+          this.editRow = {}
+          this.form = JSON.parse(JSON.stringify(baseFrom))
+          this.form.properties = desData.result
+        } else {
+          swal('发生错误!', data.error, 'error')
+        }
+      }
+      //   把单行字符串的值数组转换成string
+      this.form.properties = this.form.properties.map(x => {
+        if (x.inputType === `SINGLE_LINE_STRING`) x.values = x.values.toString()
+        return x
       })
     },
     blockModalOk(e) {
@@ -386,34 +409,7 @@ export default {
       })
       return res
     },
-    // 重新加载当前用户数据
-    async _reloadUser() {
-      if (this.isUpdate) {
-        var userData = await this.getUserAsync({
-          params: { id: this.editRow.id }
-        })
-        if (userData.success) {
-          this.editRow = userData.result
-          this.form = JSON.parse(JSON.stringify(userData.result))
-          this.form.password = ''
-          this.form.confirmPassword = ''
-        } else {
-          swal('发生错误!', data.error, 'error')
-        }
-      } else {
-        var desData = await this.getAllPropertyAsync()
-        if (desData.success) {
-          this.form.properties = desData.result
-        } else {
-          swal('发生错误!', data.error, 'error')
-        }
-      }
-      //   把单行字符串的值数组转换成string
-      this.form.properties = this.form.properties.map(x => {
-        if (x.inputType === `SINGLE_LINE_STRING`) x.values = x.values.toString()
-        return x
-      })
-    },
+
     _newProperty() {
       this.isProperyMode = true
       this.$refs.userProperty.newProperty()
@@ -443,24 +439,10 @@ export default {
     },
     _closePropertyMode() {
       this.isProperyMode = false
-    },
-    focusinTox(e) {
-      let closest = e.target.closest(
-        '.tox-tinymce-aux, .tox-dialog, .moxman-window, .tam-assetmanager-root,.mce-window'
-      )
-      if (closest !== null && closest !== undefined) {
-        e.stopImmediatePropagation()
-      }
     }
   },
   created() {
     this._closePropertyMode()
-  },
-  mounted() {
-    // document.addEventListener('focusin', this.focusinTox, true)
-  },
-  beforeDestroy() {
-    // document.removeEventListener('focusin', this.focusinTox, true)
   }
 }
 </script>
